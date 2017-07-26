@@ -16,15 +16,12 @@ import lombok.Setter;
 @Entity
 public class InfluenceType extends JpaEntity{
 	
-	public InfluenceType(String name, boolean special) {
+	public InfluenceType(String name) {
 		this.name = name;
-		this.special = special;
 	}
 
 	@NotNull
 	@NotBlank
 	private String name;
-	@NotNull
-	boolean special;
 	
 }

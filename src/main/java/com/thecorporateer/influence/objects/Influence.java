@@ -15,7 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "corporateer_id", "department_id", "division_id",
-		"type_id", "department_id" }) })
+		"type_id" }) })
 
 @Entity
 public class Influence extends JpaEntity {

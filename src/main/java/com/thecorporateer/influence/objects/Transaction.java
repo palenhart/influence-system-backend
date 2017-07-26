@@ -31,5 +31,7 @@ public class Transaction extends JpaEntity{
 	private InfluenceType type;
 	@ManyToOne
 	private Division division;
+	@ManyToOne
+	private Department department;
 	
 }
