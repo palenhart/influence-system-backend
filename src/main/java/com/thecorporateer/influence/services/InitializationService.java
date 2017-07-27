@@ -9,13 +9,11 @@ import org.springframework.stereotype.Service;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Department;
 import com.thecorporateer.influence.objects.Division;
-import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.InfluenceType;
 import com.thecorporateer.influence.objects.Rank;
 import com.thecorporateer.influence.repositories.CorporateerRepository;
 import com.thecorporateer.influence.repositories.DepartmentRepository;
 import com.thecorporateer.influence.repositories.DivisionRepository;
-import com.thecorporateer.influence.repositories.InfluenceRepository;
 import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
 import com.thecorporateer.influence.repositories.RankRepository;
 
@@ -24,10 +22,6 @@ public class InitializationService {
 	
 	@Autowired
 	private DataHandlingService datahandler;
-	
-	//TODO: remove
-	@Autowired
-	private TransactionService transactionService;
 
 	@Autowired
 	private RankRepository rankRepository;
@@ -39,8 +33,6 @@ public class InitializationService {
 	private DepartmentRepository departmentRepository;
 	@Autowired
 	private DivisionRepository divisionRepository;
-	@Autowired
-	private InfluenceRepository influenceRepository;
 
 	private List<Rank> ranks = new ArrayList<>();
 	private List<InfluenceType> types = new ArrayList<>();
@@ -138,8 +130,6 @@ public class InitializationService {
 		datahandler.refreshAll();
 		datahandler.initializeInfluenceTable(corporateer);
 		datahandler.initializeInfluenceTable(corporateer2);
-		
-//		transactionService.transfer(corporateer, corporateer2, "Message", 3, influenceTypeRepository.findOne(1L));
 
 	}
 }

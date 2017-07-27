@@ -52,9 +52,6 @@ public class TransactionService {
 			influenceDepartment = departmentRepository.findOne(1L);
 		}
 
-		sender.setTributes(sender.getTributes() - amount);
-		sender = corporateerRepository.save(sender);
-
 		List<Influence> influence = new ArrayList<>();
 		influence.add(influenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(receiver,
 				influenceDepartment, influenceDivision, type));
@@ -73,6 +70,9 @@ public class TransactionService {
 		trans.setDivision(influenceDivision);
 		trans.setDepartment(influenceDepartment);
 		transactionRepository.save(trans);
+		
+		sender.setTributes(sender.getTributes() - amount);
+		sender = corporateerRepository.save(sender);
 
 		return true;
 	}
@@ -81,7 +81,7 @@ public class TransactionService {
 		if (sender.getTributes() < amount) {
 			return false;
 		}
-		if (sender.getId() == receiver.getId()) {
+		else if (sender.getId() == receiver.getId()) {
 			return false;
 		}
 
