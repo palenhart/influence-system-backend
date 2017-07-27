@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -27,6 +28,8 @@ public class Corporateer extends JpaEntity {
 	private String name;
 	@JsonIgnore
 	private String password;
+	@NotNull
+	@Min(0)
 	private int tributes = 0;
 	//TODO: create when creating Corporateer (eventhandler after save)
 	@OneToMany(mappedBy="corporateer")

@@ -5,6 +5,8 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,12 +27,16 @@ public class Transaction extends JpaEntity{
 	@NotNull
 	@ManyToOne
 	private Corporateer receiver;
+	@NotNull
+	@NotBlank
 	private String message;
 	@NotNull
 	@ManyToOne
 	private InfluenceType type;
+	@NotNull
 	@ManyToOne
 	private Division division;
+	@NotNull
 	@ManyToOne
 	private Department department;
 	

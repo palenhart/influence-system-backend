@@ -1,6 +1,9 @@
 package com.thecorporateer.influence.objects;
 
+import java.util.List;
+
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -23,5 +26,7 @@ public class InfluenceType extends JpaEntity{
 	@NotNull
 	@NotBlank
 	private String name;
+	@OneToMany(mappedBy="type")
+	List<Influence> influence;
 	
 }

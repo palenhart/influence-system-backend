@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
@@ -29,29 +30,20 @@ public class Influence extends JpaEntity {
 		this.amount = amount;
 	}
 
-	public Influence(Corporateer corporateer, Department department, InfluenceType type, int amount) {
-		this(corporateer, department, null, type, amount);
-	}
-
-	public Influence(Corporateer corporateer, Division division, InfluenceType type, int amount) {
-		this(corporateer, null, division, type, amount);
-	}
-
-	public Influence(Corporateer corporateer, InfluenceType type, int amount) {
-		this(corporateer, null, null, type, amount);
-	}
-
 	@NotNull
 	@ManyToOne
 	private Corporateer corporateer;
+	@NotNull
 	@ManyToOne
 	private Division division;
+	@NotNull
 	@ManyToOne
 	private Department department;
 	@NotNull
 	@ManyToOne
 	private InfluenceType type;
 	@NotNull
+	@Min(0)
 	private int amount;
 
 }
