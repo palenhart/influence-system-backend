@@ -116,7 +116,7 @@ public class InitializationService {
 
 		corporateer.setName("Peter");
 		corporateer.setTributes(5);
-		corporateer.setRank(ranks.get(0));
+		corporateer.setRank(ranks.get(4));
 		corporateer.setMainDivision(divisions.get(1));
 		corporateer = corporateerRepository.save(corporateer);
 		
@@ -130,6 +130,8 @@ public class InitializationService {
 		datahandler.refreshAll();
 		datahandler.initializeInfluenceTable(corporateer);
 		datahandler.initializeInfluenceTable(corporateer2);
+		
+		datahandler.createCorporateer("Max");
 
 	}
 }

@@ -1,15 +1,19 @@
 package com.thecorporateer.influence.test.transactions;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -19,6 +23,7 @@ import com.thecorporateer.influence.objects.Department;
 import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.InfluenceType;
+import com.thecorporateer.influence.objects.Transaction;
 import com.thecorporateer.influence.repositories.CorporateerRepository;
 import com.thecorporateer.influence.repositories.DepartmentRepository;
 import com.thecorporateer.influence.repositories.DivisionRepository;
@@ -49,6 +54,9 @@ public class TestCreateTransaction {
 	@Mock
 	private Division mockDivision;
 
+	@Captor
+	private ArgumentCaptor<Transaction> transactionCaptor;
+
 	private String message = "";
 	private int amount = 1;
 
@@ -64,29 +72,75 @@ public class TestCreateTransaction {
 	public void tearDown() throws Exception {
 	}
 
+	/**
+	 * Test whether validator function detects wrong transaction amounts
+	 */
 	@Test
 	public void testValidatorWithFalseAmount() {
+		// sender has not enough tributes
 		when(mockSender.getTributes()).thenReturn(5);
 		amount = 10;
+
+		// sender and receiver are not the same user
+		when(mockSender.getId()).thenReturn(1L);
+		when(mockReceiver.getId()).thenReturn(2L);
+
 		assertFalse("Amount too high was not detected!",
 				mockTransactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
+
+		// transaction amount is zero
+		amount = 0;
+
+		assertFalse("Amount zero was not detected!",
+				mockTransactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
+
+		// transaction amount is negative
+		amount = -1;
+
+		assertFalse("Amount negative was not detected!",
+				mockTransactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
+
+		// verify no interactions with repositories happen
+		verifyZeroInteractions(mockDivisionRepository);
+		verifyZeroInteractions(mockDepartmentRepository);
+		verifyZeroInteractions(mockInfluenceRepository);
+		verifyZeroInteractions(mockTransactionRepository);
+		verifyZeroInteractions(mockCorporateerRepository);
 	}
 
+	/**
+	 * Test whether validator function detects sending to the sender user
+	 */
 	@Test
 	public void testValidatorWithIdenticalUser() {
+		// sender has enough tributes
 		when(mockSender.getTributes()).thenReturn(5);
 		amount = 5;
+
+		// sender and receiver are the same user
 		when(mockSender.getId()).thenReturn(1L);
 		when(mockReceiver.getId()).thenReturn(1L);
+
 		assertFalse("Identical user was not detected!",
 				mockTransactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
+
+		// verify no interactions with repositories happen
+		verifyZeroInteractions(mockDivisionRepository);
+		verifyZeroInteractions(mockDepartmentRepository);
+		verifyZeroInteractions(mockInfluenceRepository);
+		verifyZeroInteractions(mockTransactionRepository);
+		verifyZeroInteractions(mockCorporateerRepository);
 	}
 
+	/**
+	 * Test transaction between members of the same division
+	 */
 	@Test
 	public void testTransactionSameDivision() {
 		// sender has enough tributes
 		when(mockSender.getTributes()).thenReturn(5);
 		amount = 5;
+
 		// sender and receiver are not the same user
 		when(mockSender.getId()).thenReturn(1L);
 		when(mockReceiver.getId()).thenReturn(2L);
@@ -107,15 +161,31 @@ public class TestCreateTransaction {
 		verify(mockInfluenceRepository).findByCorporateerAndDepartmentAndDivisionAndType(mockSender, mockDepartment,
 				mockDivision, mockType);
 
+		// verify transaction gets saved correctly
+		verify(mockTransactionRepository).save(transactionCaptor.capture());
+		assertEquals("Wrong influence type saved in transaction!", mockType, transactionCaptor.getValue().getType());
+		assertEquals("Wrong amount saved in transaction!", amount, transactionCaptor.getValue().getAmount());
+		assertEquals("Wrong message saved in transaction!", message, transactionCaptor.getValue().getMessage());
+		assertEquals("Wrong sender saved in transaction!", mockSender, transactionCaptor.getValue().getSender());
+		assertEquals("Wrong receiver saved in transaction!", mockReceiver, transactionCaptor.getValue().getReceiver());
+		assertEquals("Wrong division saved in transaction!", mockDivision, transactionCaptor.getValue().getDivision());
+		assertEquals("Wrong department saved in transaction!", mockDepartment,
+				transactionCaptor.getValue().getDepartment());
+
 		// verify sender gets saved
 		verify(mockCorporateerRepository).save(mockSender);
 	}
-	
+
+	/**
+	 * Test transaction between members of different divisions in the same
+	 * department
+	 */
 	@Test
 	public void testTransactionSameDepartmentDifferentDivision() {
 		// sender has enough tributes
 		when(mockSender.getTributes()).thenReturn(5);
 		amount = 5;
+
 		// sender and receiver are not the same user
 		when(mockSender.getId()).thenReturn(1L);
 		when(mockReceiver.getId()).thenReturn(2L);
@@ -132,6 +202,8 @@ public class TestCreateTransaction {
 		// return mock influence to get changed
 		when(mockInfluenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(any(), any(), any(), any()))
 				.thenReturn(mock(Influence.class));
+
+		// transfer influence
 		assertTrue(mockTransactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
 
 		// verify correct influence is accessed
@@ -140,15 +212,30 @@ public class TestCreateTransaction {
 		verify(mockInfluenceRepository).findByCorporateerAndDepartmentAndDivisionAndType(mockSender, mockDepartment,
 				mockNoDivision, mockType);
 
+		// verify transaction gets saved correctly
+		verify(mockTransactionRepository).save(transactionCaptor.capture());
+		assertEquals("Wrong influence type saved in transaction!", mockType, transactionCaptor.getValue().getType());
+		assertEquals("Wrong amount saved in transaction!", amount, transactionCaptor.getValue().getAmount());
+		assertEquals("Wrong message saved in transaction!", message, transactionCaptor.getValue().getMessage());
+		assertEquals("Wrong sender saved in transaction!", mockSender, transactionCaptor.getValue().getSender());
+		assertEquals("Wrong receiver saved in transaction!", mockReceiver, transactionCaptor.getValue().getReceiver());
+		assertEquals("Wrong division saved in transaction!", mockNoDivision, transactionCaptor.getValue().getDivision());
+		assertEquals("Wrong department saved in transaction!", mockDepartment,
+				transactionCaptor.getValue().getDepartment());
+
 		// verify sender gets saved
 		verify(mockCorporateerRepository).save(mockSender);
 	}
-	
+
+	/**
+	 * Test transaction between members of different departments
+	 */
 	@Test
 	public void testTransactionDifferentDepartment() {
 		// sender has enough tributes
 		when(mockSender.getTributes()).thenReturn(5);
 		amount = 5;
+
 		// sender and receiver are not the same user
 		when(mockSender.getId()).thenReturn(1L);
 		when(mockReceiver.getId()).thenReturn(2L);
@@ -168,6 +255,8 @@ public class TestCreateTransaction {
 		// return mock influence to get changed
 		when(mockInfluenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(any(), any(), any(), any()))
 				.thenReturn(mock(Influence.class));
+
+		// transfer influence
 		assertTrue(mockTransactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
 
 		// verify correct influence is accessed
@@ -175,6 +264,17 @@ public class TestCreateTransaction {
 				mockNoDivision, mockType);
 		verify(mockInfluenceRepository).findByCorporateerAndDepartmentAndDivisionAndType(mockSender, mockNoDepartment,
 				mockNoDivision, mockType);
+
+		// verify transaction gets saved correctly
+		verify(mockTransactionRepository).save(transactionCaptor.capture());
+		assertEquals("Wrong influence type saved in transaction!", mockType, transactionCaptor.getValue().getType());
+		assertEquals("Wrong amount saved in transaction!", amount, transactionCaptor.getValue().getAmount());
+		assertEquals("Wrong message saved in transaction!", message, transactionCaptor.getValue().getMessage());
+		assertEquals("Wrong sender saved in transaction!", mockSender, transactionCaptor.getValue().getSender());
+		assertEquals("Wrong receiver saved in transaction!", mockReceiver, transactionCaptor.getValue().getReceiver());
+		assertEquals("Wrong division saved in transaction!", mockNoDivision, transactionCaptor.getValue().getDivision());
+		assertEquals("Wrong department saved in transaction!", mockNoDepartment,
+				transactionCaptor.getValue().getDepartment());
 
 		// verify sender gets saved
 		verify(mockCorporateerRepository).save(mockSender);

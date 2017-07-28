@@ -43,7 +43,7 @@ public class TestInitializeObjects {
 	private InitializationService mockInitializationService;
 
 	@Mock
-	List<Department> mockDepartments;
+	private List<Department> mockDepartments;
 	@Mock
 	private List<Rank> mockRanks;
 	@Mock
