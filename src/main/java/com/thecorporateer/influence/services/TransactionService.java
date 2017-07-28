@@ -57,8 +57,8 @@ public class TransactionService {
 				influenceDepartment, influenceDivision, type));
 		influence.add(influenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(sender, influenceDepartment,
 				influenceDivision, type));
-		influence.get(0).setAmount(amount);
-		influence.get(1).setAmount(amount);
+		influence.get(0).setAmount(influence.get(0).getAmount() + amount);
+		influence.get(1).setAmount(influence.get(1).getAmount() + amount);
 		influenceRepository.save(influence);
 
 		Transaction trans = new Transaction();
@@ -70,7 +70,7 @@ public class TransactionService {
 		trans.setDivision(influenceDivision);
 		trans.setDepartment(influenceDepartment);
 		transactionRepository.save(trans);
-		
+
 		sender.setTributes(sender.getTributes() - amount);
 		sender = corporateerRepository.save(sender);
 
@@ -78,10 +78,12 @@ public class TransactionService {
 	}
 
 	private boolean validate(Corporateer sender, Corporateer receiver, int amount) {
-		if (sender.getTributes() < amount) {
+		if (amount < 1) {
 			return false;
 		}
-		else if (sender.getId() == receiver.getId()) {
+		if (sender.getTributes() < amount) {
+			return false;
+		} else if (sender.getId() == receiver.getId()) {
 			return false;
 		}
 
