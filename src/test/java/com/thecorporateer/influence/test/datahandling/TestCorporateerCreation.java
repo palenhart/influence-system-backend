@@ -29,7 +29,7 @@ import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.InfluenceRepository;
 import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
 import com.thecorporateer.influence.repositories.RankRepository;
-import com.thecorporateer.influence.services.DataHandlingService;
+import com.thecorporateer.influence.services.CorporateerHandlingService;
 
 public class TestCorporateerCreation {
 
@@ -52,7 +52,7 @@ public class TestCorporateerCreation {
 	private ArgumentCaptor<List<Influence>> influenceCaptor;
 
 	@InjectMocks
-	private DataHandlingService mockDataHandlingService;
+	private CorporateerHandlingService dataHandlingService;
 
 	// lists to test with
 	private List<Rank> ranks = new ArrayList<>();
@@ -96,7 +96,7 @@ public class TestCorporateerCreation {
 		when(mockDepartmentRepository.findAll()).thenReturn(departments);
 		when(mockDivisionRepository.findAll()).thenReturn(divisions);
 
-		mockDataHandlingService.createCorporateer("Corporateer");
+		dataHandlingService.createCorporateer("Corporateer");
 
 		verify(mockCorporateerRepository).save(corporateerCaptor.capture());
 		assertEquals("Corporateer name saved incorrectly", "Corporateer", corporateerCaptor.getValue().getName());

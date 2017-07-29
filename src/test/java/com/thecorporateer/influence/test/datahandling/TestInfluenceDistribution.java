@@ -20,7 +20,7 @@ import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.Rank;
 import com.thecorporateer.influence.repositories.CorporateerRepository;
-import com.thecorporateer.influence.services.DataHandlingService;
+import com.thecorporateer.influence.services.CorporateerHandlingService;
 
 public class TestInfluenceDistribution {
 	
@@ -37,7 +37,7 @@ public class TestInfluenceDistribution {
 	private ArgumentCaptor<List<Influence>> influenceCaptor;
 
 	@InjectMocks
-	private DataHandlingService mockDataHandlingService;
+	private CorporateerHandlingService dataHandlingService;
 
 	@Before
 	public void setUp() throws Exception {
@@ -73,7 +73,7 @@ public class TestInfluenceDistribution {
 		when(corporateer2.getRank()).thenReturn(rank2);
 		when(corporateer3.getRank()).thenReturn(rank3);
 		
-		mockDataHandlingService.distributeInfluence();
+		dataHandlingService.distributeTributes();
 		
 		verify(corporateer1).setTributes(5);
 		verify(corporateer2).setTributes(11);

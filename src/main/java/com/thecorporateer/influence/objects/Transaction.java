@@ -17,7 +17,10 @@ import lombok.Setter;
 
 @Entity
 public class Transaction extends JpaEntity{
-	
+
+	@NotNull
+	@NotBlank
+	private String timestamp;
 	@NotNull
 	@Min(1)
 	private int amount;

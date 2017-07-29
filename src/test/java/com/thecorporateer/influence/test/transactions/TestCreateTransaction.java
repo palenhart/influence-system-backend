@@ -61,7 +61,7 @@ public class TestCreateTransaction {
 	private int amount = 1;
 
 	@InjectMocks
-	private TransactionService mockTransactionService;
+	private TransactionService transactionService;
 
 	@Before
 	public void setUp() throws Exception {
@@ -86,19 +86,19 @@ public class TestCreateTransaction {
 		when(mockReceiver.getId()).thenReturn(2L);
 
 		assertFalse("Amount too high was not detected!",
-				mockTransactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
+				transactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
 
 		// transaction amount is zero
 		amount = 0;
 
 		assertFalse("Amount zero was not detected!",
-				mockTransactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
+				transactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
 
 		// transaction amount is negative
 		amount = -1;
 
 		assertFalse("Amount negative was not detected!",
-				mockTransactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
+				transactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
 
 		// verify no interactions with repositories happen
 		verifyZeroInteractions(mockDivisionRepository);
@@ -122,7 +122,7 @@ public class TestCreateTransaction {
 		when(mockReceiver.getId()).thenReturn(1L);
 
 		assertFalse("Identical user was not detected!",
-				mockTransactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
+				transactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
 
 		// verify no interactions with repositories happen
 		verifyZeroInteractions(mockDivisionRepository);
@@ -153,7 +153,7 @@ public class TestCreateTransaction {
 		// return mock influence to get changed
 		when(mockInfluenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(any(), any(), any(), any()))
 				.thenReturn(mock(Influence.class));
-		assertTrue(mockTransactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
+		assertTrue(transactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
 
 		// verify correct influence is accessed
 		verify(mockInfluenceRepository).findByCorporateerAndDepartmentAndDivisionAndType(mockReceiver, mockDepartment,
@@ -204,7 +204,7 @@ public class TestCreateTransaction {
 				.thenReturn(mock(Influence.class));
 
 		// transfer influence
-		assertTrue(mockTransactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
+		assertTrue(transactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
 
 		// verify correct influence is accessed
 		verify(mockInfluenceRepository).findByCorporateerAndDepartmentAndDivisionAndType(mockReceiver, mockDepartment,
@@ -257,7 +257,7 @@ public class TestCreateTransaction {
 				.thenReturn(mock(Influence.class));
 
 		// transfer influence
-		assertTrue(mockTransactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
+		assertTrue(transactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
 
 		// verify correct influence is accessed
 		verify(mockInfluenceRepository).findByCorporateerAndDepartmentAndDivisionAndType(mockReceiver, mockNoDepartment,

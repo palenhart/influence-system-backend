@@ -14,14 +14,19 @@ import com.thecorporateer.influence.objects.Rank;
 import com.thecorporateer.influence.repositories.CorporateerRepository;
 import com.thecorporateer.influence.repositories.DepartmentRepository;
 import com.thecorporateer.influence.repositories.DivisionRepository;
+import com.thecorporateer.influence.repositories.InfluenceRepository;
 import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
 import com.thecorporateer.influence.repositories.RankRepository;
 
 @Service
 public class InitializationService {
-	
+
 	@Autowired
-	private DataHandlingService datahandler;
+	private CorporateerHandlingService corporateerHandlingService;
+	@Autowired
+	private TransactionService transactionService;
+	@Autowired
+	private InfluenceHandlingService influenceHandlingService;
 
 	@Autowired
 	private RankRepository rankRepository;
@@ -33,12 +38,13 @@ public class InitializationService {
 	private DepartmentRepository departmentRepository;
 	@Autowired
 	private DivisionRepository divisionRepository;
+	@Autowired
+	private InfluenceRepository influenceRepository;
 
 	private List<Rank> ranks = new ArrayList<>();
 	private List<InfluenceType> types = new ArrayList<>();
 	private List<Department> departments = new ArrayList<>();
 	private List<Division> divisions = new ArrayList<>();
-	private Corporateer corporateer = new Corporateer();
 
 	private void initializeRanks() {
 
@@ -114,24 +120,27 @@ public class InitializationService {
 		initializeDepartments();
 		initializeDivisions();
 
-		corporateer.setName("Peter");
-		corporateer.setTributes(5);
-		corporateer.setRank(ranks.get(4));
-		corporateer.setMainDivision(divisions.get(1));
-		corporateer = corporateerRepository.save(corporateer);
-		
-		Corporateer corporateer2 = new Corporateer();
-		corporateer2.setName("Peter2");
-		corporateer2.setTributes(50);
-		corporateer2.setRank(ranks.get(0));
-		corporateer2.setMainDivision(divisions.get(2));
-		corporateer2 = corporateerRepository.save(corporateer2);
+		corporateerHandlingService.createCorporateer("Peter");
+		corporateerHandlingService.createCorporateer("Max");
 
-		datahandler.refreshAll();
-		datahandler.initializeInfluenceTable(corporateer);
-		datahandler.initializeInfluenceTable(corporateer2);
+		List<Corporateer> corporateers = corporateerRepository.findAll();
+		corporateers.get(0).setRank(ranks.get(6));
+		corporateers.get(0).setMainDivision(divisionRepository.findOne(2L));
+		corporateers.get(1).setMainDivision(divisionRepository.findOne(2L));
+		corporateers = corporateerRepository.save(corporateers);
+
+		corporateerHandlingService.distributeTributes();
+
+		transactionService.transfer(corporateerRepository.findOne(1L), corporateerRepository.findOne(2L), "Banane", 20, types.get(0));
+		influenceHandlingService.convertInfluenceToDepartment(
+				influenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(corporateers.get(1),
+						corporateers.get(1).getMainDivision().getDepartment(), corporateers.get(1).getMainDivision(),
+						types.get(0)));
 		
-		datahandler.createCorporateer("Max");
+		influenceHandlingService.convertInfluenceToGeneral(
+				influenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(corporateers.get(1),
+						corporateers.get(1).getMainDivision().getDepartment(), divisionRepository.findOne(1L),
+						types.get(0)));
 
 	}
 }

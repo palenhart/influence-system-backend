@@ -1,5 +1,7 @@
 package com.thecorporateer.influence.services;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,10 +43,11 @@ public class TransactionService {
 		Department influenceDepartment;
 		Division influenceDivision;
 
-		if (senderMainDivision.equals(receiver.getMainDivision())) {
+		if (senderMainDivision.getId().equals(receiver.getMainDivision().getId())) {
 			influenceDivision = senderMainDivision;
 			influenceDepartment = influenceDivision.getDepartment();
-		} else if (senderMainDivision.getDepartment().equals(receiver.getMainDivision().getDepartment())) {
+		} else if (senderMainDivision.getDepartment().getId()
+				.equals(receiver.getMainDivision().getDepartment().getId())) {
 			influenceDivision = divisionRepository.findOne(1L);
 			influenceDepartment = senderMainDivision.getDepartment();
 		} else {
@@ -62,6 +65,7 @@ public class TransactionService {
 		influenceRepository.save(influence);
 
 		Transaction trans = new Transaction();
+		trans.setTimestamp(Instant.now().truncatedTo(ChronoUnit.SECONDS).toString());
 		trans.setType(type);
 		trans.setAmount(amount);
 		trans.setMessage(message);

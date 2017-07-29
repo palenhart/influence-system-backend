@@ -13,7 +13,7 @@ import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.InfluenceRepository;
 import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
 import com.thecorporateer.influence.repositories.RankRepository;
-import com.thecorporateer.influence.services.DataHandlingService;
+import com.thecorporateer.influence.services.CorporateerHandlingService;
 
 public class TestRefreshAll {
 
@@ -31,7 +31,7 @@ public class TestRefreshAll {
 	private InfluenceRepository mockInfluenceRepository;
 
 	@InjectMocks
-	private DataHandlingService mockDataHandlingService;
+	private CorporateerHandlingService dataHandlingService;
 
 	@Before
 	public void setUp() throws Exception {
@@ -44,7 +44,7 @@ public class TestRefreshAll {
 
 	@Test
 	public void testRefresh() {
-		mockDataHandlingService.refreshAll();
+		dataHandlingService.refreshAll();
 	}
 
 }

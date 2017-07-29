@@ -20,13 +20,13 @@ import com.thecorporateer.influence.repositories.DepartmentRepository;
 import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
 import com.thecorporateer.influence.repositories.RankRepository;
-import com.thecorporateer.influence.services.DataHandlingService;
+import com.thecorporateer.influence.services.CorporateerHandlingService;
 import com.thecorporateer.influence.services.InitializationService;
 
 public class TestInitializeObjects {
 
 	@Mock
-	private DataHandlingService mockDatahandler;
+	private CorporateerHandlingService mockDatahandler;
 
 	@Mock
 	private RankRepository mockRankRepository;
@@ -40,7 +40,7 @@ public class TestInitializeObjects {
 	private DivisionRepository mockDivisionRepository;
 
 	@InjectMocks
-	private InitializationService mockInitializationService;
+	private InitializationService initializationService;
 
 	@Mock
 	private List<Department> mockDepartments;
@@ -63,7 +63,7 @@ public class TestInitializeObjects {
 		when(mockRankRepository.save(anyCollectionOf(Rank.class))).thenReturn(mockRanks);
 		when(mockDivisionRepository.save(anyCollectionOf(Division.class))).thenReturn(mockDivisions);
 		when(mockDepartmentRepository.save(anyCollectionOf(Department.class))).thenReturn(mockDepartments);
-		mockInitializationService.initialize();
+		initializationService.initialize();
 	}
 
 }

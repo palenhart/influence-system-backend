@@ -31,7 +31,6 @@ public class Corporateer extends JpaEntity {
 	@NotNull
 	@Min(0)
 	private int tributes = 0;
-	//TODO: create when creating Corporateer (eventhandler after save)
 	@OneToMany(mappedBy="corporateer")
 	private List<Influence> influence;
 	@NotNull
