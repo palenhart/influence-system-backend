@@ -193,7 +193,9 @@ public class TestCreateTransaction {
 		// sender and receiver are not the same division but in the same department
 		Division mockAnotherDivision = mock(Division.class);
 		when(mockSender.getMainDivision()).thenReturn(mockDivision);
+		when(mockDivision.getId()).thenReturn(1L);
 		when(mockReceiver.getMainDivision()).thenReturn(mockAnotherDivision);
+		when(mockAnotherDivision.getId()).thenReturn(2L);
 		when(mockDivision.getDepartment()).thenReturn(mockDepartment);
 		when(mockAnotherDivision.getDepartment()).thenReturn(mockDepartment);
 		Division mockNoDivision = mock(Division.class);
@@ -219,7 +221,8 @@ public class TestCreateTransaction {
 		assertEquals("Wrong message saved in transaction!", message, transactionCaptor.getValue().getMessage());
 		assertEquals("Wrong sender saved in transaction!", mockSender, transactionCaptor.getValue().getSender());
 		assertEquals("Wrong receiver saved in transaction!", mockReceiver, transactionCaptor.getValue().getReceiver());
-		assertEquals("Wrong division saved in transaction!", mockNoDivision, transactionCaptor.getValue().getDivision());
+		assertEquals("Wrong division saved in transaction!", mockNoDivision,
+				transactionCaptor.getValue().getDivision());
 		assertEquals("Wrong department saved in transaction!", mockDepartment,
 				transactionCaptor.getValue().getDepartment());
 
@@ -244,9 +247,13 @@ public class TestCreateTransaction {
 		Division mockAnotherDivision = mock(Division.class);
 		Department mockAnotherDepartment = mock(Department.class);
 		when(mockSender.getMainDivision()).thenReturn(mockDivision);
+		when(mockDivision.getId()).thenReturn(1L);
 		when(mockReceiver.getMainDivision()).thenReturn(mockAnotherDivision);
+		when(mockAnotherDivision.getId()).thenReturn(2L);
 		when(mockDivision.getDepartment()).thenReturn(mockDepartment);
+		when(mockDepartment.getId()).thenReturn(1L);
 		when(mockAnotherDivision.getDepartment()).thenReturn(mockAnotherDepartment);
+		when(mockAnotherDepartment.getId()).thenReturn(2L);
 		Division mockNoDivision = mock(Division.class);
 		when(mockDivisionRepository.findOne(1L)).thenReturn(mockNoDivision);
 		Department mockNoDepartment = mock(Department.class);
@@ -272,7 +279,8 @@ public class TestCreateTransaction {
 		assertEquals("Wrong message saved in transaction!", message, transactionCaptor.getValue().getMessage());
 		assertEquals("Wrong sender saved in transaction!", mockSender, transactionCaptor.getValue().getSender());
 		assertEquals("Wrong receiver saved in transaction!", mockReceiver, transactionCaptor.getValue().getReceiver());
-		assertEquals("Wrong division saved in transaction!", mockNoDivision, transactionCaptor.getValue().getDivision());
+		assertEquals("Wrong division saved in transaction!", mockNoDivision,
+				transactionCaptor.getValue().getDivision());
 		assertEquals("Wrong department saved in transaction!", mockNoDepartment,
 				transactionCaptor.getValue().getDepartment());
 

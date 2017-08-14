@@ -9,6 +9,11 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.thecorporateer.influence.controllers.Views;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,18 +23,16 @@ import lombok.Setter;
 @NoArgsConstructor
 
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="name")
 public class Rank extends JpaEntity {
-
-	public Rank(String name, int tributesPerWeek) {
-		this.name = name;
-		this.tributesPerWeek = tributesPerWeek;
-	}
 
 	@NotNull
 	@NotBlank
+	@JsonView(Views.CorporateerProfile.class)
 	private String name;
 	@NotNull
 	@Min(1)
+	@JsonView(Views.CorporateerProfile.class)
 	private int tributesPerWeek;
 	@OneToMany(mappedBy = "rank")
 	private List<Corporateer> corporateer;
