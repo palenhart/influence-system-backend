@@ -34,6 +34,9 @@ public class TransactionService {
 	@Autowired
 	private DivisionRepository divisionRepository;
 
+	@Autowired
+	CorporateerHandlingService corporateerHandlingService;
+
 	public boolean transfer(Corporateer sender, Corporateer receiver, String message, int amount, InfluenceType type) {
 		if (!validate(sender, receiver, amount)) {
 			return false;
@@ -76,6 +79,11 @@ public class TransactionService {
 		transactionRepository.save(trans);
 
 		sender.setTributes(sender.getTributes() - amount);
+		if (type.getId().equals(1L)) {
+			sender.setTotalInfluence(corporateerHandlingService.getTotalInfluence(sender));
+			receiver.setTotalInfluence(corporateerHandlingService.getTotalInfluence(receiver));
+			receiver = corporateerRepository.save(receiver);
+		}
 		sender = corporateerRepository.save(sender);
 
 		return true;

@@ -42,9 +42,4 @@ public class TestRefreshAll {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
-	public void testRefresh() {
-		dataHandlingService.refreshAll();
-	}
-
 }

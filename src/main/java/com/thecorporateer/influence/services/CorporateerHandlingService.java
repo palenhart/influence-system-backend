@@ -38,7 +38,7 @@ public class CorporateerHandlingService {
 	@Autowired
 	private InfluenceRepository influenceRepository;
 
-//	private List<Rank> ranks = new ArrayList<>();
+	// private List<Rank> ranks = new ArrayList<>();
 	private List<InfluenceType> types = new ArrayList<>();
 	private List<Department> departments = new ArrayList<>();
 	private List<Division> divisions = new ArrayList<>();
@@ -58,23 +58,6 @@ public class CorporateerHandlingService {
 		corporateer.setMainDivision(divisionRepository.findOne(1L));
 		corporateer = corporateerRepository.save(corporateer);
 		initializeInfluenceTable(corporateer);
-	}
-
-	/**
-	 * Distribute influence to corporateers according to their rank
-	 */
-	public void distributeTributes() {
-		refreshCorporateers();
-
-		List<Corporateer> corporateersToSave = new ArrayList<>();
-
-		for (Corporateer corporateer : corporateers) {
-			int currentTributes = corporateer.getTributes();
-			int tributesToAdd = corporateer.getRank().getTributesPerWeek();
-			corporateer.setTributes(currentTributes + tributesToAdd);
-			corporateersToSave.add(corporateer);
-		}
-		corporateerRepository.save(corporateersToSave);
 	}
 
 	/**
@@ -105,22 +88,36 @@ public class CorporateerHandlingService {
 	}
 
 	/**
-	 * Refreshes all lists used in DataHandlingService
+	 * Distribute influence to corporateers according to their rank
 	 */
-	public void refreshAll() {
-//		refreshRanks();
-		refreshInfluenceTypes();
-		refreshDepartments();
-		refreshDivisions();
+	public void distributeTributes() {
 		refreshCorporateers();
+
+		List<Corporateer> corporateersToSave = new ArrayList<>();
+
+		for (Corporateer corporateer : corporateers) {
+			int currentTributes = corporateer.getTributes();
+			int tributesToAdd = corporateer.getRank().getTributesPerWeek();
+			corporateer.setTributes(currentTributes + tributesToAdd);
+			corporateersToSave.add(corporateer);
+		}
+		corporateerRepository.save(corporateersToSave);
 	}
 
-//	/**
-//	 * Refreshes list of ranks from repository
-//	 */
-//	private void refreshRanks() {
-//		ranks = rankRepository.findAll();
-//	}
+	public int getTotalInfluence(Corporateer corporateer) {
+		int total = 0;
+		for (Influence influence : corporateer.getInfluence()) {
+			total = total + influence.getAmount();
+		}
+		return total;
+	}
+
+	// /**
+	// * Refreshes list of ranks from repository
+	// */
+	// private void refreshRanks() {
+	// ranks = rankRepository.findAll();
+	// }
 
 	/**
 	 * Refreshes list of influence types from repository
