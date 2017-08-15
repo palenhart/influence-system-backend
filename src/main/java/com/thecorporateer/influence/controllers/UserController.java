@@ -86,7 +86,9 @@ public class UserController {
 			return ResponseEntity.badRequest().body("{\"message\":\"wrong password\"}");
 		}
 
-		userHandlingService.changePassword(currentUser, request.getNewPassword());
+		if(!userHandlingService.changePassword(currentUser, request.getNewPassword())) {
+			return ResponseEntity.badRequest().body("{\"message\":\"password complexity requirements violated\"}");
+		}
 		return new ResponseEntity<>("{\"message\":\"password successfully changed\"}", HttpStatus.OK);
 	}
 }

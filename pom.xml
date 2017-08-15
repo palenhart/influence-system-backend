@@ -76,7 +76,12 @@
 		<dependency>
 			<groupId>org.springframework.mobile</groupId>
 			<artifactId>spring-mobile-device</artifactId>
-			</dependency>
+		</dependency>
+		<dependency>
+			<groupId>org.passay</groupId>
+			<artifactId>passay</artifactId>
+			<version>1.3.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
