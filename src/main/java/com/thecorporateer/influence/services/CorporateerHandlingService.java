@@ -19,7 +19,9 @@ import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
 import com.thecorporateer.influence.repositories.RankRepository;
 
 /**
- * @author patric.lenhart
+ * @author Zollak
+ * 
+ *         Service to handle actions affecting corporateer entities
  *
  */
 @Service

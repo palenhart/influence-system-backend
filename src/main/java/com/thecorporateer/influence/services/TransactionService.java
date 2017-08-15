@@ -20,6 +20,12 @@ import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.InfluenceRepository;
 import com.thecorporateer.influence.repositories.TransactionRepository;
 
+/**
+ * @author Zollak
+ * 
+ *         Service handling influence transfers
+ *
+ */
 @Service
 public class TransactionService {
 

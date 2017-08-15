@@ -1,4 +1,4 @@
-package com.thecorporateer.influence.security;
+package com.thecorporateer.influence.objects;
 
 import java.util.Date;
 import java.util.List;
@@ -20,12 +20,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.thecorporateer.influence.controllers.Views;
-import com.thecorporateer.influence.objects.Corporateer;
-import com.thecorporateer.influence.objects.JpaEntity;
 
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * @author Zollak
+ * 
+ *         Entity to store users
+ *
+ */
 @Getter
 @Setter
 
@@ -35,25 +39,15 @@ public class User extends JpaEntity {
 
 	@Column(length = 50, unique = true)
 	@NotNull
-	@Size(min = 4, max = 50)
+	@Size(min = 3, max = 50)
 	@JsonView(Views.UserProfile.class)
 	private String username;
 
 	@Column(length = 100)
 	@NotNull
-	@Size(min = 4, max = 100)
+	@Size(min = 8, max = 100)
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
-
-	@Column(length = 50)
-	@NotNull
-	@Size(min = 4, max = 50)
-	private String firstname;
-
-	@Column(length = 50)
-	@NotNull
-	@Size(min = 4, max = 50)
-	private String lastname;
 
 	@Column(length = 50)
 	@NotNull
@@ -73,8 +67,8 @@ public class User extends JpaEntity {
 			@JoinColumn(name = "USER_ID", referencedColumnName = "ID") }, inverseJoinColumns = {
 					@JoinColumn(name = "AUTHORITY_ID", referencedColumnName = "ID") })
 	@JsonView(Views.UserProfile.class)
-	private List<Authority> authorities;
-	
+	private List<UserRole> roles;
+
 	@OneToOne
 	private Corporateer corporateer;
 }

@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.thecorporateer.influence.security.User;
-import com.thecorporateer.influence.security.UserRepository;
+import com.thecorporateer.influence.objects.User;
+import com.thecorporateer.influence.repositories.UserRepository;
 import com.thecorporateer.influence.services.CorporateerHandlingService;
 
 import lombok.AllArgsConstructor;
@@ -75,6 +75,7 @@ public class UserController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
+	// TODO: check password complexity rules
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method = RequestMethod.POST, value = "/changePassword", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest request) {

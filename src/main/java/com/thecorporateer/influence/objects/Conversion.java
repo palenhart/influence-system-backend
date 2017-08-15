@@ -13,12 +13,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author Zollak
+ * 
+ *         Entity to store conversions from specialized influence to more
+ *         general influence
+ *
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Conversion extends JpaEntity {
 
 	@NotNull

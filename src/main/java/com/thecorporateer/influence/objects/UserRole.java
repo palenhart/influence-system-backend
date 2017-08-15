@@ -1,4 +1,4 @@
-package com.thecorporateer.influence.security;
+package com.thecorporateer.influence.objects;
 
 import java.util.List;
 
@@ -21,26 +21,40 @@ import com.thecorporateer.influence.controllers.Views;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * @author Zollak
+ * 
+ *         Entity to store user roles
+ *
+ */
 @Getter
 @Setter
 
 @Entity
 @Table(name = "AUTHORITY")
-public class Authority {
+public class UserRole {
 
-    @Id
-    @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "authority_seq")
-    @SequenceGenerator(name = "authority_seq", sequenceName = "authority_seq", allocationSize = 1)
-    private Long id;
+	@Id
+	@Column(name = "ID")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "role_seq")
+	@SequenceGenerator(name = "role_seq", sequenceName = "role_seq", allocationSize = 1)
+	private Long id;
 
-    @Column(length = 50)
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @JsonView(Views.UserProfile.class)
-    private AuthorityName name;
+	@Column(length = 20)
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	@JsonView(Views.UserProfile.class)
+	private RoleName name;
 
-    @ManyToMany(mappedBy = "authorities", fetch = FetchType.LAZY)
-    private List<User> users;
+	@ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
+	private List<User> users;
 
+	public String getRoleName() {
+		return name.name();
+	}
+}
+
+@Getter
+enum RoleName {
+	ROLE_USER, ROLE_ADMIN
 }
