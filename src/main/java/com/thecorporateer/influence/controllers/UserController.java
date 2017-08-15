@@ -8,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.thecorporateer.influence.objects.User;
 import com.thecorporateer.influence.repositories.UserRepository;
 import com.thecorporateer.influence.services.CorporateerHandlingService;
+import com.thecorporateer.influence.services.UserHandlingService;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,10 +30,10 @@ public class UserController {
 	CorporateerHandlingService corporateerHandlingService;
 
 	@Autowired
-	private UserRepository userRepository;
+	UserHandlingService userHandlingService;
 
 	@Autowired
-	private PasswordEncoder passwordEncoder;
+	private UserRepository userRepository;
 
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/currentUser", method = RequestMethod.OPTIONS)
@@ -75,19 +75,19 @@ public class UserController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	// TODO: check password complexity rules
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method = RequestMethod.POST, value = "/changePassword", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest request) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String currentPrincipalName = authentication.getName();
 		User currentUser = userRepository.findByUsername(currentPrincipalName);
-		if (!passwordEncoder.matches(request.getOldPassword(), currentUser.getPassword())) {
+
+		if (!userHandlingService.checkOldPassword(currentUser, request.getOldPassword())) {
 			return ResponseEntity.badRequest().body("{\"message\":\"wrong password\"}");
 		}
-		currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
-		userRepository.save(currentUser);
-		return new ResponseEntity<>(currentUser, HttpStatus.OK);
+
+		userHandlingService.changePassword(currentUser, request.getNewPassword());
+		return new ResponseEntity<>("{\"message\":\"password successfully changed\"}", HttpStatus.OK);
 	}
 }
 
