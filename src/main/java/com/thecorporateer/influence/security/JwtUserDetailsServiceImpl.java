@@ -6,6 +6,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.thecorporateer.influence.objects.User;
+import com.thecorporateer.influence.repositories.UserRepository;
+
 @Service
 public class JwtUserDetailsServiceImpl implements UserDetailsService {
 

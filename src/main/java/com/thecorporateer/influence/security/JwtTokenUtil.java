@@ -28,7 +28,7 @@ public class JwtTokenUtil implements Serializable {
     private static final String AUDIENCE_MOBILE = "mobile";
     private static final String AUDIENCE_TABLET = "tablet";
 
-    @Value("mySecret")
+    @Value("G75Ewrf2xi")
     private String secret;
 
     @Value("604800")

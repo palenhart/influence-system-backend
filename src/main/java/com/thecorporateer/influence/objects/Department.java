@@ -17,23 +17,29 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author Zollak
+ * 
+ *         Entity to store departments
+ *
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Department extends JpaEntity {
-	
+
 	public Department(String name) {
-		this.name=name;
+		this.name = name;
 	}
 
 	@NotNull
 	@NotBlank
 	@JsonView(Views.Corporateer.class)
 	private String name;
-	@OneToMany(mappedBy="department")
+	@OneToMany(mappedBy = "department")
 	private List<Division> divisions;
 	@OneToMany(mappedBy = "department")
 	private List<Influence> influence;

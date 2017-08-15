@@ -16,12 +16,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.thecorporateer.influence.controllers.Views;
-import com.thecorporateer.influence.security.User;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author Zollak
+ *
+ *         Entity to store corporateers
+ *
+ */
 @Getter
 @Setter
 @NoArgsConstructor

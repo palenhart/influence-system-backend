@@ -13,6 +13,12 @@ import com.thecorporateer.influence.repositories.DepartmentRepository;
 import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.InfluenceRepository;
 
+/**
+ * @author Zollak
+ * 
+ *         Service handling action concerning influence entities
+ *
+ */
 @Service
 public class InfluenceHandlingService {
 

@@ -13,17 +13,17 @@ import com.thecorporateer.influence.services.CorporateerHandlingService;
 
 @Component
 public class ScheduledTasks {
-	
+
 	@Autowired
 	CorporateerHandlingService corporateerHandlingService;
 
-    private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
+	private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-//    @Scheduled(fixedRate = 5000)
-//    public void reportCurrentTime() {
-//    	corporateerHandlingService.distributeTributes();
-//        log.info("The time is now {}", dateFormat.format(new Date()));
-//    }
+	// TODO implement scheduled function calls like tribute distribution
+	@Scheduled(fixedRate = 60000)
+	public void reportCurrentTime() {
+		log.info("The time is now {}", dateFormat.format(new Date()));
+	}
 }

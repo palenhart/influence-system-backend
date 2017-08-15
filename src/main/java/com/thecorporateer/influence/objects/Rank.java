@@ -18,12 +18,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author Zollak
+ * 
+ *         Entity to store ranks
+ *
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="name")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
 public class Rank extends JpaEntity {
 
 	@NotNull

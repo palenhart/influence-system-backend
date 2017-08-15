@@ -19,10 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.InfluenceType;
 import com.thecorporateer.influence.objects.Transaction;
-import com.thecorporateer.influence.objects.TransactionResponse;
 import com.thecorporateer.influence.repositories.CorporateerRepository;
 import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
-import com.thecorporateer.influence.security.UserRepository;
+import com.thecorporateer.influence.repositories.UserRepository;
 import com.thecorporateer.influence.services.TransactionService;
 
 import lombok.AllArgsConstructor;
@@ -100,5 +99,19 @@ class TransactionRequest {
 	private Integer amount;
 	private String message;
 	private String type;
+
+}
+
+@AllArgsConstructor
+class TransactionResponse {
+
+	String timestamp;
+	String sender;
+	String receiver;
+	int amount;
+	String type;
+	String message;
+	String division;
+	String department;
 
 }

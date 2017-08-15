@@ -10,8 +10,4 @@ public class Views {
 
 	public static class UserProfile {
 	}
-
-	public static class Transactions extends Corporateer {
-
-	}
 }

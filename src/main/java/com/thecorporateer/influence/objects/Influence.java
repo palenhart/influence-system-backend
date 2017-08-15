@@ -14,15 +14,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * @author Zollak
+ * 
+ *         Entity to store current influence of members
+ *
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = { "corporateer_id", "department_id", "division_id",
-		"type_id" }) })
+@Table(uniqueConstraints = {
+		@UniqueConstraint(columnNames = { "corporateer_id", "department_id", "division_id", "type_id" }) })
 
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Influence extends JpaEntity {
 
 	public Influence(Corporateer corporateer, Department department, Division division, InfluenceType type,
