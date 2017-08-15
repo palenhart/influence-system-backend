@@ -31,7 +31,7 @@ import lombok.Setter;
 @Setter
 
 @Entity
-@Table(name = "ROLE")
+@Table(name = "AUTHORITY")
 public class UserRole {
 
 	@Id

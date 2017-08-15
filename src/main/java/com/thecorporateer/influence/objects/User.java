@@ -63,9 +63,9 @@ public class User extends JpaEntity {
 	private Date lastPasswordResetDate;
 
 	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "USER_ROLES", joinColumns = {
+	@JoinTable(name = "USER_AUTHORITY", joinColumns = {
 			@JoinColumn(name = "USER_ID", referencedColumnName = "ID") }, inverseJoinColumns = {
-					@JoinColumn(name = "ROLE_ID", referencedColumnName = "ID") })
+					@JoinColumn(name = "AUTHORITY_ID", referencedColumnName = "ID") })
 	@JsonView(Views.UserProfile.class)
 	private List<UserRole> roles;
 
