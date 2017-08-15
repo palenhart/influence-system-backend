@@ -19,12 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.InfluenceType;
 import com.thecorporateer.influence.objects.Transaction;
-import com.thecorporateer.influence.objects.TransactionRequest;
 import com.thecorporateer.influence.objects.TransactionResponse;
 import com.thecorporateer.influence.repositories.CorporateerRepository;
 import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
 import com.thecorporateer.influence.security.UserRepository;
 import com.thecorporateer.influence.services.TransactionService;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @RestController
 public class TransactionController {
@@ -88,4 +90,15 @@ public class TransactionController {
 		}
 		return ResponseEntity.badRequest().body("{\"message\":\"Bad request\"}");
 	}
+}
+
+@Getter
+@AllArgsConstructor
+class TransactionRequest {
+
+	private String receiver;
+	private Integer amount;
+	private String message;
+	private String type;
+
 }
