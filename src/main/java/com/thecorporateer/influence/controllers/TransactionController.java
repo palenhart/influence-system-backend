@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -43,22 +42,18 @@ public class TransactionController {
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/transfer", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> transfer(@RequestBody TransactionRequest request) {
-		System.out.println(request.getReceiver());
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Corporateer senderObject = userRepository.findByUsername(authentication.getName()).getCorporateer();
 		Corporateer receiverObject = corporateerRepository.findByName(request.getReceiver());
 		InfluenceType typeObject = influenceTypeRepository.findByName(request.getType().toUpperCase());
-		System.out.println(typeObject.getName());
 
 		boolean result = transactionService.transfer(senderObject, receiverObject, request.getMessage(),
 				request.getAmount(), typeObject);
 
 		if (result) {
-			System.out.println("OK");
 			return ResponseEntity.ok().body("{\"message\":\"Transaction successful\"}");
 		} else {
-			System.out.println("FAIL");
-			return ResponseEntity.badRequest().body("{\"message\":\"Transaction failed\"}");
+			return ResponseEntity.badRequest().body("{\"reason\":\"Transaction failed\"}");
 		}
 	}
 
@@ -76,7 +71,7 @@ public class TransactionController {
 						transaction.getMessage(), transaction.getDivision().getName(),
 						transaction.getDepartment().getName()));
 			}
-			return new ResponseEntity<>(response, HttpStatus.OK);
+			return ResponseEntity.ok().body(response);
 		} else if (direction.equals("receiver")) {
 			for (Transaction transaction : userRepository.findByUsername(currentPrincipalName).getCorporateer()
 					.getReceivedTransactions()) {
@@ -85,9 +80,9 @@ public class TransactionController {
 						transaction.getMessage(), transaction.getDivision().getName(),
 						transaction.getDepartment().getName()));
 			}
-			return new ResponseEntity<>(response, HttpStatus.OK);
+			return ResponseEntity.ok().body(response);
 		}
-		return ResponseEntity.badRequest().body("{\"message\":\"Bad request\"}");
+		return ResponseEntity.badRequest().body("{\"reason\":\"Bad request\"}");
 	}
 }
 
