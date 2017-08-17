@@ -114,6 +114,11 @@ public class CorporateerHandlingService {
 		return total;
 	}
 
+	public void setMainDivision(Corporateer corporateer, Division division) {
+		corporateer.setMainDivision(division);
+		corporateerRepository.save(corporateer);
+	}
+
 	// /**
 	// * Refreshes list of ranks from repository
 	// */

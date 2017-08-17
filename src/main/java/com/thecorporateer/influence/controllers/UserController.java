@@ -2,8 +2,9 @@ package com.thecorporateer.influence.controllers;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.thecorporateer.influence.objects.User;
+import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.UserRepository;
 import com.thecorporateer.influence.services.CorporateerHandlingService;
 import com.thecorporateer.influence.services.UserHandlingService;
@@ -35,11 +37,14 @@ public class UserController {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private DivisionRepository divisionRepository;
+
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/currentUser", method = RequestMethod.OPTIONS)
-	public ResponseEntity<?> options(HttpServletResponse response) {
+	public ResponseEntity<?> optionsCurrentUser(HttpServletResponse response) {
 		response.setHeader("Allow", "GET,OPTIONS");
-		return new ResponseEntity<>(HttpStatus.OK);
+		return ResponseEntity.ok().body(null);
 	}
 
 	@CrossOrigin(origins = "*")
@@ -48,14 +53,14 @@ public class UserController {
 	public ResponseEntity<?> currentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String currentPrincipalName = authentication.getName();
-		return new ResponseEntity<>(userRepository.findByUsername(currentPrincipalName), HttpStatus.OK);
+		return ResponseEntity.ok().body(userRepository.findByUsername(currentPrincipalName));
 	}
 
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/currentCorporateer", method = RequestMethod.OPTIONS)
 	public ResponseEntity<?> optionsCurrentCorporateer(HttpServletResponse response) {
 		response.setHeader("Allow", "GET,OPTIONS");
-		return new ResponseEntity<>(HttpStatus.OK);
+		return ResponseEntity.ok().body(null);
 	}
 
 	@CrossOrigin(origins = "*")
@@ -64,15 +69,14 @@ public class UserController {
 	public ResponseEntity<?> currentCorporateer() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String currentPrincipalName = authentication.getName();
-		return new ResponseEntity<>(userRepository.findByUsername(currentPrincipalName).getCorporateer(),
-				HttpStatus.OK);
+		return ResponseEntity.ok().body(userRepository.findByUsername(currentPrincipalName).getCorporateer());
 	}
 
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/changePassword", method = RequestMethod.OPTIONS)
 	public ResponseEntity<?> optionsChangePassword(HttpServletResponse response) {
 		response.setHeader("Allow", "POST,OPTIONS");
-		return new ResponseEntity<>(HttpStatus.OK);
+		return ResponseEntity.ok().body(null);
 	}
 
 	@CrossOrigin(origins = "*")
@@ -83,13 +87,32 @@ public class UserController {
 		User currentUser = userRepository.findByUsername(currentPrincipalName);
 
 		if (!userHandlingService.checkOldPassword(currentUser, request.getOldPassword())) {
-			return ResponseEntity.badRequest().body("{\"message\":\"wrong password\"}");
+			return ResponseEntity.badRequest().body("{\"reason\":\"wrong password\"}");
 		}
 
-		if(!userHandlingService.changePassword(currentUser, request.getNewPassword())) {
-			return ResponseEntity.badRequest().body("{\"message\":\"password complexity requirements violated\"}");
+		if (!userHandlingService.changePassword(currentUser, request.getNewPassword())) {
+			return ResponseEntity.badRequest().body("{\"reason\":\"password complexity requirements violated\"}");
 		}
-		return new ResponseEntity<>("{\"message\":\"password successfully changed\"}", HttpStatus.OK);
+		return ResponseEntity.ok().body("{\"message\":\"password successfully changed\"}");
+	}
+
+	@CrossOrigin(origins = "*")
+	@RequestMapping(value = "/setMyMainDivision", method = RequestMethod.OPTIONS)
+	public ResponseEntity<?> optionsSetMyMainDivision(HttpServletResponse response) {
+		response.setHeader("Allow", "POST,OPTIONS");
+		return ResponseEntity.ok().body(null);
+	}
+
+	@CrossOrigin(origins = "*")
+	@RequestMapping(method = RequestMethod.POST, value = "/setMyMainDivision", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> setMyMainDivision(@RequestBody String division) throws JSONException {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String currentPrincipalName = authentication.getName();
+		User currentUser = userRepository.findByUsername(currentPrincipalName);
+
+		corporateerHandlingService.setMainDivision(currentUser.getCorporateer(),
+				divisionRepository.findByName(new JSONObject(division).getString("division")));
+		return ResponseEntity.ok().body("{\"message\":\"division successfully changed\"}");
 	}
 }
 
