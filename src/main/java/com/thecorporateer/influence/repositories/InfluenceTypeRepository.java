@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import com.thecorporateer.influence.objects.InfluenceType;
 
-@RepositoryRestResource
+@RepositoryRestResource(exported = false)
 public interface InfluenceTypeRepository extends JpaRepository<InfluenceType, Long> {
 
 	@RestResource(exported = false)

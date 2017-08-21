@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import com.thecorporateer.influence.objects.Department;
 
-@RepositoryRestResource
+@RepositoryRestResource(exported = false)
 public interface DepartmentRepository extends JpaRepository<Department, Long> {
 	
 	@RestResource(exported = false)

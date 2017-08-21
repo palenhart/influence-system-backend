@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import com.thecorporateer.influence.objects.Corporateer;
 
-@RepositoryRestResource
+@RepositoryRestResource(exported = false)
 public interface CorporateerRepository extends JpaRepository<Corporateer, Long> {
 
 	@RestResource(exported = false)

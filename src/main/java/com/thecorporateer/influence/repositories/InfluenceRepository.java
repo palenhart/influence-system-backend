@@ -11,7 +11,7 @@ import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.InfluenceType;
 
-@RepositoryRestResource
+@RepositoryRestResource(exported = false)
 public interface InfluenceRepository extends JpaRepository<Influence, Long> {
 
 	@RestResource(exported = false)

@@ -7,7 +7,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import com.thecorporateer.influence.objects.Division;
 
-@RepositoryRestResource
+@RepositoryRestResource(exported = false)
 public interface DivisionRepository extends JpaRepository<Division, Long> {
 
 	@RestResource(exported = false)
