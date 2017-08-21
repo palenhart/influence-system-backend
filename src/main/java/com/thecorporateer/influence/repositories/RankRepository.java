@@ -6,7 +6,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 
 import com.thecorporateer.influence.objects.Rank;
 
-@RepositoryRestResource
+@RepositoryRestResource(exported = false)
 public interface RankRepository extends JpaRepository<Rank, Long> {
 
 	@RestResource(exported = false)

@@ -8,7 +8,7 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Transaction;
 
-@RepositoryRestResource
+@RepositoryRestResource(exported = false)
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 	
 	@RestResource(exported = false)
