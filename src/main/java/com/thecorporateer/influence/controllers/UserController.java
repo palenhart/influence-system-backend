@@ -2,6 +2,8 @@ package com.thecorporateer.influence.controllers;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.thecorporateer.influence.objects.User;
+import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.UserRepository;
 import com.thecorporateer.influence.services.CorporateerHandlingService;
 import com.thecorporateer.influence.services.UserHandlingService;
@@ -34,9 +37,12 @@ public class UserController {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private DivisionRepository divisionRepository;
+
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/currentUser", method = RequestMethod.OPTIONS)
-	public ResponseEntity<?> options(HttpServletResponse response) {
+	public ResponseEntity<?> optionsCurrentUser(HttpServletResponse response) {
 		response.setHeader("Allow", "GET,OPTIONS");
 		return ResponseEntity.ok().body(null);
 	}
@@ -88,6 +94,25 @@ public class UserController {
 			return ResponseEntity.badRequest().body("{\"reason\":\"password complexity requirements violated\"}");
 		}
 		return ResponseEntity.ok().body("{\"message\":\"password successfully changed\"}");
+	}
+
+	@CrossOrigin(origins = "*")
+	@RequestMapping(value = "/setMyMainDivision", method = RequestMethod.OPTIONS)
+	public ResponseEntity<?> optionsSetMyMainDivision(HttpServletResponse response) {
+		response.setHeader("Allow", "POST,OPTIONS");
+		return ResponseEntity.ok().body(null);
+	}
+
+	@CrossOrigin(origins = "*")
+	@RequestMapping(method = RequestMethod.POST, value = "/setMyMainDivision", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> setMyMainDivision(@RequestBody String division) throws JSONException {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String currentPrincipalName = authentication.getName();
+		User currentUser = userRepository.findByUsername(currentPrincipalName);
+
+		corporateerHandlingService.setMainDivision(currentUser.getCorporateer(),
+				divisionRepository.findByName(new JSONObject(division).getString("division")));
+		return ResponseEntity.ok().body("{\"message\":\"division successfully changed\"}");
 	}
 }
 

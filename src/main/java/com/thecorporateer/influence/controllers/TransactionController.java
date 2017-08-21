@@ -97,6 +97,7 @@ class TransactionRequest {
 
 }
 
+@Getter
 @AllArgsConstructor
 class TransactionResponse {
 

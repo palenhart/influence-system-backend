@@ -43,7 +43,7 @@ public class Division extends JpaEntity {
 	private String name;
 	@NotNull
 	@ManyToOne
-	@JsonView(Views.Corporateer.class)
+	@JsonView(Views.CorporateerProfile.class)
 	private Department department;
 	@OneToMany(mappedBy = "mainDivision")
 	private List<Corporateer> corporateers;

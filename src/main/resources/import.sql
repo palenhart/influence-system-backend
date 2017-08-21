@@ -1,7 +1,7 @@
 -- ADD departments
 INSERT INTO PUBLIC.DEPARTMENT(NAME) VALUES ('none'), ('Exploration'), ('Business'), ('Security'), ('Resources'), ('Social'), ('Support'), ('Public Relations');
 -- ADD division
-INSERT INTO PUBLIC.DIVISION(NAME, DEPARTMENT_ID) VALUES ('none', 1), ('Cartograhy', 2), ('Prospecting', 2), ('Research', 2), ('Contracts', 3), ('Finance', 3), ('Trade', 3), ('CSOC', 4), ('Ground', 4), ('Repossesion', 4), ('Space', 4), ('Development', 5), ('Extraction', 5), ('Transport', 5), ('Diplomacy', 6), ('HR', 6), ('Training', 6), ('CSAR', 7), ('Engineering', 7), ('IT', 7), ('e-Sports', 8), ('Media', 8);      
+INSERT INTO PUBLIC.DIVISION(NAME, DEPARTMENT_ID) VALUES ('none', 1), ('Cartography', 2), ('Prospecting', 2), ('Research', 2), ('Contracts', 3), ('Finance', 3), ('Trade', 3), ('CSOC', 4), ('Ground', 4), ('Repossesion', 4), ('Space', 4), ('Development', 5), ('Extraction', 5), ('Transport', 5), ('Diplomacy', 6), ('HR', 6), ('Training', 6), ('CSAR', 7), ('Engineering', 7), ('IT', 7), ('e-Sports', 8), ('Media', 8);      
 -- ADD influence and demerits
 INSERT INTO PUBLIC.INFLUENCE_TYPE(NAME) VALUES ('INFLUENCE'), ('DEMERIT');
 -- ADD ranks
