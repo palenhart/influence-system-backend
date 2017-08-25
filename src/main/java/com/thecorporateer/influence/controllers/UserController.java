@@ -1,7 +1,5 @@
 package com.thecorporateer.influence.controllers;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,42 +39,21 @@ public class UserController {
 	private DivisionRepository divisionRepository;
 
 	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/currentUser", method = RequestMethod.OPTIONS)
-	public ResponseEntity<?> optionsCurrentUser(HttpServletResponse response) {
-		response.setHeader("Allow", "GET,OPTIONS");
-		return ResponseEntity.ok().body(null);
-	}
-
-	@CrossOrigin(origins = "*")
 	@JsonView(Views.UserProfile.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/currentUser", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> currentUser() {
+	public ResponseEntity<?> getCurrentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String currentPrincipalName = authentication.getName();
 		return ResponseEntity.ok().body(userRepository.findByUsername(currentPrincipalName));
 	}
 
 	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/currentCorporateer", method = RequestMethod.OPTIONS)
-	public ResponseEntity<?> optionsCurrentCorporateer(HttpServletResponse response) {
-		response.setHeader("Allow", "GET,OPTIONS");
-		return ResponseEntity.ok().body(null);
-	}
-
-	@CrossOrigin(origins = "*")
 	@JsonView(Views.CorporateerProfile.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/currentCorporateer", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> currentCorporateer() {
+	public ResponseEntity<?> getCurrentCorporateer() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String currentPrincipalName = authentication.getName();
 		return ResponseEntity.ok().body(userRepository.findByUsername(currentPrincipalName).getCorporateer());
-	}
-
-	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/changePassword", method = RequestMethod.OPTIONS)
-	public ResponseEntity<?> optionsChangePassword(HttpServletResponse response) {
-		response.setHeader("Allow", "POST,OPTIONS");
-		return ResponseEntity.ok().body(null);
 	}
 
 	@CrossOrigin(origins = "*")
@@ -94,13 +71,6 @@ public class UserController {
 			return ResponseEntity.badRequest().body("{\"reason\":\"password complexity requirements violated\"}");
 		}
 		return ResponseEntity.ok().body("{\"message\":\"password successfully changed\"}");
-	}
-
-	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/setMyMainDivision", method = RequestMethod.OPTIONS)
-	public ResponseEntity<?> optionsSetMyMainDivision(HttpServletResponse response) {
-		response.setHeader("Allow", "POST,OPTIONS");
-		return ResponseEntity.ok().body(null);
 	}
 
 	@CrossOrigin(origins = "*")
