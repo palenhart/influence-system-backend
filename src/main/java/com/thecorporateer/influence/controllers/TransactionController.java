@@ -58,8 +58,8 @@ public class TransactionController {
 	}
 
 	@CrossOrigin(origins = "*")
-	@RequestMapping(value = "/getTransactions/{direction}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> getTransactions(@PathVariable("direction") String direction) {
+	@RequestMapping(value = "/transactions/{direction}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getCorporarateersTransactions(@PathVariable("direction") String direction) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String currentPrincipalName = authentication.getName();
 		List<TransactionResponse> response = new ArrayList<TransactionResponse>();
@@ -84,6 +84,7 @@ public class TransactionController {
 		}
 		return ResponseEntity.badRequest().body("{\"reason\":\"Bad request\"}");
 	}
+	
 }
 
 @Getter
