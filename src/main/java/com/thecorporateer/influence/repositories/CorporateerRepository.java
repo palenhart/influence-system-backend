@@ -10,12 +10,12 @@ import com.thecorporateer.influence.objects.Corporateer;
 @RepositoryRestResource(exported = false)
 public interface CorporateerRepository extends JpaRepository<Corporateer, Long> {
 
-	@RestResource(exported = false)
-	public <S extends Corporateer> S save(Corporateer corp);
-
-	@Override
-	@RestResource(exported = false)
-	public void delete(Corporateer corp);
+//	@RestResource(exported = false)
+//	public <S extends Corporateer> S save(Corporateer corp);
+//
+//	@Override
+//	@RestResource(exported = false)
+//	public void delete(Corporateer corp);
 
 	public Corporateer findByName(@Param("name") String name);
 

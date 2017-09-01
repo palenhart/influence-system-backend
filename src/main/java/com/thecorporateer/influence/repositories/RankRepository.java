@@ -9,11 +9,11 @@ import com.thecorporateer.influence.objects.Rank;
 @RepositoryRestResource(exported = false)
 public interface RankRepository extends JpaRepository<Rank, Long> {
 
-	@RestResource(exported = false)
-	public <S extends Rank> S save(Rank rank);
-
-	@Override
-	@RestResource(exported = false)
-	public void delete(Rank rank);
+//	@RestResource(exported = false)
+//	public <S extends Rank> S save(Rank rank);
+//
+//	@Override
+//	@RestResource(exported = false)
+//	public void delete(Rank rank);
 
 }

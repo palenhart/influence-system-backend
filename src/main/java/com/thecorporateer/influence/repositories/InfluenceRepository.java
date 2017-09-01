@@ -14,12 +14,12 @@ import com.thecorporateer.influence.objects.InfluenceType;
 @RepositoryRestResource(exported = false)
 public interface InfluenceRepository extends JpaRepository<Influence, Long> {
 
-	@RestResource(exported = false)
-	public <S extends Influence> S save(Influence influence);
-
-	@Override
-	@RestResource(exported = false)
-	public void delete(Influence influence);
+//	@RestResource(exported = false)
+//	public <S extends Influence> S save(Influence influence);
+//
+//	@Override
+//	@RestResource(exported = false)
+//	public void delete(Influence influence);
 
 	public Influence findByCorporateerAndDepartmentAndDivisionAndType(@Param("corporateer") Corporateer corporateer,
 			@Param("department") Department department, @Param("division") Division division,
