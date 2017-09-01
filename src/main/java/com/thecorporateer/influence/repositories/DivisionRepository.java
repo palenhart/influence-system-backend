@@ -10,12 +10,12 @@ import com.thecorporateer.influence.objects.Division;
 @RepositoryRestResource(exported = false)
 public interface DivisionRepository extends JpaRepository<Division, Long> {
 
-	@RestResource(exported = false)
-	public <S extends Division> S save(Division division);
-
-	@Override
-	@RestResource(exported = false)
-	public void delete(Division division);
+//	@RestResource(exported = false)
+//	public <S extends Division> S save(Division division);
+//
+//	@Override
+//	@RestResource(exported = false)
+//	public void delete(Division division);
 
 	public Division findByName(@Param("name") String name);
 

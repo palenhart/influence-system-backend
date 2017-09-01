@@ -10,12 +10,12 @@ import com.thecorporateer.influence.objects.Department;
 @RepositoryRestResource(exported = false)
 public interface DepartmentRepository extends JpaRepository<Department, Long> {
 	
-	@RestResource(exported = false)
-	public <S extends Department> S save(Department department);
-
-	@Override
-	@RestResource(exported = false)
-	public void delete(Department department);
+//	@RestResource(exported = false)
+//	public <S extends Department> S save(Department department);
+//
+//	@Override
+//	@RestResource(exported = false)
+//	public void delete(Department department);
 
 	public Department findByName(@Param("name") String name);
 

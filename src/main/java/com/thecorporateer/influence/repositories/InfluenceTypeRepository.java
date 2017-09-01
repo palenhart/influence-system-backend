@@ -10,12 +10,12 @@ import com.thecorporateer.influence.objects.InfluenceType;
 @RepositoryRestResource(exported = false)
 public interface InfluenceTypeRepository extends JpaRepository<InfluenceType, Long> {
 
-	@RestResource(exported = false)
-	public <S extends InfluenceType> S save(InfluenceType type);
-
-	@Override
-	@RestResource(exported = false)
-	public void delete(InfluenceType type);
+//	@RestResource(exported = false)
+//	public <S extends InfluenceType> S save(InfluenceType type);
+//
+//	@Override
+//	@RestResource(exported = false)
+//	public void delete(InfluenceType type);
 
 	public InfluenceType findByName(@Param("name") String name);
 

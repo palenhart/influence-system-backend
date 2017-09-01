@@ -11,12 +11,12 @@ import com.thecorporateer.influence.objects.Transaction;
 @RepositoryRestResource(exported = false)
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 	
-	@RestResource(exported = false)
-	public <S extends Transaction> S save(Transaction transaction);
-
-	@Override
-	@RestResource(exported = false)
-	public void delete(Transaction transaction);
+//	@RestResource(exported = false)
+//	public <S extends Transaction> S save(Transaction transaction);
+//
+//	@Override
+//	@RestResource(exported = false)
+//	public void delete(Transaction transaction);
 
 	public Transaction findBySender(@Param("sender") Corporateer corporateer);
 
