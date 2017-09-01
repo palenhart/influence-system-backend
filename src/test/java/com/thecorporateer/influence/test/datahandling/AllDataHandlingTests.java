@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ TestRefreshAll.class, TestInfluenceDistribution.class, TestCorporateerCreation.class })
+@SuiteClasses({ TestInfluenceDistribution.class, TestCorporateerCreation.class })
 public class AllDataHandlingTests {
 
 }
