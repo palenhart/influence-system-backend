@@ -40,7 +40,7 @@ public class User extends JpaEntity {
 	@Column(length = 50, unique = true)
 	@NotNull
 	@Size(min = 3, max = 50)
-	@JsonView(Views.UserProfile.class)
+	@JsonView(Views.Private.class)
 	private String username;
 
 	@Column(length = 100)
@@ -52,7 +52,7 @@ public class User extends JpaEntity {
 	@Column(length = 50)
 	@NotNull
 	@Size(min = 4, max = 50)
-	@JsonView(Views.UserProfile.class)
+	@JsonView(Views.Private.class)
 	private String email;
 
 	@NotNull
@@ -66,9 +66,10 @@ public class User extends JpaEntity {
 	@JoinTable(name = "USER_AUTHORITY", joinColumns = {
 			@JoinColumn(name = "USER_ID", referencedColumnName = "ID") }, inverseJoinColumns = {
 					@JoinColumn(name = "AUTHORITY_ID", referencedColumnName = "ID") })
-	@JsonView(Views.UserProfile.class)
+	@JsonView(Views.Private.class)
 	private List<UserRole> roles;
 
 	@OneToOne
+	@JsonView(Views.Private.class)
 	private Corporateer corporateer;
 }

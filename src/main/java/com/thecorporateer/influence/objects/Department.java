@@ -37,7 +37,7 @@ public class Department extends JpaEntity {
 
 	@NotNull
 	@NotBlank
-	@JsonView(Views.Corporateer.class)
+	@JsonView(Views.Public.class)
 	private String name;
 	@OneToMany(mappedBy = "department")
 	private List<Division> divisions;

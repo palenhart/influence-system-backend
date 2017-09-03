@@ -2,12 +2,14 @@ package com.thecorporateer.influence.controllers;
 
 public class Views {
 
-	public static class Corporateer {
+	public static class Public {
 	}
 
-	public static class CorporateerProfile extends Corporateer {
+	public static class Private extends Public {
 	}
-
-	public static class UserProfile {
+	
+	public static class Admin extends Private {
+		
 	}
+	
 }
