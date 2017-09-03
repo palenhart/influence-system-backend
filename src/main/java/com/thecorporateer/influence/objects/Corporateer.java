@@ -37,26 +37,26 @@ public class Corporateer extends JpaEntity {
 
 	@NotNull
 	@NotBlank
-	@JsonView(Views.Corporateer.class)
+	@JsonView(Views.Public.class)
 	private String name;
 	@OneToOne(mappedBy = "corporateer")
 	@JsonIgnore
 	private User user;
 	@NotNull
 	@Min(0)
-	@JsonView(Views.CorporateerProfile.class)
+	@JsonView(Views.Private.class)
 	private int tributes = 0;
-	@JsonView(Views.CorporateerProfile.class)
+	@JsonView(Views.Public.class)
 	private int totalInfluence = 0;
 	@OneToMany(mappedBy = "corporateer")
 	private List<Influence> influence;
 	@NotNull
 	@ManyToOne
-	@JsonView(Views.CorporateerProfile.class)
+	@JsonView(Views.Public.class)
 	private Division mainDivision;
 	@NotNull
 	@ManyToOne
-	@JsonView(Views.CorporateerProfile.class)
+	@JsonView(Views.Public.class)
 	private Rank rank;
 	@OneToMany(mappedBy = "sender")
 	private List<Transaction> sentTransactions;

@@ -9,7 +9,9 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.thecorporateer.influence.controllers.Views;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +37,7 @@ public class InfluenceType extends JpaEntity {
 
 	@NotNull
 	@NotBlank
+	@JsonView(Views.Public.class)
 	private String name;
 	@OneToMany(mappedBy = "type")
 	List<Influence> influence;

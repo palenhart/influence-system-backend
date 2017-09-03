@@ -24,14 +24,14 @@ public class ObjectController {
 	private TransactionRepository transactionRepository;
 
 	@CrossOrigin(origins = "*")
-	@JsonView(Views.Corporateer.class)
+	@JsonView(Views.Public.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/divisions", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getDivisions() {
 		return ResponseEntity.ok().body(divisionRepository.findAll());
 	}
 
 	@CrossOrigin(origins = "*")
-	@JsonView(Views.Corporateer.class)
+	@JsonView(Views.Public.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/corporateers", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getCorporateers() {
 		return ResponseEntity.ok().body(corporateerRepository.findAll());
