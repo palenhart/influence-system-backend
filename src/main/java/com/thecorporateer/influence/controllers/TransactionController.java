@@ -75,16 +75,20 @@ public class TransactionController {
 		} else if (direction.equals("receiver")) {
 			for (Transaction transaction : userRepository.findByUsername(currentPrincipalName).getCorporateer()
 					.getReceivedTransactions()) {
-				response.add(new TransactionResponse(transaction.getTimestamp(), transaction.getSender().getName(),
-						transaction.getReceiver().getName(), transaction.getAmount(), transaction.getType().getName(),
-						transaction.getMessage(), transaction.getDivision().getName(),
-						transaction.getDepartment().getName()));
+				// do not show demerits
+				// TODO: Refactor to not use the name
+				if (transaction.getType().equals(influenceTypeRepository.findByName("INFLUENCE"))) {
+					response.add(new TransactionResponse(transaction.getTimestamp(), transaction.getSender().getName(),
+							transaction.getReceiver().getName(), transaction.getAmount(),
+							transaction.getType().getName(), transaction.getMessage(),
+							transaction.getDivision().getName(), transaction.getDepartment().getName()));
+				}
 			}
 			return ResponseEntity.ok().body(response);
 		}
 		return ResponseEntity.badRequest().body("{\"reason\":\"Bad request\"}");
 	}
-	
+
 }
 
 @Getter
