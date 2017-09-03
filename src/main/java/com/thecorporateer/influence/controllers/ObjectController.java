@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.thecorporateer.influence.repositories.CorporateerRepository;
 import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.TransactionRepository;
+import com.thecorporateer.influence.repositories.UserRepository;
 
 @RestController
 public class ObjectController {
@@ -20,6 +21,8 @@ public class ObjectController {
 	private DivisionRepository divisionRepository;
 	@Autowired
 	private CorporateerRepository corporateerRepository;
+	@Autowired
+	private UserRepository userRepository;
 	@Autowired
 	private TransactionRepository transactionRepository;
 
@@ -35,6 +38,13 @@ public class ObjectController {
 	@RequestMapping(method = RequestMethod.GET, value = "/corporateers", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getCorporateers() {
 		return ResponseEntity.ok().body(corporateerRepository.findAll());
+	}
+	
+	@CrossOrigin(origins = "*")
+	@JsonView(Views.Admin.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getUsers() {
+		return ResponseEntity.ok().body(userRepository.findAll());
 	}
 	
 	@CrossOrigin(origins = "*")
