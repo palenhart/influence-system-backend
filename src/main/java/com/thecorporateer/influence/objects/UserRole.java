@@ -43,7 +43,7 @@ public class UserRole {
 	@Column(length = 20)
 	@NotNull
 	@Enumerated(EnumType.STRING)
-	@JsonView(Views.UserProfile.class)
+	@JsonView(Views.Private.class)
 	private RoleName name;
 
 	@ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)

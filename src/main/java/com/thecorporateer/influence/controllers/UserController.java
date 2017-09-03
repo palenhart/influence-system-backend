@@ -39,7 +39,7 @@ public class UserController {
 	private DivisionRepository divisionRepository;
 
 	@CrossOrigin(origins = "*")
-	@JsonView(Views.UserProfile.class)
+	@JsonView(Views.Private.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/currentUser", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getCurrentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -48,7 +48,7 @@ public class UserController {
 	}
 
 	@CrossOrigin(origins = "*")
-	@JsonView(Views.CorporateerProfile.class)
+	@JsonView(Views.Private.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/currentCorporateer", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getCurrentCorporateer() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
