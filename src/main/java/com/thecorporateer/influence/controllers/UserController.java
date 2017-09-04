@@ -1,5 +1,8 @@
 package com.thecorporateer.influence.controllers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.User;
 import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.UserRepository;
@@ -57,6 +61,22 @@ public class UserController {
 	}
 
 	@CrossOrigin(origins = "*")
+	@RequestMapping(method = RequestMethod.GET, value = "/currentInfluences", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getCurrentInfluences() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String currentPrincipalName = authentication.getName();
+		List<InfluenceResponse> response = new ArrayList<InfluenceResponse>();
+		for (Influence influence : userRepository.findByUsername(currentPrincipalName).getCorporateer()
+				.getInfluence()) {
+			if (influence.getType().getName().equals("INFLUENCE")) {
+				response.add(new InfluenceResponse(influence.getDivision().getName(),
+						influence.getDepartment().getName(), influence.getAmount()));
+			}
+		}
+		return ResponseEntity.ok().body(response);
+	}
+
+	@CrossOrigin(origins = "*")
 	@RequestMapping(method = RequestMethod.POST, value = "/changePassword", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest request) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -91,4 +111,12 @@ public class UserController {
 class PasswordChangeRequest {
 	String oldPassword;
 	String newPassword;
+}
+
+@Getter
+@AllArgsConstructor
+class InfluenceResponse {
+	private String division;
+	private String department;
+	private int amount;
 }
