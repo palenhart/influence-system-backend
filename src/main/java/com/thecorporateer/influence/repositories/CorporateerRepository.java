@@ -6,6 +6,12 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import com.thecorporateer.influence.objects.Corporateer;
 
+/**
+ * @author Zollak
+ * 
+ *         Repository for Corporateer objects
+ *         
+ */
 @RepositoryRestResource(exported = false)
 public interface CorporateerRepository extends JpaRepository<Corporateer, Long> {
 

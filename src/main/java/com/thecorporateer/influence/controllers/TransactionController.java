@@ -26,6 +26,10 @@ import com.thecorporateer.influence.services.TransactionService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * @author Zollak
+ *
+ */
 @RestController
 public class TransactionController {
 
@@ -39,6 +43,15 @@ public class TransactionController {
 	@Autowired
 	TransactionService transactionService;
 
+	/**
+	 * 
+	 * Requests to transfer influence to another corporateer
+	 * 
+	 * @param request
+	 *            The transaction which should be executed as TransactionRequest for
+	 *            the authenticated user
+	 * @return HTTP response 200 or 400
+	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/transfer", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> transfer(@RequestBody TransactionRequest request) {
@@ -57,6 +70,15 @@ public class TransactionController {
 		}
 	}
 
+	/**
+	 * 
+	 * Requests a list of incoming/outgoing transactions for the user
+	 * 
+	 * @param direction
+	 *            The direction of transactions to get for the authenticated user
+	 *            (sender/receiver)
+	 * @return List of transactions or HTTP Error 400
+	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/transactions/{direction}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getCorporarateersTransactions(@PathVariable("direction") String direction) {
@@ -91,6 +113,12 @@ public class TransactionController {
 
 }
 
+/**
+ * @author Zollak
+ *
+ *         Request object to create a transaction from
+ *
+ */
 @Getter
 @AllArgsConstructor
 class TransactionRequest {
@@ -102,6 +130,12 @@ class TransactionRequest {
 
 }
 
+/**
+ * @author Zollak
+ *
+ *         Response object giving transaction information to show the user
+ *
+ */
 @Getter
 @AllArgsConstructor
 class TransactionResponse {
