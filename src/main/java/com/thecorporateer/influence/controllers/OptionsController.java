@@ -31,6 +31,13 @@ public class OptionsController {
 	}
 
 	@CrossOrigin(origins = "*")
+	@RequestMapping(value = "/users", method = RequestMethod.OPTIONS)
+	public ResponseEntity<?> users(HttpServletResponse response) {
+		response.setHeader("Allow", "GET,OPTIONS");
+		return ResponseEntity.ok().body(null);
+	}
+
+	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/transactions", method = RequestMethod.OPTIONS)
 	public ResponseEntity<?> transactions(HttpServletResponse response) {
 		response.setHeader("Allow", "GET,OPTIONS");
@@ -51,6 +58,13 @@ public class OptionsController {
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/currentCorporateer", method = RequestMethod.OPTIONS)
 	public ResponseEntity<?> currentCorporateer(HttpServletResponse response) {
+		response.setHeader("Allow", "GET,OPTIONS");
+		return ResponseEntity.ok().body(null);
+	}
+	
+	@CrossOrigin(origins = "*")
+	@RequestMapping(value = "/currentInfluences", method = RequestMethod.OPTIONS)
+	public ResponseEntity<?> currentInfluences(HttpServletResponse response) {
 		response.setHeader("Allow", "GET,OPTIONS");
 		return ResponseEntity.ok().body(null);
 	}
