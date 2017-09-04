@@ -43,6 +43,23 @@ public class TransactionService {
 	@Autowired
 	CorporateerHandlingService corporateerHandlingService;
 
+	/**
+	 * 
+	 * Transfer influence from one corporateer to another
+	 * 
+	 * @param sender
+	 *            The corporateer sending influence
+	 * @param receiver
+	 *            The corporateer receiving influence
+	 * @param message
+	 *            A message to be sent with the influence
+	 * @param amount
+	 *            The amount of influence to be sent
+	 * @param type
+	 *            The type of influence to be sent
+	 * @return <code>true</code> if the transaction was successful;
+	 *         <code>false</code> otherwise
+	 */
 	public boolean transfer(Corporateer sender, Corporateer receiver, String message, int amount, InfluenceType type) {
 		if (!validate(sender, receiver, amount)) {
 			return false;
@@ -95,6 +112,19 @@ public class TransactionService {
 		return true;
 	}
 
+	/**
+	 * 
+	 * Validate transaction request
+	 * 
+	 * @param sender
+	 *            The corporateer sending influence
+	 * @param receiver
+	 *            The corporateer receiving influence
+	 * @param amount
+	 *            The amount of influence to be sent
+	 * @return <code>true</code> if the transaction request does not violate any
+	 *         constraints; <code>false</code> otherwise
+	 */
 	private boolean validate(Corporateer sender, Corporateer receiver, int amount) {
 		if (amount < 1) {
 			return false;

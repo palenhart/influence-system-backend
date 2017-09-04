@@ -6,6 +6,12 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import com.thecorporateer.influence.objects.Division;
 
+/**
+ * @author Zollak
+ * 
+ *         Repository for Division objects
+ *         
+ */
 @RepositoryRestResource(exported = false)
 public interface DivisionRepository extends JpaRepository<Division, Long> {
 

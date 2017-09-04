@@ -13,6 +13,12 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapt
 
 import com.thecorporateer.influence.objects.JpaEntity;
 
+/**
+ * @author Zollak
+ *
+ *         Configuration for REST repositories
+ *
+ */
 @Configuration
 public class RepositoryConfig extends RepositoryRestConfigurerAdapter {
 	@Override

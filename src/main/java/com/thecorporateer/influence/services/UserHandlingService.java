@@ -32,13 +32,35 @@ public class UserHandlingService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-	public boolean checkOldPassword(User user, String password) {
+	/**
+	 * 
+	 * Checks whether a supplied password matches a user's current password
+	 * 
+	 * @param user
+	 *            The user to check the password for
+	 * @param password
+	 *            The password from input
+	 * @return <code>true</code> if the password is correct; <code>false</code>
+	 *         otherwise
+	 */
+	public boolean checkCurrentPassword(User user, String password) {
 		if (passwordEncoder.matches(password, user.getPassword())) {
 			return true;
 		}
 		return false;
 	}
 
+	/**
+	 * 
+	 * Set new password for a user
+	 * 
+	 * @param user
+	 *            The user who will get the password changed
+	 * @param newPassword
+	 *            The new password to be set
+	 * @return <code>true</code> if the password is changed; <code>false</code>
+	 *         otherwise
+	 */
 	public boolean changePassword(User user, String newPassword) {
 		if (!validator.validate(new PasswordData(user.getUsername(), newPassword)).isValid()) {
 			return false;
@@ -48,6 +70,9 @@ public class UserHandlingService {
 		return true;
 	}
 
+	/**
+	 * Settings for password validation
+	 */
 	PasswordValidator validator = new PasswordValidator(
 			// length between 8 and 20 characters
 			new LengthRule(8, 20),
