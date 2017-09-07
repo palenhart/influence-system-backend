@@ -144,6 +144,7 @@ public class UserController {
 		String divisionName = new JSONObject(division).getString("division");
 		if (divisionName.equals("none")) {
 			corporateerHandlingService.setMainDivision(currentUser.getCorporateer(), divisionRepository.findOne(1L));
+			return ResponseEntity.ok().body("{\"message\":\"division successfully changed\"}");
 		}
 		corporateerHandlingService.setMainDivision(currentUser.getCorporateer(),
 				divisionRepository.findByName(divisionName));
