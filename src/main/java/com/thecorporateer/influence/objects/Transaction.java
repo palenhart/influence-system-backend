@@ -51,6 +51,6 @@ public class Transaction extends JpaEntity {
 	private Division division;
 	@NotNull
 	@ManyToOne
-	private Department department;
+	private Division receivingDivision;
 
 }

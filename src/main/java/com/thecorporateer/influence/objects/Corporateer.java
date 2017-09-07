@@ -46,8 +46,14 @@ public class Corporateer extends JpaEntity {
 	@Min(0)
 	@JsonView(Views.Private.class)
 	private int tributes = 0;
+	@NotNull
+	@Min(0)
 	@JsonView(Views.Public.class)
 	private int totalInfluence = 0;
+	@NotNull
+	@Min(0)
+	@JsonView(Views.Public.class)
+	private int lifetimeInfluence = 0;
 	@OneToMany(mappedBy = "corporateer")
 	private List<Influence> influence;
 	@NotNull

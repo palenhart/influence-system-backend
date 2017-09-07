@@ -91,7 +91,7 @@ public class TransactionController {
 				response.add(new TransactionResponse(transaction.getTimestamp(), transaction.getSender().getName(),
 						transaction.getReceiver().getName(), transaction.getAmount(), transaction.getType().getName(),
 						transaction.getMessage(), transaction.getDivision().getName(),
-						transaction.getDepartment().getName()));
+						transaction.getDivision().getDepartment().getName()));
 			}
 			return ResponseEntity.ok().body(response);
 		} else if (direction.equals("receiver")) {
@@ -103,7 +103,7 @@ public class TransactionController {
 					response.add(new TransactionResponse(transaction.getTimestamp(), transaction.getSender().getName(),
 							transaction.getReceiver().getName(), transaction.getAmount(),
 							transaction.getType().getName(), transaction.getMessage(),
-							transaction.getDivision().getName(), transaction.getDepartment().getName()));
+							transaction.getDivision().getName(), transaction.getDivision().getDepartment().getName()));
 				}
 			}
 			return ResponseEntity.ok().body(response);
@@ -140,6 +140,19 @@ class TransactionRequest {
 @AllArgsConstructor
 class TransactionResponse {
 
+	
+	public TransactionResponse(String timestamp, String sender, String receiver, int amount, String type,
+			String message, String division, String department) {
+		this.timestamp = timestamp;
+		this.sender = sender;
+		this.receiver = receiver;
+		this.amount = amount;
+		this.type = type;
+		this.message = message;
+		this.division = division;
+		this.department = department;
+	}
+
 	String timestamp;
 	String sender;
 	String receiver;
@@ -148,5 +161,6 @@ class TransactionResponse {
 	String message;
 	String division;
 	String department;
+	String receivingDivision;
 
 }

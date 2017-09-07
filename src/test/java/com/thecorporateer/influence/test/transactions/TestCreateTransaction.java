@@ -167,8 +167,6 @@ public class TestCreateTransaction {
 		assertEquals("Wrong sender saved in transaction!", mockSender, transactionCaptor.getValue().getSender());
 		assertEquals("Wrong receiver saved in transaction!", mockReceiver, transactionCaptor.getValue().getReceiver());
 		assertEquals("Wrong division saved in transaction!", mockDivision, transactionCaptor.getValue().getDivision());
-		assertEquals("Wrong department saved in transaction!", mockDepartment,
-				transactionCaptor.getValue().getDepartment());
 
 		// verify sender gets saved
 		verify(mockCorporateerRepository).save(mockSender);
@@ -219,8 +217,6 @@ public class TestCreateTransaction {
 		assertEquals("Wrong receiver saved in transaction!", mockReceiver, transactionCaptor.getValue().getReceiver());
 		assertEquals("Wrong division saved in transaction!", mockNoDivision,
 				transactionCaptor.getValue().getDivision());
-		assertEquals("Wrong department saved in transaction!", mockDepartment,
-				transactionCaptor.getValue().getDepartment());
 
 		// verify sender gets saved
 		verify(mockCorporateerRepository).save(mockSender);
@@ -275,8 +271,6 @@ public class TestCreateTransaction {
 		assertEquals("Wrong receiver saved in transaction!", mockReceiver, transactionCaptor.getValue().getReceiver());
 		assertEquals("Wrong division saved in transaction!", mockNoDivision,
 				transactionCaptor.getValue().getDivision());
-		assertEquals("Wrong department saved in transaction!", mockNoDepartment,
-				transactionCaptor.getValue().getDepartment());
 
 		// verify sender gets saved
 		verify(mockCorporateerRepository).save(mockSender);

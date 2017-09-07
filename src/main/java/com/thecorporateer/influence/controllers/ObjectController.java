@@ -81,7 +81,7 @@ public class ObjectController {
 			response.add(new TransactionResponse(transaction.getTimestamp(), transaction.getSender().getName(),
 					transaction.getReceiver().getName(), transaction.getAmount(), transaction.getType().getName(),
 					transaction.getMessage(), transaction.getDivision().getName(),
-					transaction.getDepartment().getName()));
+					transaction.getDivision().getDepartment().getName(), transaction.getReceivingDivision().getName()));
 		}
 		return ResponseEntity.ok().body(response);
 	}

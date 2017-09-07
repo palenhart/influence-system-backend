@@ -9,13 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.thecorporateer.influence.objects.Corporateer;
-import com.thecorporateer.influence.objects.Department;
 import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.InfluenceType;
 import com.thecorporateer.influence.objects.Transaction;
 import com.thecorporateer.influence.repositories.CorporateerRepository;
-import com.thecorporateer.influence.repositories.DepartmentRepository;
 import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.InfluenceRepository;
 import com.thecorporateer.influence.repositories.TransactionRepository;
@@ -35,8 +33,6 @@ public class TransactionService {
 	private TransactionRepository transactionRepository;
 	@Autowired
 	private CorporateerRepository corporateerRepository;
-	@Autowired
-	private DepartmentRepository departmentRepository;
 	@Autowired
 	private DivisionRepository divisionRepository;
 
@@ -66,19 +62,15 @@ public class TransactionService {
 		}
 		Division senderMainDivision = sender.getMainDivision();
 
-		Department influenceDepartment;
 		Division influenceDivision;
 
 		if (senderMainDivision.getId().equals(receiver.getMainDivision().getId())) {
 			influenceDivision = senderMainDivision;
-			influenceDepartment = influenceDivision.getDepartment();
 		} else if (senderMainDivision.getDepartment().getId()
 				.equals(receiver.getMainDivision().getDepartment().getId())) {
-			influenceDivision = divisionRepository.findOne(1L);
-			influenceDepartment = senderMainDivision.getDepartment();
+			influenceDivision = divisionRepository.findByNameAndDepartment("none", senderMainDivision.getDepartment());
 		} else {
 			influenceDivision = divisionRepository.findOne(1L);
-			influenceDepartment = departmentRepository.findOne(1L);
 		}
 
 		List<Influence> influence = new ArrayList<>();
@@ -96,13 +88,15 @@ public class TransactionService {
 		trans.setSender(sender);
 		trans.setReceiver(receiver);
 		trans.setDivision(influenceDivision);
-		trans.setDepartment(influenceDepartment);
+		trans.setReceivingDivision(receiver.getMainDivision());
 		transactionRepository.save(trans);
 
 		sender.setTributes(sender.getTributes() - amount);
 		if (type.getId().equals(1L)) {
 			sender.setTotalInfluence(corporateerHandlingService.getTotalInfluence(sender));
+			sender.setLifetimeInfluence(sender.getLifetimeInfluence() + amount);
 			receiver.setTotalInfluence(corporateerHandlingService.getTotalInfluence(receiver));
+			receiver.setLifetimeInfluence(receiver.getLifetimeInfluence() + amount);
 			receiver = corporateerRepository.save(receiver);
 		}
 		sender = corporateerRepository.save(sender);
