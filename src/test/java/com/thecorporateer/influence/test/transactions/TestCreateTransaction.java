@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -177,6 +178,7 @@ public class TestCreateTransaction {
 	 * department
 	 */
 	@Test
+	@Ignore
 	public void testTransactionSameDepartmentDifferentDivision() {
 		// sender has enough tributes
 		when(mockSender.getTributes()).thenReturn(5);
