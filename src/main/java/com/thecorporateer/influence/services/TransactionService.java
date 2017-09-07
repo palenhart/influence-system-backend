@@ -94,7 +94,9 @@ public class TransactionService {
 		sender.setTributes(sender.getTributes() - amount);
 		if (type.getId().equals(1L)) {
 			sender.setTotalInfluence(corporateerHandlingService.getTotalInfluence(sender));
+			sender.setLifetimeInfluence(sender.getLifetimeInfluence() + amount);
 			receiver.setTotalInfluence(corporateerHandlingService.getTotalInfluence(receiver));
+			receiver.setLifetimeInfluence(receiver.getLifetimeInfluence() + amount);
 			receiver = corporateerRepository.save(receiver);
 		}
 		sender = corporateerRepository.save(sender);
