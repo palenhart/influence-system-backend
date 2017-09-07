@@ -151,15 +151,13 @@ public class TestCreateTransaction {
 		when(mockDivision.getDepartment()).thenReturn(mockDepartment);
 
 		// return mock influence to get changed
-		when(mockInfluenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(any(), any(), any(), any()))
+		when(mockInfluenceRepository.findByCorporateerAndDivisionAndType(any(), any(), any()))
 				.thenReturn(mock(Influence.class));
 		assertTrue(transactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
 
 		// verify correct influence is accessed
-		verify(mockInfluenceRepository).findByCorporateerAndDepartmentAndDivisionAndType(mockReceiver, mockDepartment,
-				mockDivision, mockType);
-		verify(mockInfluenceRepository).findByCorporateerAndDepartmentAndDivisionAndType(mockSender, mockDepartment,
-				mockDivision, mockType);
+		verify(mockInfluenceRepository).findByCorporateerAndDivisionAndType(mockReceiver, mockDivision, mockType);
+		verify(mockInfluenceRepository).findByCorporateerAndDivisionAndType(mockSender, mockDivision, mockType);
 
 		// verify transaction gets saved correctly
 		verify(mockTransactionRepository).save(transactionCaptor.capture());
@@ -202,17 +200,15 @@ public class TestCreateTransaction {
 		when(mockDivisionRepository.findOne(1L)).thenReturn(mockNoDivision);
 
 		// return mock influence to get changed
-		when(mockInfluenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(any(), any(), any(), any()))
+		when(mockInfluenceRepository.findByCorporateerAndDivisionAndType(any(), any(), any()))
 				.thenReturn(mock(Influence.class));
 
 		// transfer influence
 		assertTrue(transactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
 
 		// verify correct influence is accessed
-		verify(mockInfluenceRepository).findByCorporateerAndDepartmentAndDivisionAndType(mockReceiver, mockDepartment,
-				mockNoDivision, mockType);
-		verify(mockInfluenceRepository).findByCorporateerAndDepartmentAndDivisionAndType(mockSender, mockDepartment,
-				mockNoDivision, mockType);
+		verify(mockInfluenceRepository).findByCorporateerAndDivisionAndType(mockReceiver, mockNoDivision, mockType);
+		verify(mockInfluenceRepository).findByCorporateerAndDivisionAndType(mockSender, mockNoDivision, mockType);
 
 		// verify transaction gets saved correctly
 		verify(mockTransactionRepository).save(transactionCaptor.capture());
@@ -260,17 +256,15 @@ public class TestCreateTransaction {
 		when(mockDepartmentRepository.findOne(1L)).thenReturn(mockNoDepartment);
 
 		// return mock influence to get changed
-		when(mockInfluenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(any(), any(), any(), any()))
+		when(mockInfluenceRepository.findByCorporateerAndDivisionAndType(any(), any(), any()))
 				.thenReturn(mock(Influence.class));
 
 		// transfer influence
 		assertTrue(transactionService.transfer(mockSender, mockReceiver, message, amount, mockType));
 
 		// verify correct influence is accessed
-		verify(mockInfluenceRepository).findByCorporateerAndDepartmentAndDivisionAndType(mockReceiver, mockNoDepartment,
-				mockNoDivision, mockType);
-		verify(mockInfluenceRepository).findByCorporateerAndDepartmentAndDivisionAndType(mockSender, mockNoDepartment,
-				mockNoDivision, mockType);
+		verify(mockInfluenceRepository).findByCorporateerAndDivisionAndType(mockReceiver, mockNoDivision, mockType);
+		verify(mockInfluenceRepository).findByCorporateerAndDivisionAndType(mockSender, mockNoDivision, mockType);
 
 		// verify transaction gets saved correctly
 		verify(mockTransactionRepository).save(transactionCaptor.capture());

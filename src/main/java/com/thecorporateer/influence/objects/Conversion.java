@@ -34,11 +34,7 @@ public class Conversion extends JpaEntity {
 	@ManyToOne
 	private Corporateer corporateer;
 	@ManyToOne
-	private Department fromDepartment;
-	@ManyToOne
 	private Division fromDivision;
-	@ManyToOne
-	private Department toDepartment;
 	@ManyToOne
 	private Division toDivision;
 	@ManyToOne

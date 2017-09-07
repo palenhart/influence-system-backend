@@ -82,10 +82,8 @@ public class TransactionService {
 		}
 
 		List<Influence> influence = new ArrayList<>();
-		influence.add(influenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(receiver,
-				influenceDepartment, influenceDivision, type));
-		influence.add(influenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(sender, influenceDepartment,
-				influenceDivision, type));
+		influence.add(influenceRepository.findByCorporateerAndDivisionAndType(receiver, influenceDivision, type));
+		influence.add(influenceRepository.findByCorporateerAndDivisionAndType(sender, influenceDivision, type));
 		influence.get(0).setAmount(influence.get(0).getAmount() + amount);
 		influence.get(1).setAmount(influence.get(1).getAmount() + amount);
 		influenceRepository.save(influence);

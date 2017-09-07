@@ -92,7 +92,7 @@ public class UserController {
 				.getInfluence()) {
 			if (influence.getType().getName().equals("INFLUENCE")) {
 				response.add(new InfluenceResponse(influence.getDivision().getName(),
-						influence.getDepartment().getName(), influence.getAmount()));
+						influence.getDivision().getDepartment().getName(), influence.getAmount()));
 			}
 		}
 		return ResponseEntity.ok().body(response);
@@ -141,8 +141,12 @@ public class UserController {
 		String currentPrincipalName = authentication.getName();
 		User currentUser = userRepository.findByUsername(currentPrincipalName);
 
+		String divisionName = new JSONObject(division).getString("division");
+		if (divisionName.equals("none")) {
+			corporateerHandlingService.setMainDivision(currentUser.getCorporateer(), divisionRepository.findOne(1L));
+		}
 		corporateerHandlingService.setMainDivision(currentUser.getCorporateer(),
-				divisionRepository.findByName(new JSONObject(division).getString("division")));
+				divisionRepository.findByName(divisionName));
 		return ResponseEntity.ok().body("{\"message\":\"division successfully changed\"}");
 	}
 }
