@@ -41,7 +41,5 @@ public class Department extends JpaEntity {
 	private String name;
 	@OneToMany(mappedBy = "department")
 	private List<Division> divisions;
-	@OneToMany(mappedBy = "department")
-	private List<Influence> influence;
 
 }

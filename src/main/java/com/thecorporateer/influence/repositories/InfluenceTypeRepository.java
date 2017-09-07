@@ -6,6 +6,12 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import com.thecorporateer.influence.objects.InfluenceType;
 
+/**
+ * @author Zollak
+ * 
+ *         Repository for InfluenceType objects
+ *         
+ */
 @RepositoryRestResource(exported = false)
 public interface InfluenceTypeRepository extends JpaRepository<InfluenceType, Long> {
 

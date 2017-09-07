@@ -7,6 +7,12 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Transaction;
 
+/**
+ * @author Zollak
+ * 
+ *         Repository for Transaction objects
+ *         
+ */
 @RepositoryRestResource(exported = false)
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 

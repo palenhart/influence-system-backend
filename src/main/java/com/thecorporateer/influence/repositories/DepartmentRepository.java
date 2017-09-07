@@ -6,6 +6,12 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import com.thecorporateer.influence.objects.Department;
 
+/**
+ * @author Zollak
+ * 
+ *         Repository for Department objects
+ *         
+ */
 @RepositoryRestResource(exported = false)
 public interface DepartmentRepository extends JpaRepository<Department, Long> {
 

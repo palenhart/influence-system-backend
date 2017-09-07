@@ -26,6 +26,10 @@ import com.thecorporateer.influence.services.TransactionService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * @author Zollak
+ *
+ */
 @RestController
 public class TransactionController {
 
@@ -39,6 +43,15 @@ public class TransactionController {
 	@Autowired
 	TransactionService transactionService;
 
+	/**
+	 * 
+	 * Requests to transfer influence to another corporateer
+	 * 
+	 * @param request
+	 *            The transaction which should be executed as TransactionRequest for
+	 *            the authenticated user
+	 * @return HTTP response 200 or 400
+	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/transfer", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> transfer(@RequestBody TransactionRequest request) {
@@ -57,6 +70,15 @@ public class TransactionController {
 		}
 	}
 
+	/**
+	 * 
+	 * Requests a list of incoming/outgoing transactions for the user
+	 * 
+	 * @param direction
+	 *            The direction of transactions to get for the authenticated user
+	 *            (sender/receiver)
+	 * @return List of transactions or HTTP Error 400
+	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/transactions/{direction}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getCorporarateersTransactions(@PathVariable("direction") String direction) {
@@ -69,7 +91,7 @@ public class TransactionController {
 				response.add(new TransactionResponse(transaction.getTimestamp(), transaction.getSender().getName(),
 						transaction.getReceiver().getName(), transaction.getAmount(), transaction.getType().getName(),
 						transaction.getMessage(), transaction.getDivision().getName(),
-						transaction.getDepartment().getName()));
+						transaction.getDivision().getDepartment().getName()));
 			}
 			return ResponseEntity.ok().body(response);
 		} else if (direction.equals("receiver")) {
@@ -81,7 +103,7 @@ public class TransactionController {
 					response.add(new TransactionResponse(transaction.getTimestamp(), transaction.getSender().getName(),
 							transaction.getReceiver().getName(), transaction.getAmount(),
 							transaction.getType().getName(), transaction.getMessage(),
-							transaction.getDivision().getName(), transaction.getDepartment().getName()));
+							transaction.getDivision().getName(), transaction.getDivision().getDepartment().getName()));
 				}
 			}
 			return ResponseEntity.ok().body(response);
@@ -91,6 +113,12 @@ public class TransactionController {
 
 }
 
+/**
+ * @author Zollak
+ *
+ *         Request object to create a transaction from
+ *
+ */
 @Getter
 @AllArgsConstructor
 class TransactionRequest {
@@ -102,9 +130,28 @@ class TransactionRequest {
 
 }
 
+/**
+ * @author Zollak
+ *
+ *         Response object giving transaction information to show the user
+ *
+ */
 @Getter
 @AllArgsConstructor
 class TransactionResponse {
+
+	
+	public TransactionResponse(String timestamp, String sender, String receiver, int amount, String type,
+			String message, String division, String department) {
+		this.timestamp = timestamp;
+		this.sender = sender;
+		this.receiver = receiver;
+		this.amount = amount;
+		this.type = type;
+		this.message = message;
+		this.division = division;
+		this.department = department;
+	}
 
 	String timestamp;
 	String sender;
@@ -114,5 +161,6 @@ class TransactionResponse {
 	String message;
 	String division;
 	String department;
+	String receivingDivision;
 
 }
