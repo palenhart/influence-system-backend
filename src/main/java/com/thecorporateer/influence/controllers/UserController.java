@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.User;
 import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.UserRepository;
+import com.thecorporateer.influence.services.ActionLogService;
 import com.thecorporateer.influence.services.CorporateerHandlingService;
 import com.thecorporateer.influence.services.UserHandlingService;
 
@@ -39,6 +41,9 @@ public class UserController {
 
 	@Autowired
 	UserHandlingService userHandlingService;
+
+	@Autowired
+	private ActionLogService actionLogService;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -120,6 +125,7 @@ public class UserController {
 		if (!userHandlingService.changePassword(currentUser, request.getNewPassword())) {
 			return ResponseEntity.badRequest().body("{\"reason\":\"password complexity requirements violated\"}");
 		}
+		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Password change");
 		return ResponseEntity.ok().body("{\"message\":\"password successfully changed\"}");
 	}
 
@@ -144,10 +150,13 @@ public class UserController {
 		String divisionName = new JSONObject(division).getString("division");
 		if (divisionName.equals("none")) {
 			corporateerHandlingService.setMainDivision(currentUser.getCorporateer(), divisionRepository.findOne(1L));
+			actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Removed main division");
 			return ResponseEntity.ok().body("{\"message\":\"division successfully changed\"}");
 		}
-		corporateerHandlingService.setMainDivision(currentUser.getCorporateer(),
-				divisionRepository.findByName(divisionName));
+		Division newMainDivision = divisionRepository.findByName(divisionName);
+		corporateerHandlingService.setMainDivision(currentUser.getCorporateer(), newMainDivision);
+		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
+				"Set main division to " + newMainDivision.getName());
 		return ResponseEntity.ok().body("{\"message\":\"division successfully changed\"}");
 	}
 }

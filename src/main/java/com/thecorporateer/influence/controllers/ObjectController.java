@@ -29,6 +29,7 @@ import com.thecorporateer.influence.repositories.InfluenceRepository;
 import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
 import com.thecorporateer.influence.repositories.TransactionRepository;
 import com.thecorporateer.influence.repositories.UserRepository;
+import com.thecorporateer.influence.services.ActionLogService;
 import com.thecorporateer.influence.services.InfluenceHandlingService;
 
 import lombok.AllArgsConstructor;
@@ -53,6 +54,8 @@ public class ObjectController {
 	private InfluenceTypeRepository influencetypeRepository;
 	@Autowired
 	private InfluenceHandlingService influencehandlingService;
+	@Autowired
+	private ActionLogService actionLogService;
 
 	@CrossOrigin(origins = "*")
 	@JsonView(Views.Public.class)
@@ -111,6 +114,8 @@ public class ObjectController {
 		boolean result = influencehandlingService.convertInfluence(influence, conversionRequest.getAmount(), toGeneral);
 
 		if (result) {
+			actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
+					"Influence conversion");
 			return ResponseEntity.ok().body("{\"message\":\"Conversion successful\"}");
 		} else {
 			return ResponseEntity.badRequest().body("{\"reason\":\"Conversion failed\"}");

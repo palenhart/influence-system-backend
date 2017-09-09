@@ -21,6 +21,7 @@ import com.thecorporateer.influence.objects.Transaction;
 import com.thecorporateer.influence.repositories.CorporateerRepository;
 import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
 import com.thecorporateer.influence.repositories.UserRepository;
+import com.thecorporateer.influence.services.ActionLogService;
 import com.thecorporateer.influence.services.TransactionService;
 
 import lombok.AllArgsConstructor;
@@ -42,6 +43,8 @@ public class TransactionController {
 
 	@Autowired
 	TransactionService transactionService;
+	@Autowired
+	private ActionLogService actionLogService;
 
 	/**
 	 * 
@@ -64,6 +67,8 @@ public class TransactionController {
 				request.getAmount(), typeObject);
 
 		if (result) {
+
+			actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Influence transfer");
 			return ResponseEntity.ok().body("{\"message\":\"Transaction successful\"}");
 		} else {
 			return ResponseEntity.badRequest().body("{\"reason\":\"Transaction failed\"}");
