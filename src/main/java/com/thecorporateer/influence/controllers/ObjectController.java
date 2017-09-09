@@ -3,6 +3,7 @@ package com.thecorporateer.influence.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.Transaction;
@@ -88,22 +91,24 @@ public class ObjectController {
 
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method = RequestMethod.POST, value = "/convertInfluence", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> convertInfluence(@RequestBody ConversionRequest request) {
+	public ResponseEntity<?> convertInfluence(@RequestBody ObjectNode request) throws JSONException {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Corporateer corporateer = userRepository.findByUsername(authentication.getName()).getCorporateer();
 
-		Influence influence = influenceRepository
-				.findByCorporateerAndDivisionAndType(corporateer,
-						divisionRepository.findByNameAndDepartment(request.division,
-								departmentRepository.findByName(request.department)),
-						influencetypeRepository.findOne(1L));
+		ConversionRequest conversionRequest = new ConversionRequest(request.get("influence"));
+		boolean toGeneral = request.get("toGeneral").asBoolean();
+
+		Influence influence = influenceRepository.findByCorporateerAndDivisionAndType(corporateer,
+				divisionRepository.findByNameAndDepartment(conversionRequest.getDivision(),
+						departmentRepository.findByName(conversionRequest.getDepartment())),
+				influencetypeRepository.findOne(1L));
 
 		// do not convert more influence than available
-		if (influence.getAmount() < request.amount) {
+		if (influence.getAmount() < conversionRequest.getAmount()) {
 			return ResponseEntity.badRequest().body("{\"reason\":\"You don't have enough influence to convert\"}");
 		}
 
-		boolean result = influencehandlingService.convertInfluence(influence, request.amount, request.toGeneral);
+		boolean result = influencehandlingService.convertInfluence(influence, conversionRequest.getAmount(), toGeneral);
 
 		if (result) {
 			return ResponseEntity.ok().body("{\"message\":\"Conversion successful\"}");
@@ -117,8 +122,14 @@ public class ObjectController {
 @Getter
 @AllArgsConstructor
 class ConversionRequest {
+
+	public ConversionRequest(JsonNode conversionRequest) throws JSONException {
+		this.department = conversionRequest.get("department").asText();
+		this.division = conversionRequest.get("division").asText();
+		this.amount = conversionRequest.get("amount").asInt();
+	}
+
 	String department;
 	String division;
 	int amount;
-	boolean toGeneral;
 }
