@@ -28,7 +28,7 @@ public class InfluenceHandlingService {
 	@Autowired
 	private ConversionRepository conversionRepository;
 
-	public boolean convertInfluence(Influence influence, int amount) {
+	public boolean convertInfluence(Influence influence, int amount, boolean toGeneral) {
 
 		// do not convert general influence
 		if (influence.getDivision().getDepartment().getId() == 1L) {
@@ -41,7 +41,7 @@ public class InfluenceHandlingService {
 		}
 
 		// convert department influence to general influence
-		if (influence.getDivision().getId() <= 9L) {
+		if (toGeneral || influence.getDivision().getId() <= 9L) {
 
 			Influence generalInfluence = influenceRepository.findByCorporateerAndDivisionAndType(
 					influence.getCorporateer(), divisionRepository.findOne(1L), influence.getType());

@@ -103,7 +103,7 @@ public class ObjectController {
 			return ResponseEntity.badRequest().body("{\"reason\":\"You don't have enough influence to convert\"}");
 		}
 
-		boolean result = influencehandlingService.convertInfluence(influence, request.amount);
+		boolean result = influencehandlingService.convertInfluence(influence, request.amount, request.toGeneral);
 
 		if (result) {
 			return ResponseEntity.ok().body("{\"message\":\"Conversion successful\"}");
@@ -120,4 +120,5 @@ class ConversionRequest {
 	String department;
 	String division;
 	int amount;
+	boolean toGeneral;
 }
