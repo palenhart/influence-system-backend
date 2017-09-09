@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.thecorporateer.influence.services.ActionLogService;
+
 @RestController
 public class AuthenticationRestController {
 
@@ -32,6 +34,9 @@ public class AuthenticationRestController {
 
     @Autowired
     private UserDetailsService userDetailsService;
+
+	@Autowired
+	private ActionLogService actionLogService;
 
     @RequestMapping(value = "/auth", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest, Device device) throws AuthenticationException {
@@ -50,6 +55,7 @@ public class AuthenticationRestController {
         final String token = jwtTokenUtil.generateToken(userDetails, device);
 
         // Return the token
+        actionLogService.logAction(authentication, "Login");
         return ResponseEntity.ok(new JwtAuthenticationResponse(token));
     }
 
