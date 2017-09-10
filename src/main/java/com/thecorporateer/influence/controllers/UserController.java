@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.User;
@@ -158,6 +159,26 @@ public class UserController {
 		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
 				"Set main division to " + newMainDivision.getName());
 		return ResponseEntity.ok().body("{\"message\":\"division successfully changed\"}");
+	}
+
+	@CrossOrigin(origins = "*")
+	@RequestMapping(method = RequestMethod.POST, value = "/buyRank", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> buyRank(@RequestBody ObjectNode request) throws JSONException {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String currentPrincipalName = authentication.getName();
+
+		try {
+			String rankname = request.get("rank").asText();
+
+			if (corporateerHandlingService.buyRank(currentPrincipalName, rankname)) {
+				actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
+						"Bought rank " + rankname);
+				return ResponseEntity.ok().body("{\"message\":\"Rank successfully bought\"}");
+			}
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("{\"error\":\"Bad request\"}");
+		}
+		return ResponseEntity.badRequest().body("{\"error\":\"Cannot buy rank\"}");
 	}
 }
 

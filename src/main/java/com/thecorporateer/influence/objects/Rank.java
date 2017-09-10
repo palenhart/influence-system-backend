@@ -35,9 +35,17 @@ public class Rank extends JpaEntity {
 	@JsonView(Views.Public.class)
 	private String name;
 	@NotNull
+	private int level;
+	@NotNull
 	@Min(1)
 	@JsonView(Views.Public.class)
 	private int tributesPerWeek;
+	@NotNull
+	@JsonView(Views.Public.class)
+	private int influenceToBuy;
+	@NotNull
+	@JsonView(Views.Public.class)
+	private boolean buyingAllowed;
 	@OneToMany(mappedBy = "rank")
 	private List<Corporateer> corporateer;
 
