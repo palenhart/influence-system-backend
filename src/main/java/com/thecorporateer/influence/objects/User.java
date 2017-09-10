@@ -49,7 +49,7 @@ public class User extends JpaEntity {
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 
-	@Column(length = 50)
+	@Column(length = 50, unique = true)
 	@NotNull
 	@Size(min = 4, max = 50)
 	@JsonView(Views.Private.class)
