@@ -10,11 +10,13 @@ import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.InfluenceType;
+import com.thecorporateer.influence.objects.Rank;
 import com.thecorporateer.influence.repositories.CorporateerRepository;
 import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.InfluenceRepository;
 import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
 import com.thecorporateer.influence.repositories.RankRepository;
+import com.thecorporateer.influence.repositories.UserRepository;
 
 /**
  * @author Zollak
@@ -25,6 +27,8 @@ import com.thecorporateer.influence.repositories.RankRepository;
 @Service
 public class CorporateerHandlingService {
 
+	@Autowired
+	private UserRepository userRepository;
 	@Autowired
 	private RankRepository rankRepository;
 	@Autowired
@@ -105,6 +109,38 @@ public class CorporateerHandlingService {
 	public void setMainDivision(Corporateer corporateer, Division division) {
 		corporateer.setMainDivision(division);
 		corporateerRepository.save(corporateer);
+	}
+
+	public boolean buyRank(String username, String rankName) {
+
+		// TODO: validations
+
+		Corporateer corporateer = userRepository.findByUsername(username).getCorporateer();
+		Rank rank = rankRepository.findByName(rankName);
+		Influence generalInfluence = influenceRepository.findByCorporateerAndDivisionAndType(corporateer,
+				divisionRepository.findOne(1L), influenceTypeRepository.findOne(1L));
+
+		// only allow buying a higher rank
+		if (corporateer.getRank().getLevel() >= rank.getLevel()) {
+			System.out.println("level error");
+			return false;
+		}
+
+		// only allow buying when corporateer has enough general influence
+		if (generalInfluence.getAmount() < rank.getInfluenceToBuy()) {
+			System.out.println("influence error");
+			System.out.println(generalInfluence.getAmount());
+			return false;
+		}
+
+		// set new rank
+		corporateer.setRank(rank);
+
+		// deduct general influence
+		generalInfluence.setAmount(generalInfluence.getAmount() - rank.getInfluenceToBuy());
+		corporateer.setTotalInfluence(getTotalInfluence(corporateer));
+		corporateerRepository.save(corporateer);
+		return true;
 	}
 
 	// /**
