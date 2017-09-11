@@ -33,7 +33,7 @@ public class OptionsController {
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/users", method = RequestMethod.OPTIONS)
 	public ResponseEntity<?> users(HttpServletResponse response) {
-		response.setHeader("Allow", "GET,OPTIONS");
+		response.setHeader("Allow", "POST,GET,OPTIONS");
 		return ResponseEntity.ok().body(null);
 	}
 

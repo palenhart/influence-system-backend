@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -175,6 +176,25 @@ public class UserController {
 				actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
 						"Bought rank " + rankname);
 				return ResponseEntity.ok().body("{\"message\":\"Rank successfully bought\"}");
+			}
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("{\"reason\":\"Bad request\"}");
+		}
+		return ResponseEntity.badRequest().body("{\"reason\":\"Cannot buy rank\"}");
+	}
+	
+	@CrossOrigin(origins = "*")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@RequestMapping(method = RequestMethod.POST, value = "/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> createUser(@RequestBody ObjectNode request) throws JSONException {
+		try {
+		
+			String username = request.get("name").asText();
+
+			if(userHandlingService.createUser(username)) {
+				actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
+						"Created user " + username);
+				return ResponseEntity.ok().body("{\"message\":\"User successfully created\"}");
 			}
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body("{\"reason\":\"Bad request\"}");
