@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -84,6 +85,7 @@ public class TestCorporateerCreation {
 	public void tearDown() throws Exception {
 	}
 
+	@Ignore
 	@Test
 	public void testCreateCorporateer() {
 		Rank mockRank = mock(Rank.class);
