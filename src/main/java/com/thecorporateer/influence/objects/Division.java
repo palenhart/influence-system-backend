@@ -49,5 +49,8 @@ public class Division extends JpaEntity {
 	@OneToMany(mappedBy = "division")
 	@JsonIgnore
 	private List<Influence> influence;
+	@OneToMany(mappedBy = "receivingDivision")
+	@JsonIgnore
+	private List<Transaction> incomingTransactions;
 
 }
