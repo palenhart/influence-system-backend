@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.thecorporateer.influence.objects.ActionLog;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.Transaction;
@@ -32,6 +33,7 @@ import com.thecorporateer.influence.repositories.TransactionRepository;
 import com.thecorporateer.influence.repositories.UserRepository;
 import com.thecorporateer.influence.services.ActionLogService;
 import com.thecorporateer.influence.services.InfluenceHandlingService;
+import com.thecorporateer.influence.services.ObjectService;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -59,12 +61,13 @@ public class ObjectController {
 	private InfluenceHandlingService influencehandlingService;
 	@Autowired
 	private ActionLogService actionLogService;
+	@Autowired
+	private ObjectService objectService;
 
 	@CrossOrigin(origins = "*")
-	@JsonView(Views.Public.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/divisions", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getDivisions() {
-		return ResponseEntity.ok().body(divisionRepository.findAll());
+		return ResponseEntity.ok().body(objectService.getDivisions());
 	}
 	
 	@CrossOrigin(origins = "*")
@@ -98,6 +101,17 @@ public class ObjectController {
 					transaction.getReceiver().getName(), transaction.getAmount(), transaction.getType().getName(),
 					transaction.getMessage(), transaction.getDivision().getName(),
 					transaction.getDivision().getDepartment().getName(), transaction.getReceivingDivision().getName()));
+		}
+		return ResponseEntity.ok().body(response);
+	}
+	
+	@CrossOrigin(origins = "*")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@RequestMapping(value = "/logs", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getLogs() {
+		List<LogResponse> response = new ArrayList<LogResponse>();
+		for (ActionLog log : actionLogService.getAllLogs()) {
+			response.add(new LogResponse(log.getTimestamp(), log.getUser().getUsername(), log.getAction()));
 		}
 		return ResponseEntity.ok().body(response);
 	}
@@ -147,4 +161,13 @@ class ConversionRequest {
 	String department;
 	String division;
 	int amount;
+}
+
+@Getter
+@AllArgsConstructor
+class LogResponse {
+	
+	private String timestamp;
+	private String username;
+	private String action;
 }

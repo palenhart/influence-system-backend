@@ -8,9 +8,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.thecorporateer.influence.controllers.Views;
 
 import lombok.Getter;
@@ -28,7 +27,6 @@ import lombok.Setter;
 @NoArgsConstructor
 
 @Entity
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class InfluenceType extends JpaEntity {
 
 	public InfluenceType(String name) {
@@ -40,6 +38,7 @@ public class InfluenceType extends JpaEntity {
 	@JsonView(Views.Public.class)
 	private String name;
 	@OneToMany(mappedBy = "type")
+	@JsonIgnore
 	List<Influence> influence;
 
 }

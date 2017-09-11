@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.thecorporateer.influence.controllers.Views;
 
@@ -48,6 +49,7 @@ public class Rank extends JpaEntity {
 	@JsonView(Views.Public.class)
 	private boolean buyingAllowed;
 	@OneToMany(mappedBy = "rank")
+	@JsonIgnore
 	private List<Corporateer> corporateer;
 
 }
