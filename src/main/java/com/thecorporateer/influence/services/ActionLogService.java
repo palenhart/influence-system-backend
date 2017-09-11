@@ -2,6 +2,7 @@ package com.thecorporateer.influence.services;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -33,6 +34,10 @@ public class ActionLogService {
 
 		actionLogRepository.save(log);
 		return true;
+	}
+
+	public List<ActionLog> getAllLogs() {
+		return actionLogRepository.findAll();
 	}
 
 }

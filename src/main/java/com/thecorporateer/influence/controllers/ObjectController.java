@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.thecorporateer.influence.objects.ActionLog;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.Transaction;
@@ -101,6 +102,17 @@ public class ObjectController {
 		}
 		return ResponseEntity.ok().body(response);
 	}
+	
+	@CrossOrigin(origins = "*")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@RequestMapping(value = "/logs", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getLogs() {
+		List<LogResponse> response = new ArrayList<LogResponse>();
+		for (ActionLog log : actionLogService.getAllLogs()) {
+			response.add(new LogResponse(log.getTimestamp(), log.getUser().getUsername(), log.getAction()));
+		}
+		return ResponseEntity.ok().body(response);
+	}
 
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method = RequestMethod.POST, value = "/convertInfluence", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -147,4 +159,13 @@ class ConversionRequest {
 	String department;
 	String division;
 	int amount;
+}
+
+@Getter
+@AllArgsConstructor
+class LogResponse {
+	
+	private String timestamp;
+	private String username;
+	private String action;
 }
