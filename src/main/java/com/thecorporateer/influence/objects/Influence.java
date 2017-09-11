@@ -7,9 +7,6 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,7 +25,6 @@ import lombok.Setter;
 		@UniqueConstraint(columnNames = { "corporateer_id", "division_id", "type_id" }) })
 
 @Entity
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Influence extends JpaEntity {
 
 	public Influence(Corporateer corporateer, Department department, Division division, InfluenceType type,
