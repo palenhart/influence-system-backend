@@ -164,11 +164,12 @@ public class UserController {
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method = RequestMethod.POST, value = "/buyRank", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> buyRank(@RequestBody ObjectNode request) throws JSONException {
+		try {
+			
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String currentPrincipalName = authentication.getName();
-
-		try {
-			String rankname = request.get("rank").asText();
+		
+			String rankname = request.get("name").asText();
 
 			if (corporateerHandlingService.buyRank(currentPrincipalName, rankname)) {
 				actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
@@ -176,9 +177,9 @@ public class UserController {
 				return ResponseEntity.ok().body("{\"message\":\"Rank successfully bought\"}");
 			}
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().body("{\"error\":\"Bad request\"}");
+			return ResponseEntity.badRequest().body("{\"reason\":\"Bad request\"}");
 		}
-		return ResponseEntity.badRequest().body("{\"error\":\"Cannot buy rank\"}");
+		return ResponseEntity.badRequest().body("{\"reason\":\"Cannot buy rank\"}");
 	}
 }
 

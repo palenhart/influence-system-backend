@@ -27,6 +27,7 @@ import com.thecorporateer.influence.repositories.DepartmentRepository;
 import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.InfluenceRepository;
 import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
+import com.thecorporateer.influence.repositories.RankRepository;
 import com.thecorporateer.influence.repositories.TransactionRepository;
 import com.thecorporateer.influence.repositories.UserRepository;
 import com.thecorporateer.influence.services.ActionLogService;
@@ -47,6 +48,8 @@ public class ObjectController {
 	@Autowired
 	private UserRepository userRepository;
 	@Autowired
+	private RankRepository rankRepository;
+	@Autowired
 	private TransactionRepository transactionRepository;
 	@Autowired
 	private InfluenceRepository influenceRepository;
@@ -62,6 +65,13 @@ public class ObjectController {
 	@RequestMapping(method = RequestMethod.GET, value = "/divisions", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getDivisions() {
 		return ResponseEntity.ok().body(divisionRepository.findAll());
+	}
+	
+	@CrossOrigin(origins = "*")
+	@JsonView(Views.Public.class)
+	@RequestMapping(method = RequestMethod.GET, value = "/ranks", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> getRanks() {
+		return ResponseEntity.ok().body(rankRepository.findAll());
 	}
 
 	@CrossOrigin(origins = "*")
