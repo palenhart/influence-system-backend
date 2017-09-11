@@ -33,6 +33,7 @@ import com.thecorporateer.influence.repositories.TransactionRepository;
 import com.thecorporateer.influence.repositories.UserRepository;
 import com.thecorporateer.influence.services.ActionLogService;
 import com.thecorporateer.influence.services.InfluenceHandlingService;
+import com.thecorporateer.influence.services.ObjectService;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -60,12 +61,13 @@ public class ObjectController {
 	private InfluenceHandlingService influencehandlingService;
 	@Autowired
 	private ActionLogService actionLogService;
+	@Autowired
+	private ObjectService objectService;
 
 	@CrossOrigin(origins = "*")
-	@JsonView(Views.Public.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/divisions", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getDivisions() {
-		return ResponseEntity.ok().body(divisionRepository.findAll());
+		return ResponseEntity.ok().body(objectService.getDivisions());
 	}
 	
 	@CrossOrigin(origins = "*")
