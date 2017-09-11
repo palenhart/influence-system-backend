@@ -17,10 +17,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.User;
 import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.UserRepository;
+import com.thecorporateer.influence.services.ActionLogService;
 import com.thecorporateer.influence.services.CorporateerHandlingService;
 import com.thecorporateer.influence.services.UserHandlingService;
 
@@ -39,6 +42,9 @@ public class UserController {
 
 	@Autowired
 	UserHandlingService userHandlingService;
+
+	@Autowired
+	private ActionLogService actionLogService;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -120,6 +126,7 @@ public class UserController {
 		if (!userHandlingService.changePassword(currentUser, request.getNewPassword())) {
 			return ResponseEntity.badRequest().body("{\"reason\":\"password complexity requirements violated\"}");
 		}
+		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Password change");
 		return ResponseEntity.ok().body("{\"message\":\"password successfully changed\"}");
 	}
 
@@ -144,11 +151,35 @@ public class UserController {
 		String divisionName = new JSONObject(division).getString("division");
 		if (divisionName.equals("none")) {
 			corporateerHandlingService.setMainDivision(currentUser.getCorporateer(), divisionRepository.findOne(1L));
+			actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Removed main division");
 			return ResponseEntity.ok().body("{\"message\":\"division successfully changed\"}");
 		}
-		corporateerHandlingService.setMainDivision(currentUser.getCorporateer(),
-				divisionRepository.findByName(divisionName));
+		Division newMainDivision = divisionRepository.findByName(divisionName);
+		corporateerHandlingService.setMainDivision(currentUser.getCorporateer(), newMainDivision);
+		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
+				"Set main division to " + newMainDivision.getName());
 		return ResponseEntity.ok().body("{\"message\":\"division successfully changed\"}");
+	}
+
+	@CrossOrigin(origins = "*")
+	@RequestMapping(method = RequestMethod.POST, value = "/buyRank", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> buyRank(@RequestBody ObjectNode request) throws JSONException {
+		try {
+			
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String currentPrincipalName = authentication.getName();
+		
+			String rankname = request.get("name").asText();
+
+			if (corporateerHandlingService.buyRank(currentPrincipalName, rankname)) {
+				actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
+						"Bought rank " + rankname);
+				return ResponseEntity.ok().body("{\"message\":\"Rank successfully bought\"}");
+			}
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("{\"reason\":\"Bad request\"}");
+		}
+		return ResponseEntity.badRequest().body("{\"reason\":\"Cannot buy rank\"}");
 	}
 }
 

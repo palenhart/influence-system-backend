@@ -7,16 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.thecorporateer.influence.objects.Corporateer;
-import com.thecorporateer.influence.objects.Department;
 import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.InfluenceType;
+import com.thecorporateer.influence.objects.Rank;
 import com.thecorporateer.influence.repositories.CorporateerRepository;
-import com.thecorporateer.influence.repositories.DepartmentRepository;
 import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.InfluenceRepository;
 import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
 import com.thecorporateer.influence.repositories.RankRepository;
+import com.thecorporateer.influence.repositories.UserRepository;
 
 /**
  * @author Zollak
@@ -28,13 +28,13 @@ import com.thecorporateer.influence.repositories.RankRepository;
 public class CorporateerHandlingService {
 
 	@Autowired
+	private UserRepository userRepository;
+	@Autowired
 	private RankRepository rankRepository;
 	@Autowired
 	private InfluenceTypeRepository influenceTypeRepository;
 	@Autowired
 	private CorporateerRepository corporateerRepository;
-	@Autowired
-	private DepartmentRepository departmentRepository;
 	@Autowired
 	private DivisionRepository divisionRepository;
 	@Autowired
@@ -42,7 +42,6 @@ public class CorporateerHandlingService {
 
 	// private List<Rank> ranks = new ArrayList<>();
 	private List<InfluenceType> types = new ArrayList<>();
-	private List<Department> departments = new ArrayList<>();
 	private List<Division> divisions = new ArrayList<>();
 	private List<Corporateer> corporateers = new ArrayList<>();
 
@@ -71,18 +70,11 @@ public class CorporateerHandlingService {
 	 */
 	private void initializeInfluenceTable(Corporateer corporateer) {
 		refreshInfluenceTypes();
-		refreshDepartments();
 		refreshDivisions();
 
 		List<Influence> influences = new ArrayList<>();
 		for (InfluenceType type : types) {
-			for (Department department : departments) {
-				influences.add(new Influence(corporateer, department, divisions.get(0), type, 0));
-			}
 			for (Division division : divisions) {
-				if (division.getId().longValue() == 1L) {
-					continue;
-				}
 				influences.add(new Influence(corporateer, division.getDepartment(), division, type, 0));
 			}
 		}
@@ -119,6 +111,38 @@ public class CorporateerHandlingService {
 		corporateerRepository.save(corporateer);
 	}
 
+	public boolean buyRank(String username, String rankName) {
+
+		// TODO: validations
+
+		Corporateer corporateer = userRepository.findByUsername(username).getCorporateer();
+		Rank rank = rankRepository.findByName(rankName);
+		Influence generalInfluence = influenceRepository.findByCorporateerAndDivisionAndType(corporateer,
+				divisionRepository.findOne(1L), influenceTypeRepository.findOne(1L));
+
+		// only allow buying a higher rank
+		if (corporateer.getRank().getLevel() >= rank.getLevel()) {
+			System.out.println("level error");
+			return false;
+		}
+
+		// only allow buying when corporateer has enough general influence
+		if (generalInfluence.getAmount() < rank.getInfluenceToBuy()) {
+			System.out.println("influence error");
+			System.out.println(generalInfluence.getAmount());
+			return false;
+		}
+
+		// set new rank
+		corporateer.setRank(rank);
+
+		// deduct general influence
+		generalInfluence.setAmount(generalInfluence.getAmount() - rank.getInfluenceToBuy());
+		corporateer.setTotalInfluence(getTotalInfluence(corporateer));
+		corporateerRepository.save(corporateer);
+		return true;
+	}
+
 	// /**
 	// * Refreshes list of ranks from repository
 	// */
@@ -131,13 +155,6 @@ public class CorporateerHandlingService {
 	 */
 	private void refreshInfluenceTypes() {
 		types = influenceTypeRepository.findAll();
-	}
-
-	/**
-	 * Refreshes list of departments from repository
-	 */
-	private void refreshDepartments() {
-		departments = departmentRepository.findAll();
 	}
 
 	/**
