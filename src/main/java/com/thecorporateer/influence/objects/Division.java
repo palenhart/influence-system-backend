@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.thecorporateer.influence.controllers.Views;
 
@@ -27,7 +28,6 @@ import lombok.Setter;
 @NoArgsConstructor
 
 @Entity
-//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Division extends JpaEntity {
 
 	public Division(String name, Department department) {
@@ -44,8 +44,10 @@ public class Division extends JpaEntity {
 	@JsonView(Views.Public.class)
 	private Department department;
 	@OneToMany(mappedBy = "mainDivision")
+	@JsonIgnore
 	private List<Corporateer> corporateers;
 	@OneToMany(mappedBy = "division")
+	@JsonIgnore
 	private List<Influence> influence;
 
 }
