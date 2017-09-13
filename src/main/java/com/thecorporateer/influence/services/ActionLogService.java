@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import com.thecorporateer.influence.objects.ActionLog;
 import com.thecorporateer.influence.repositories.ActionLogRepository;
-import com.thecorporateer.influence.repositories.UserRepository;
 
 /**
  * @author Zollak
@@ -24,12 +23,12 @@ public class ActionLogService {
 	@Autowired
 	private ActionLogRepository actionLogRepository;
 	@Autowired
-	private UserRepository userRepository;
+	private UserHandlingService userHandlingService;
 
 	public boolean logAction(Authentication authentication, String action) {
 		ActionLog log = new ActionLog();
 		log.setTimestamp(Instant.now().truncatedTo(ChronoUnit.SECONDS).toString());
-		log.setUser(userRepository.findByUsername(authentication.getName()));
+		log.setUser(userHandlingService.getUserByName(authentication.getName()));
 		log.setAction(action);
 
 		actionLogRepository.save(log);

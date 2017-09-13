@@ -6,6 +6,7 @@ package com.thecorporateer.influence.services;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
@@ -18,8 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.thecorporateer.influence.exceptions.UserNotFoundException;
 import com.thecorporateer.influence.objects.User;
-import com.thecorporateer.influence.repositories.CorporateerRepository;
 import com.thecorporateer.influence.repositories.UserRepository;
 
 /**
@@ -33,14 +34,34 @@ public class UserHandlingService {
 
 	@Autowired
 	private UserRepository userRepository;
-	@Autowired
-	private CorporateerRepository corporateerRepository;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
 	@Autowired
 	private CorporateerHandlingService corporateerHandlingService;
+
+	public User getUserByName(String name) {
+
+		User user = userRepository.findByUsername(name);
+
+		if (user == null) {
+			throw new UserNotFoundException();
+		}
+
+		return user;
+	}
+
+	// TODO: Think about handling errors
+	public User updateUser(User user) {
+
+		return userRepository.save(user);
+	}
+	
+	public List<User> getAllUsers(){
+		
+		return userRepository.findAll();
+	}
 
 	/**
 	 * 
@@ -76,7 +97,7 @@ public class UserHandlingService {
 			return false;
 		}
 		user.setPassword(passwordEncoder.encode(newPassword));
-		userRepository.save(user);
+		updateUser(user);
 		return true;
 	}
 
@@ -92,9 +113,9 @@ public class UserHandlingService {
 
 		corporateerHandlingService.createCorporateer(username);
 
-		user.setCorporateer(corporateerRepository.findByName(username));
+		user.setCorporateer(corporateerHandlingService.getCorporateerByName(username));
 
-		userRepository.save(user);
+		updateUser(user);
 		return true;
 	}
 

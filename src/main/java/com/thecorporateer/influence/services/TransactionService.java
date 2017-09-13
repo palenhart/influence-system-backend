@@ -13,9 +13,6 @@ import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.InfluenceType;
 import com.thecorporateer.influence.objects.Transaction;
-import com.thecorporateer.influence.repositories.CorporateerRepository;
-import com.thecorporateer.influence.repositories.DivisionRepository;
-import com.thecorporateer.influence.repositories.InfluenceRepository;
 import com.thecorporateer.influence.repositories.TransactionRepository;
 
 /**
@@ -28,16 +25,19 @@ import com.thecorporateer.influence.repositories.TransactionRepository;
 public class TransactionService {
 
 	@Autowired
-	private InfluenceRepository influenceRepository;
-	@Autowired
 	private TransactionRepository transactionRepository;
-	@Autowired
-	private CorporateerRepository corporateerRepository;
-	@Autowired
-	private DivisionRepository divisionRepository;
 
 	@Autowired
-	CorporateerHandlingService corporateerHandlingService;
+	private CorporateerHandlingService corporateerHandlingService;
+	@Autowired
+	private InfluenceHandlingService influenceHandlingService;
+	@Autowired
+	private ObjectService objectService;
+	
+	public List<Transaction> getAllTransactions(){
+		
+		return transactionRepository.findAll();
+	}
 
 	/**
 	 * 
@@ -68,17 +68,20 @@ public class TransactionService {
 			influenceDivision = senderMainDivision;
 		} else if (senderMainDivision.getDepartment().getId()
 				.equals(receiver.getMainDivision().getDepartment().getId())) {
-			influenceDivision = divisionRepository.findByNameAndDepartment("none", senderMainDivision.getDepartment());
+			influenceDivision = objectService.getDivisionByNameAndDepartment("none",
+					senderMainDivision.getDepartment());
 		} else {
-			influenceDivision = divisionRepository.findOne(1L);
+			influenceDivision = objectService.getDefaultDivision();
 		}
 
-		List<Influence> influence = new ArrayList<>();
-		influence.add(influenceRepository.findByCorporateerAndDivisionAndType(receiver, influenceDivision, type));
-		influence.add(influenceRepository.findByCorporateerAndDivisionAndType(sender, influenceDivision, type));
-		influence.get(0).setAmount(influence.get(0).getAmount() + amount);
-		influence.get(1).setAmount(influence.get(1).getAmount() + amount);
-		influenceRepository.save(influence);
+		List<Influence> influences = new ArrayList<>();
+		influences.add(influenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(receiver, influenceDivision,
+				type));
+		influences.add(
+				influenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(sender, influenceDivision, type));
+		influences.get(0).setAmount(influences.get(0).getAmount() + amount);
+		influences.get(1).setAmount(influences.get(1).getAmount() + amount);
+		influenceHandlingService.updateInfluences(influences);
 
 		Transaction trans = new Transaction();
 		trans.setTimestamp(Instant.now().truncatedTo(ChronoUnit.SECONDS).toString());
@@ -97,9 +100,9 @@ public class TransactionService {
 			sender.setLifetimeInfluence(sender.getLifetimeInfluence() + amount);
 			receiver.setTotalInfluence(corporateerHandlingService.getTotalInfluence(receiver));
 			receiver.setLifetimeInfluence(receiver.getLifetimeInfluence() + amount);
-			receiver = corporateerRepository.save(receiver);
+			receiver = corporateerHandlingService.updateCorporateer(receiver);
 		}
-		sender = corporateerRepository.save(sender);
+		sender = corporateerHandlingService.updateCorporateer(sender);
 
 		return true;
 	}

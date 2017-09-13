@@ -23,17 +23,12 @@ import com.thecorporateer.influence.objects.ActionLog;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.Transaction;
-import com.thecorporateer.influence.repositories.CorporateerRepository;
-import com.thecorporateer.influence.repositories.DepartmentRepository;
-import com.thecorporateer.influence.repositories.DivisionRepository;
-import com.thecorporateer.influence.repositories.InfluenceRepository;
-import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
-import com.thecorporateer.influence.repositories.RankRepository;
-import com.thecorporateer.influence.repositories.TransactionRepository;
-import com.thecorporateer.influence.repositories.UserRepository;
 import com.thecorporateer.influence.services.ActionLogService;
+import com.thecorporateer.influence.services.CorporateerHandlingService;
 import com.thecorporateer.influence.services.InfluenceHandlingService;
 import com.thecorporateer.influence.services.ObjectService;
+import com.thecorporateer.influence.services.TransactionService;
+import com.thecorporateer.influence.services.UserHandlingService;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,23 +37,13 @@ import lombok.Getter;
 public class ObjectController {
 
 	@Autowired
-	private DivisionRepository divisionRepository;
+	private UserHandlingService userHandlingService;
 	@Autowired
-	private DepartmentRepository departmentRepository;
-	@Autowired
-	private CorporateerRepository corporateerRepository;
-	@Autowired
-	private UserRepository userRepository;
-	@Autowired
-	private RankRepository rankRepository;
-	@Autowired
-	private TransactionRepository transactionRepository;
-	@Autowired
-	private InfluenceRepository influenceRepository;
-	@Autowired
-	private InfluenceTypeRepository influencetypeRepository;
+	private CorporateerHandlingService corporateerHandlingService;
 	@Autowired
 	private InfluenceHandlingService influencehandlingService;
+	@Autowired
+	private TransactionService transactionService;
 	@Autowired
 	private ActionLogService actionLogService;
 	@Autowired
@@ -67,28 +52,28 @@ public class ObjectController {
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method = RequestMethod.GET, value = "/divisions", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getDivisions() {
-		return ResponseEntity.ok().body(objectService.getDivisions());
+		return ResponseEntity.ok().body(objectService.getDivisionsAsResponse());
 	}
-	
+
 	@CrossOrigin(origins = "*")
 	@JsonView(Views.Public.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/ranks", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getRanks() {
-		return ResponseEntity.ok().body(rankRepository.findAll());
+		return ResponseEntity.ok().body(objectService.getAllRanks());
 	}
 
 	@CrossOrigin(origins = "*")
 	@JsonView(Views.Public.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/corporateers", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getCorporateers() {
-		return ResponseEntity.ok().body(corporateerRepository.findAll());
+		return ResponseEntity.ok().body(corporateerHandlingService.getAllCorporateers());
 	}
 
 	@CrossOrigin(origins = "*")
 	@JsonView(Views.Admin.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getUsers() {
-		return ResponseEntity.ok().body(userRepository.findAll());
+		return ResponseEntity.ok().body(userHandlingService.getAllUsers());
 	}
 
 	@CrossOrigin(origins = "*")
@@ -96,7 +81,7 @@ public class ObjectController {
 	@RequestMapping(value = "/transactions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getAllTransactions() {
 		List<TransactionResponse> response = new ArrayList<TransactionResponse>();
-		for (Transaction transaction : transactionRepository.findAll()) {
+		for (Transaction transaction : transactionService.getAllTransactions()) {
 			response.add(new TransactionResponse(transaction.getTimestamp(), transaction.getSender().getName(),
 					transaction.getReceiver().getName(), transaction.getAmount(), transaction.getType().getName(),
 					transaction.getMessage(), transaction.getDivision().getName(),
@@ -104,7 +89,7 @@ public class ObjectController {
 		}
 		return ResponseEntity.ok().body(response);
 	}
-	
+
 	@CrossOrigin(origins = "*")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@RequestMapping(value = "/logs", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -120,15 +105,15 @@ public class ObjectController {
 	@RequestMapping(method = RequestMethod.POST, value = "/convertInfluence", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> convertInfluence(@RequestBody ObjectNode request) throws JSONException {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		Corporateer corporateer = userRepository.findByUsername(authentication.getName()).getCorporateer();
+		Corporateer corporateer = userHandlingService.getUserByName(authentication.getName()).getCorporateer();
 
 		ConversionRequest conversionRequest = new ConversionRequest(request.get("influence"));
 		boolean toGeneral = request.get("toGeneral").asBoolean();
 
-		Influence influence = influenceRepository.findByCorporateerAndDivisionAndType(corporateer,
-				divisionRepository.findByNameAndDepartment(conversionRequest.getDivision(),
-						departmentRepository.findByName(conversionRequest.getDepartment())),
-				influencetypeRepository.findOne(1L));
+		Influence influence = influencehandlingService.getInfluenceByCorporateerAndDivisionAndType(corporateer,
+				objectService.getDivisionByNameAndDepartment(conversionRequest.getDivision(),
+						objectService.getDepartmentByName(conversionRequest.getDepartment())),
+				objectService.getInfluenceTypeId(1L));
 
 		// do not convert more influence than available
 		if (influence.getAmount() < conversionRequest.getAmount()) {
@@ -138,8 +123,7 @@ public class ObjectController {
 		boolean result = influencehandlingService.convertInfluence(influence, conversionRequest.getAmount(), toGeneral);
 
 		if (result) {
-			actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
-					"Influence conversion");
+			actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Influence conversion");
 			return ResponseEntity.ok().body("{\"message\":\"Conversion successful\"}");
 		} else {
 			return ResponseEntity.badRequest().body("{\"reason\":\"Conversion failed\"}");
@@ -166,7 +150,7 @@ class ConversionRequest {
 @Getter
 @AllArgsConstructor
 class LogResponse {
-	
+
 	private String timestamp;
 	private String username;
 	private String action;
