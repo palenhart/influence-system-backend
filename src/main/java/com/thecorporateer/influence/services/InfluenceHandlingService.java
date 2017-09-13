@@ -2,14 +2,16 @@ package com.thecorporateer.influence.services;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.thecorporateer.influence.objects.Conversion;
+import com.thecorporateer.influence.objects.Corporateer;
+import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
-import com.thecorporateer.influence.repositories.ConversionRepository;
-import com.thecorporateer.influence.repositories.DivisionRepository;
+import com.thecorporateer.influence.objects.InfluenceType;
 import com.thecorporateer.influence.repositories.InfluenceRepository;
 
 /**
@@ -23,10 +25,20 @@ public class InfluenceHandlingService {
 
 	@Autowired
 	private InfluenceRepository influenceRepository;
+
 	@Autowired
-	private DivisionRepository divisionRepository;
-	@Autowired
-	private ConversionRepository conversionRepository;
+	private ObjectService objectService;
+
+	public Influence getInfluenceByCorporateerAndDivisionAndType(Corporateer corporateer, Division division,
+			InfluenceType influencetype) {
+
+		return influenceRepository.findByCorporateerAndDivisionAndType(corporateer, division, influencetype);
+	}
+
+	public List<Influence> updateInfluences(List<Influence> influences) {
+
+		return influenceRepository.save(influences);
+	}
 
 	public boolean convertInfluence(Influence influence, int amount, boolean toGeneral) {
 
@@ -44,7 +56,7 @@ public class InfluenceHandlingService {
 		if (toGeneral || influence.getDivision().getId() <= 9L) {
 
 			Influence generalInfluence = influenceRepository.findByCorporateerAndDivisionAndType(
-					influence.getCorporateer(), divisionRepository.findOne(1L), influence.getType());
+					influence.getCorporateer(), objectService.getDefaultDivision(), influence.getType());
 
 			createConversion(influence, generalInfluence, amount);
 
@@ -59,7 +71,7 @@ public class InfluenceHandlingService {
 		// convert division influence to department influence
 		Influence departmentInfluence = influenceRepository.findByCorporateerAndDivisionAndType(
 				influence.getCorporateer(),
-				divisionRepository.findByNameAndDepartment("none", influence.getDivision().getDepartment()),
+				objectService.getDivisionByNameAndDepartment("none", influence.getDivision().getDepartment()),
 				influence.getType());
 
 		createConversion(influence, departmentInfluence, amount);
@@ -81,7 +93,7 @@ public class InfluenceHandlingService {
 		conversion.setToDivision(genralizedInfluence.getDivision());
 		conversion.setType(influence.getType());
 		conversion.setAmount(amount);
-		conversionRepository.save(conversion);
+		objectService.saveConversion(conversion);
 	}
 
 }

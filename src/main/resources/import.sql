@@ -5,7 +5,7 @@ INSERT INTO PUBLIC.DIVISION(NAME, DEPARTMENT_ID) VALUES ('none', 1), ('none', 2)
 -- ADD influence and demerits
 INSERT INTO PUBLIC.INFLUENCE_TYPE(NAME) VALUES ('INFLUENCE'), ('DEMERITS');
 -- ADD ranks
-INSERT INTO PUBLIC.RANK(NAME, LEVEL, BUYING_ALLOWED, INFLUENCE_TO_BUY, TRIBUTES_PER_WEEK) VALUES ('Junior Associate', 1, 0, 0, 50), ('Associate', 2, 1, 500, 100), ('Senior Associate', 3, 1, 1000, 200), ('Manager', 4, 0, 0, 400), ('Director', 5, 0, 0, 800), ('Board Member', 6, 0, 0, 1600), ('CEO', 7, 0, 0, 1600);
+INSERT INTO PUBLIC.RANK(NAME, LEVEL, BUYING_ALLOWED, INFLUENCE_TO_BUY, TRIBUTES_PER_WEEK) VALUES ('Junior Associate', 0, 0, 0, 50), ('Associate', 1, 1, 500, 100), ('Senior Associate', 2, 1, 1000, 200), ('Manager', 3, 0, 0, 400), ('Director', 4, 0, 0, 800), ('Board Member', 5, 0, 0, 1600), ('CEO', 6, 0, 0, 1600);
 -- TESTING ADD sample corporateers
 INSERT INTO PUBLIC.CORPORATEER(NAME, LIFETIME_INFLUENCE, TOTAL_INFLUENCE, TRIBUTES, MAIN_DIVISION_ID, RANK_ID) VALUES ('Weyland', 0, 0, 0, 1, 7), ('Zollak', 0, 0, 0, 1, 6), ('Braden12', 0, 0, 0, 1, 6), ('Nikmyth', 0, 0, 0, 1, 6), ('Corp', 0, 0, 0, 1, 4);
 
