@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.thecorporateer.influence.exceptions.InfluenceNotFoundException;
 import com.thecorporateer.influence.objects.Conversion;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Division;
@@ -32,7 +33,19 @@ public class InfluenceHandlingService {
 	public Influence getInfluenceByCorporateerAndDivisionAndType(Corporateer corporateer, Division division,
 			InfluenceType influencetype) {
 
-		return influenceRepository.findByCorporateerAndDivisionAndType(corporateer, division, influencetype);
+		Influence influence = influenceRepository.findByCorporateerAndDivisionAndType(corporateer, division,
+				influencetype);
+
+		if (influence == null) {
+			throw new InfluenceNotFoundException();
+		}
+
+		return influence;
+	}
+
+	public Influence updateInfluence(Influence influence) {
+
+		return influenceRepository.save(influence);
 	}
 
 	public List<Influence> updateInfluences(List<Influence> influences) {
@@ -55,22 +68,21 @@ public class InfluenceHandlingService {
 		// convert department influence to general influence
 		if (toGeneral || influence.getDivision().getId() <= 9L) {
 
-			Influence generalInfluence = influenceRepository.findByCorporateerAndDivisionAndType(
-					influence.getCorporateer(), objectService.getDefaultDivision(), influence.getType());
+			Influence generalInfluence = getInfluenceByCorporateerAndDivisionAndType(influence.getCorporateer(),
+					objectService.getDefaultDivision(), influence.getType());
 
 			createConversion(influence, generalInfluence, amount);
 
 			generalInfluence.setAmount(generalInfluence.getAmount() + amount);
 			influence.setAmount(influence.getAmount() - amount);
-			influenceRepository.save(generalInfluence);
-			influenceRepository.save(influence);
+			updateInfluence(generalInfluence);
+			updateInfluence(influence);
 
 			return true;
 
 		}
 		// convert division influence to department influence
-		Influence departmentInfluence = influenceRepository.findByCorporateerAndDivisionAndType(
-				influence.getCorporateer(),
+		Influence departmentInfluence = getInfluenceByCorporateerAndDivisionAndType(influence.getCorporateer(),
 				objectService.getDivisionByNameAndDepartment("none", influence.getDivision().getDepartment()),
 				influence.getType());
 
@@ -78,8 +90,8 @@ public class InfluenceHandlingService {
 
 		departmentInfluence.setAmount(departmentInfluence.getAmount() + amount);
 		influence.setAmount(influence.getAmount() - amount);
-		influenceRepository.save(departmentInfluence);
-		influenceRepository.save(influence);
+		updateInfluence(departmentInfluence);
+		updateInfluence(influence);
 
 		return true;
 

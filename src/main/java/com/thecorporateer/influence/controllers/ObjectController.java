@@ -113,11 +113,11 @@ public class ObjectController {
 		Influence influence = influencehandlingService.getInfluenceByCorporateerAndDivisionAndType(corporateer,
 				objectService.getDivisionByNameAndDepartment(conversionRequest.getDivision(),
 						objectService.getDepartmentByName(conversionRequest.getDepartment())),
-				objectService.getInfluenceTypeId(1L));
+				objectService.getInfluenceTypeById(1L));
 
 		// do not convert more influence than available
 		if (influence.getAmount() < conversionRequest.getAmount()) {
-			return ResponseEntity.badRequest().body("{\"reason\":\"You don't have enough influence to convert\"}");
+			return ResponseEntity.badRequest().body("{\"message\":\"You don't have enough influence to convert\"}");
 		}
 
 		boolean result = influencehandlingService.convertInfluence(influence, conversionRequest.getAmount(), toGeneral);
@@ -126,7 +126,7 @@ public class ObjectController {
 			actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Influence conversion");
 			return ResponseEntity.ok().body("{\"message\":\"Conversion successful\"}");
 		} else {
-			return ResponseEntity.badRequest().body("{\"reason\":\"Conversion failed\"}");
+			return ResponseEntity.badRequest().body("{\"message\":\"Conversion failed\"}");
 		}
 	}
 

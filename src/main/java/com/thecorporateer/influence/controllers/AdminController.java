@@ -23,10 +23,10 @@ public class AdminController {
 
 	@CrossOrigin(origins = "*")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@RequestMapping(value = "/distributeTributes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/distributeTributes", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> distributeTributes() {
 		corporateerHandlingService.distributeTributes();
 		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Tribute distribution");
-		return ResponseEntity.ok().body("{\"message\":\"Distribution successful\"}");
+		return ResponseEntity.ok().body("{\"message\":\"Tribute distribution successful\"}");
 	}
 }

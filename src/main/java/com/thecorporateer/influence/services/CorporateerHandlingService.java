@@ -50,10 +50,16 @@ public class CorporateerHandlingService {
 
 		return corporateerRepository.findByName(name);
 	}
-	
+
 	public List<Corporateer> getAllCorporateers() {
 
-		return corporateerRepository.findAll();
+		List<Corporateer> corporateers = corporateerRepository.findAll();
+
+		if (corporateers == null) {
+			throw new CorporateerNotFoundException();
+		}
+
+		return corporateers;
 	}
 
 	// TODO: Think about handling errors
@@ -154,18 +160,15 @@ public class CorporateerHandlingService {
 		Corporateer corporateer = userHandlingService.getUserByName(username).getCorporateer();
 		Rank rank = objectService.getRankByName(rankName);
 		Influence generalInfluence = influenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(corporateer,
-				objectService.getDefaultDivision(), objectService.getInfluenceTypeId(1L));
+				objectService.getDefaultDivision(), objectService.getInfluenceTypeById(1L));
 
 		// only allow buying a higher rank
 		if (corporateer.getRank().getLevel() >= rank.getLevel()) {
-			System.out.println("level error");
 			return false;
 		}
 
 		// only allow buying when corporateer has enough general influence
 		if (generalInfluence.getAmount() < rank.getInfluenceToBuy()) {
-			System.out.println("influence error");
-			System.out.println(generalInfluence.getAmount());
 			return false;
 		}
 

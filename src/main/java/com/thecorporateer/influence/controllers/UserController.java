@@ -111,14 +111,14 @@ public class UserController {
 		User currentUser = userHandlingService.getUserByName(currentPrincipalName);
 
 		if (!userHandlingService.checkCurrentPassword(currentUser, request.getCurrentPassword())) {
-			return ResponseEntity.badRequest().body("{\"reason\":\"wrong password\"}");
+			return ResponseEntity.badRequest().body("{\"message\":\"Wrong password\"}");
 		}
 
 		if (!userHandlingService.changePassword(currentUser, request.getNewPassword())) {
-			return ResponseEntity.badRequest().body("{\"reason\":\"password complexity requirements violated\"}");
+			return ResponseEntity.badRequest().body("{\"message\":\"Password complexity requirements violated\"}");
 		}
 		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Password change");
-		return ResponseEntity.ok().body("{\"message\":\"password successfully changed\"}");
+		return ResponseEntity.ok().body("{\"message\":\"Password successfully changed\"}");
 	}
 
 	/**
