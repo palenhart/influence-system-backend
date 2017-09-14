@@ -135,28 +135,21 @@ public class UserController {
 	// TODO: Only allow a subset of divisions if user is able to do change himself
 	// TODO: There might be a better way than using JSON just for the sake of it.
 	public ResponseEntity<?> setMyMainDivision(@RequestBody ObjectNode request) throws JSONException {
-		try {
-
+		
 			if(corporateerHandlingService.setMainDivision(SecurityContextHolder.getContext().getAuthentication(),
 					request.get("name").asText())) {
-				return ResponseEntity.ok().body("{\"message\":\"division successfully changed\"}");
+				return ResponseEntity.ok().body("{\"message\":\"Division successfully changed\"}");
 			}
 			else {
-				return ResponseEntity.ok().body("{\"message\":\"division did not change\"}");
+				return ResponseEntity.ok().body("{\"message\":\"Division did not change\"}");
 			}
-
-			
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body("{\"reason\":\"Bad request\"}");
-		}
 
 	}
 
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method = RequestMethod.POST, value = "/buyRank", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> buyRank(@RequestBody ObjectNode request) throws JSONException {
-		try {
-
+		
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			String currentPrincipalName = authentication.getName();
 
@@ -167,18 +160,15 @@ public class UserController {
 						"Bought rank " + rankname);
 				return ResponseEntity.ok().body("{\"message\":\"Rank successfully bought\"}");
 			}
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body("{\"reason\":\"Bad request\"}");
-		}
-		return ResponseEntity.badRequest().body("{\"reason\":\"Cannot buy rank\"}");
+		
+		return ResponseEntity.badRequest().body("{\"message\":\"Cannot buy rank\"}");
 	}
 
 	@CrossOrigin(origins = "*")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@RequestMapping(method = RequestMethod.POST, value = "/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> createUser(@RequestBody ObjectNode request) throws JSONException {
-		try {
-
+		
 			String username = request.get("name").asText();
 
 			if (userHandlingService.createUser(username)) {
@@ -186,10 +176,8 @@ public class UserController {
 						"Created user " + username);
 				return ResponseEntity.ok().body("{\"message\":\"User successfully created\"}");
 			}
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body("{\"reason\":\"Bad request\"}");
-		}
-		return ResponseEntity.badRequest().body("{\"reason\":\"Cannot buy rank\"}");
+		
+		return ResponseEntity.badRequest().body("{\"message\":\"Cannot buy rank\"}");
 	}
 }
 

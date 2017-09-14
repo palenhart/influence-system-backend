@@ -112,7 +112,7 @@ public class TransactionController {
 			}
 			return ResponseEntity.ok().body(response);
 		}
-		return ResponseEntity.badRequest().body("{\"reason\":\"Bad request\"}");
+		return ResponseEntity.notFound().build();
 	}
 
 }
