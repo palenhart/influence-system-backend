@@ -70,7 +70,7 @@ public class TransactionController {
 			actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Influence transfer");
 			return ResponseEntity.ok().body("{\"message\":\"Transaction successful\"}");
 		} else {
-			return ResponseEntity.badRequest().body("{\"reason\":\"Transaction failed\"}");
+			return ResponseEntity.badRequest().body("{\"message\":\"Transaction failed\"}");
 		}
 	}
 

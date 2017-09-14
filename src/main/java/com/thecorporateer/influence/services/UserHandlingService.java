@@ -57,10 +57,16 @@ public class UserHandlingService {
 
 		return userRepository.save(user);
 	}
-	
-	public List<User> getAllUsers(){
-		
-		return userRepository.findAll();
+
+	public List<User> getAllUsers() {
+
+		List<User> users = userRepository.findAll();
+
+		if (users == null) {
+			throw new UserNotFoundException();
+		}
+
+		return users;
 	}
 
 	/**

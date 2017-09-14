@@ -6,6 +6,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.thecorporateer.influence.exceptions.DepartmentNotFoundException;
+import com.thecorporateer.influence.exceptions.DivisionNotFoundException;
+import com.thecorporateer.influence.exceptions.InfluenceTypeNotFoundException;
+import com.thecorporateer.influence.exceptions.RankNotFoundException;
 import com.thecorporateer.influence.objects.Conversion;
 import com.thecorporateer.influence.objects.Department;
 import com.thecorporateer.influence.objects.Division;
@@ -37,24 +41,48 @@ public class ObjectService {
 
 	public Division getDivisionByName(String name) {
 
-		return divisionRepository.findByName(name);
+		Division division = divisionRepository.findByName(name);
+
+		if (division == null) {
+			throw new DivisionNotFoundException();
+		}
+
+		return division;
 	}
 
 	public Division getDivisionByNameAndDepartment(String name, Department department) {
 
-		return divisionRepository.findByNameAndDepartment(name, department);
+		Division division = divisionRepository.findByNameAndDepartment(name, department);
+
+		if (division == null) {
+			throw new DivisionNotFoundException();
+		}
+
+		return division;
 	}
 
 	public Division getDefaultDivision() {
 
-		return divisionRepository.findOne(1L);
+		Division division = divisionRepository.findOne(1L);
+
+		if (division == null) {
+			throw new DivisionNotFoundException();
+		}
+
+		return division;
 	}
 
 	public List<Division> getAllDivisions() {
 
-		return divisionRepository.findAll();
+		List<Division> divisions = divisionRepository.findAll();
+
+		if (divisions == null || divisions.size() == 0) {
+			throw new DivisionNotFoundException();
+		}
+
+		return divisions;
 	}
-	
+
 	public List<DivisionResponse> getDivisionsAsResponse() {
 
 		List<DivisionResponse> divisions = new ArrayList<DivisionResponse>();
@@ -62,7 +90,7 @@ public class ObjectService {
 		for (Division division : getAllDivisions()) {
 			int currentInfluence = 0;
 			for (Transaction transaction : division.getIncomingTransactions()) {
-				if (transaction.getType().equals(getInfluenceTypeId(1L))) {
+				if (transaction.getType().equals(getInfluenceTypeById(1L))) {
 					currentInfluence = currentInfluence + transaction.getAmount();
 				}
 			}
@@ -71,47 +99,88 @@ public class ObjectService {
 
 		return divisions;
 	}
-	
+
 	public Department getDepartmentByName(String name) {
 
-		return departmentRepository.findByName(name);
+		Department department = departmentRepository.findByName(name);
+
+		if (department == null) {
+			throw new DepartmentNotFoundException();
+		}
+
+		return department;
 	}
 
 	public Rank getRankByName(String name) {
 
-		return rankRepository.findByName(name);
+		Rank rank = rankRepository.findByName(name);
+
+		if (rank == null) {
+			throw new RankNotFoundException();
+		}
+
+		return rank;
 	}
-	
+
 	public List<Rank> getAllRanks() {
 
-		return rankRepository.findAll();
+		List<Rank> ranks = rankRepository.findAll();
+
+		if (ranks == null) {
+			throw new RankNotFoundException();
+		}
+
+		return ranks;
 	}
 
 	public Rank getLowestRank() {
 
-		return rankRepository.findByLevel(0);
+		Rank rank = rankRepository.findByLevel(0);
+
+		if (rank == null) {
+			throw new RankNotFoundException();
+		}
+
+		return rank;
 	}
 
-	public InfluenceType getInfluenceTypeId(Long id) {
+	public InfluenceType getInfluenceTypeById(Long id) {
 
-		return influenceTypeRepository.findOne(id);
+		InfluenceType influenceType = influenceTypeRepository.findOne(id);
+
+		if (influenceType == null) {
+			throw new InfluenceTypeNotFoundException();
+		}
+
+		return influenceType;
 	}
-	
+
 	public InfluenceType getInfluenceTypeByName(String name) {
 
-		return influenceTypeRepository.findByName(name);
+		InfluenceType influenceType = influenceTypeRepository.findByName(name);
+
+		if (influenceType == null) {
+			throw new InfluenceTypeNotFoundException();
+		}
+
+		return influenceType;
 	}
 
 	public List<InfluenceType> getAllInfluenceTypes() {
 
-		return influenceTypeRepository.findAll();
+		List<InfluenceType> influenceTypes = influenceTypeRepository.findAll();
+
+		if (influenceTypes == null) {
+			throw new InfluenceTypeNotFoundException();
+		}
+
+		return influenceTypes;
 	}
 
 	public Conversion saveConversion(Conversion conversion) {
 
 		return conversionRepository.save(conversion);
 	}
-
 
 }
 
