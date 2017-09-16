@@ -2,8 +2,9 @@ package com.thecorporateer.influence.exceptions;
 
 import java.time.Instant;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.JSONException;
-import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
