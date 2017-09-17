@@ -100,9 +100,9 @@ public class TransactionService {
 			sender.setLifetimeInfluence(sender.getLifetimeInfluence() + amount);
 			receiver.setTotalInfluence(corporateerHandlingService.getTotalInfluence(receiver));
 			receiver.setLifetimeInfluence(receiver.getLifetimeInfluence() + amount);
-			receiver = corporateerHandlingService.updateCorporateer(receiver);
+			corporateerHandlingService.updateCorporateer(receiver);
 		}
-		sender = corporateerHandlingService.updateCorporateer(sender);
+		corporateerHandlingService.updateCorporateer(sender);
 
 		return true;
 	}
