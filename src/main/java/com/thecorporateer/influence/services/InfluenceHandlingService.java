@@ -43,7 +43,7 @@ public class InfluenceHandlingService {
 		return influence;
 	}
 
-	public Influence updateInfluence(Influence influence) {
+	private Influence updateInfluence(Influence influence) {
 
 		return influenceRepository.save(influence);
 	}
@@ -54,6 +54,11 @@ public class InfluenceHandlingService {
 	}
 
 	public boolean convertInfluence(Influence influence, int amount, boolean toGeneral) {
+
+		// do not convert demerits
+		if (influence.getType().getId() != 1L) {
+			return false;
+		}
 
 		// do not convert general influence
 		if (influence.getDivision().getDepartment().getId() == 1L) {

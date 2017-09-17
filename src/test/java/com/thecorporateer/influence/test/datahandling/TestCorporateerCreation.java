@@ -19,33 +19,23 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.thecorporateer.influence.objects.Corporateer;
-import com.thecorporateer.influence.objects.Department;
 import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.InfluenceType;
 import com.thecorporateer.influence.objects.Rank;
 import com.thecorporateer.influence.repositories.CorporateerRepository;
-import com.thecorporateer.influence.repositories.DepartmentRepository;
-import com.thecorporateer.influence.repositories.DivisionRepository;
-import com.thecorporateer.influence.repositories.InfluenceRepository;
-import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
-import com.thecorporateer.influence.repositories.RankRepository;
 import com.thecorporateer.influence.services.CorporateerHandlingService;
+import com.thecorporateer.influence.services.InfluenceHandlingService;
+import com.thecorporateer.influence.services.ObjectService;
 
 public class TestCorporateerCreation {
 
 	@Mock
 	private CorporateerRepository mockCorporateerRepository;
 	@Mock
-	private DivisionRepository mockDivisionRepository;
+	private ObjectService mockObjectService;
 	@Mock
-	private DepartmentRepository mockDepartmentRepository;
-	@Mock
-	private RankRepository mockRankRepository;
-	@Mock
-	private InfluenceTypeRepository mockInfluenceTypeRepository;
-	@Mock
-	private InfluenceRepository mockInfluenceRepository;
+	private InfluenceHandlingService mockInfluenceHandlingService;
 
 	@Captor
 	private ArgumentCaptor<Corporateer> corporateerCaptor;
@@ -53,32 +43,21 @@ public class TestCorporateerCreation {
 	private ArgumentCaptor<List<Influence>> influenceCaptor;
 
 	@InjectMocks
-	private CorporateerHandlingService dataHandlingService;
+	private CorporateerHandlingService mockCorporateerHandlingService;
 
 	// lists to test with
-	private List<Rank> ranks = new ArrayList<>();
 	private List<InfluenceType> types = new ArrayList<>();
-	private List<Department> departments = new ArrayList<>();
 	private List<Division> divisions = new ArrayList<>();
 
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
 
-		Division mockNoDivision = mock(Division.class);
-		when(mockNoDivision.getId()).thenReturn(1L);
-
-		Department mockNoDepartment = mock(Department.class);
-		when(mockNoDepartment.getId()).thenReturn(1L);
-
-		ranks.add(mock(Rank.class));
-		ranks.add(mock(Rank.class));
 		types.add(mock(InfluenceType.class));
 		types.add(mock(InfluenceType.class));
-		departments.add(mock(Department.class));
-		departments.add(mock(Department.class));
 		divisions.add(mock(Division.class));
-		divisions.add(mockNoDivision);
+		divisions.add(mock(Division.class));
+		divisions.add(mock(Division.class));
 	}
 
 	@After
@@ -89,16 +68,15 @@ public class TestCorporateerCreation {
 	@Test
 	public void testCreateCorporateer() {
 		Rank mockRank = mock(Rank.class);
-		when(mockRankRepository.findOne(1L)).thenReturn(mockRank);
+		when(mockObjectService.getLowestRank()).thenReturn(mockRank);
 
 		Division mockDivision = mock(Division.class);
-		when(mockDivisionRepository.findOne(1L)).thenReturn(mockDivision);
+		when(mockObjectService.getDefaultDivision()).thenReturn(mockDivision);
 
-		when(mockInfluenceTypeRepository.findAll()).thenReturn(types);
-		when(mockDepartmentRepository.findAll()).thenReturn(departments);
-		when(mockDivisionRepository.findAll()).thenReturn(divisions);
+		when(mockObjectService.getAllInfluenceTypes()).thenReturn(types);
+		when(mockObjectService.getAllDivisions()).thenReturn(divisions);
 
-		dataHandlingService.createCorporateer("Corporateer");
+		mockCorporateerHandlingService.createCorporateer("Corporateer");
 
 		verify(mockCorporateerRepository).save(corporateerCaptor.capture());
 		assertEquals("Corporateer name saved incorrectly", "Corporateer", corporateerCaptor.getValue().getName());
@@ -107,7 +85,7 @@ public class TestCorporateerCreation {
 				corporateerCaptor.getValue().getMainDivision());
 		assertEquals("Corporateer tributes initialized incorrectly", 0, corporateerCaptor.getValue().getTributes());
 
-		verify(mockInfluenceRepository).save(influenceCaptor.capture());
+		verify(mockInfluenceHandlingService).updateInfluences(influenceCaptor.capture());
 		assertEquals("List of influences has wrong size", 6, influenceCaptor.getValue().size());
 	}
 

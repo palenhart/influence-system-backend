@@ -80,7 +80,7 @@ public class CorporateerHandlingService {
 		corporateer.setName(name);
 		corporateer.setRank(objectService.getLowestRank());
 		corporateer.setMainDivision(objectService.getDefaultDivision());
-		corporateer = corporateerRepository.save(corporateer);
+		corporateer = updateCorporateer(corporateer);
 		initializeInfluenceTable(corporateer);
 	}
 
@@ -101,7 +101,7 @@ public class CorporateerHandlingService {
 				influences.add(new Influence(corporateer, division.getDepartment(), division, type, 0));
 			}
 		}
-		influences = influenceHandlingService.updateInfluences(influences);
+		influenceHandlingService.updateInfluences(influences);
 	}
 
 	/**
