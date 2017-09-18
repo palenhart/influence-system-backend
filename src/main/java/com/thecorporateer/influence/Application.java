@@ -22,7 +22,7 @@ public class Application {
 
 	// Going to application.properties and setting log level of
 	// logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter
-	// activates logging of every request
+	// to DEBUG activates logging of every request
 	@Bean
 	public CommonsRequestLoggingFilter requestLoggingFilter() {
 		CommonsRequestLoggingFilter loggingFilter = new CommonsRequestLoggingFilter();
