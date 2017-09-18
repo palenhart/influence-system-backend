@@ -15,4 +15,6 @@ import com.thecorporateer.influence.objects.Rank;
 public interface RankRepository extends JpaRepository<Rank, Long> {
 	Rank findByName(String name);
 
+	Rank findByLevel(int level);
+
 }

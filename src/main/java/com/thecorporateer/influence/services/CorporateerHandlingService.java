@@ -4,19 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import com.thecorporateer.influence.exceptions.CorporateerNotFoundException;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.objects.InfluenceType;
 import com.thecorporateer.influence.objects.Rank;
 import com.thecorporateer.influence.repositories.CorporateerRepository;
-import com.thecorporateer.influence.repositories.DivisionRepository;
-import com.thecorporateer.influence.repositories.InfluenceRepository;
-import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
-import com.thecorporateer.influence.repositories.RankRepository;
-import com.thecorporateer.influence.repositories.UserRepository;
 
 /**
  * @author Zollak
@@ -28,22 +25,48 @@ import com.thecorporateer.influence.repositories.UserRepository;
 public class CorporateerHandlingService {
 
 	@Autowired
-	private UserRepository userRepository;
-	@Autowired
-	private RankRepository rankRepository;
-	@Autowired
-	private InfluenceTypeRepository influenceTypeRepository;
-	@Autowired
 	private CorporateerRepository corporateerRepository;
 	@Autowired
-	private DivisionRepository divisionRepository;
+	private UserHandlingService userHandlingService;
 	@Autowired
-	private InfluenceRepository influenceRepository;
+	private InfluenceHandlingService influenceHandlingService;
+	@Autowired
+	private ObjectService objectService;
+	@Autowired
+	private ActionLogService actionLogService;
 
 	// private List<Rank> ranks = new ArrayList<>();
 	private List<InfluenceType> types = new ArrayList<>();
 	private List<Division> divisions = new ArrayList<>();
 	private List<Corporateer> corporateers = new ArrayList<>();
+
+	public Corporateer getCorporateerByName(String name) {
+
+		Corporateer corporateer = corporateerRepository.findByName(name);
+
+		if (corporateer == null) {
+			throw new CorporateerNotFoundException();
+		}
+
+		return corporateerRepository.findByName(name);
+	}
+
+	public List<Corporateer> getAllCorporateers() {
+
+		List<Corporateer> corporateers = corporateerRepository.findAll();
+
+		if (corporateers == null) {
+			throw new CorporateerNotFoundException();
+		}
+
+		return corporateers;
+	}
+
+	// TODO: Think about handling errors
+	public Corporateer updateCorporateer(Corporateer corporateer) {
+
+		return corporateerRepository.save(corporateer);
+	}
 
 	/**
 	 * Create a new corporateer with the provided name. The coporateer will have the
@@ -55,9 +78,9 @@ public class CorporateerHandlingService {
 	public void createCorporateer(String name) {
 		Corporateer corporateer = new Corporateer();
 		corporateer.setName(name);
-		corporateer.setRank(rankRepository.findOne(1L));
-		corporateer.setMainDivision(divisionRepository.findOne(1L));
-		corporateer = corporateerRepository.save(corporateer);
+		corporateer.setRank(objectService.getLowestRank());
+		corporateer.setMainDivision(objectService.getDefaultDivision());
+		corporateer = updateCorporateer(corporateer);
 		initializeInfluenceTable(corporateer);
 	}
 
@@ -78,7 +101,7 @@ public class CorporateerHandlingService {
 				influences.add(new Influence(corporateer, division.getDepartment(), division, type, 0));
 			}
 		}
-		influences = influenceRepository.save(influences);
+		influenceHandlingService.updateInfluences(influences);
 	}
 
 	/**
@@ -106,30 +129,46 @@ public class CorporateerHandlingService {
 		return total;
 	}
 
-	public void setMainDivision(Corporateer corporateer, Division division) {
+	public boolean setMainDivision(Authentication authentication, String divisionName) {
+		Corporateer corporateer = userHandlingService.getUserByName(authentication.getName()).getCorporateer();
+		Division division;
+
+		// do nothing when there is no change
+		if (divisionName.equals(corporateer.getMainDivision().getName())) {
+			return false;
+		}
+
+		// "none" is also used for departments, choose the general division instead
+		if (divisionName.equals("none")) {
+			division = objectService.getDefaultDivision();
+			actionLogService.logAction(authentication, "Removed main division");
+
+		} else {
+			division = objectService.getDivisionByName(divisionName);
+			actionLogService.logAction(authentication, "Set main division to " + division.getName());
+		}
+
 		corporateer.setMainDivision(division);
 		corporateerRepository.save(corporateer);
+		return true;
 	}
 
 	public boolean buyRank(String username, String rankName) {
 
 		// TODO: validations
 
-		Corporateer corporateer = userRepository.findByUsername(username).getCorporateer();
-		Rank rank = rankRepository.findByName(rankName);
-		Influence generalInfluence = influenceRepository.findByCorporateerAndDivisionAndType(corporateer,
-				divisionRepository.findOne(1L), influenceTypeRepository.findOne(1L));
+		Corporateer corporateer = userHandlingService.getUserByName(username).getCorporateer();
+		Rank rank = objectService.getRankByName(rankName);
+		Influence generalInfluence = influenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(corporateer,
+				objectService.getDefaultDivision(), objectService.getInfluenceTypeById(1L));
 
 		// only allow buying a higher rank
 		if (corporateer.getRank().getLevel() >= rank.getLevel()) {
-			System.out.println("level error");
 			return false;
 		}
 
 		// only allow buying when corporateer has enough general influence
 		if (generalInfluence.getAmount() < rank.getInfluenceToBuy()) {
-			System.out.println("influence error");
-			System.out.println(generalInfluence.getAmount());
 			return false;
 		}
 
@@ -154,14 +193,14 @@ public class CorporateerHandlingService {
 	 * Refreshes list of influence types from repository
 	 */
 	private void refreshInfluenceTypes() {
-		types = influenceTypeRepository.findAll();
+		types = objectService.getAllInfluenceTypes();
 	}
 
 	/**
 	 * Refreshes list of division from repository
 	 */
 	private void refreshDivisions() {
-		divisions = divisionRepository.findAll();
+		divisions = objectService.getAllDivisions();
 	}
 
 	/**
@@ -170,4 +209,5 @@ public class CorporateerHandlingService {
 	private void refreshCorporateers() {
 		corporateers = corporateerRepository.findAll();
 	}
+
 }

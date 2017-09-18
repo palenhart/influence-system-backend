@@ -1,0 +1,6 @@
+image: maven:latest
+
+test:
+  script: "mvn test -Dtest=com.thecorporateer.influence.test.all.AllTests -B"
+  only:
+  - merge-requests
