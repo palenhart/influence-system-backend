@@ -13,8 +13,7 @@ import lombok.Setter;
 /**
  * @author Zollak
  * 
- *         Entity to store conversions from specialized influence to more
- *         general influence
+ *         Entity used to log actions performed by users
  *
  */
 @Getter
@@ -22,19 +21,15 @@ import lombok.Setter;
 @NoArgsConstructor
 
 @Entity
-public class Conversion extends JpaEntity {
+public class ActionLog extends JpaEntity {
 
 	@NotNull
 	@NotBlank
 	private String timestamp;
 	@ManyToOne
-	private Corporateer corporateer;
-	@ManyToOne
-	private Division fromDivision;
-	@ManyToOne
-	private Division toDivision;
-	@ManyToOne
-	private InfluenceType type;
-	private int amount;
+	private User user;
+	@NotNull
+	@NotBlank
+	private String action;
 
 }

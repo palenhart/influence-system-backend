@@ -8,9 +8,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.thecorporateer.influence.controllers.Views;
 
 import lombok.Getter;
@@ -28,7 +27,6 @@ import lombok.Setter;
 @NoArgsConstructor
 
 @Entity
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Department extends JpaEntity {
 
 	public Department(String name) {
@@ -40,8 +38,7 @@ public class Department extends JpaEntity {
 	@JsonView(Views.Public.class)
 	private String name;
 	@OneToMany(mappedBy = "department")
+	@JsonIgnore
 	private List<Division> divisions;
-	@OneToMany(mappedBy = "department")
-	private List<Influence> influence;
 
 }

@@ -11,10 +11,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.thecorporateer.influence.controllers.Views;
 
 import lombok.Getter;
@@ -32,7 +30,6 @@ import lombok.Setter;
 @NoArgsConstructor
 
 @Entity
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Corporateer extends JpaEntity {
 
 	@NotNull
@@ -46,9 +43,16 @@ public class Corporateer extends JpaEntity {
 	@Min(0)
 	@JsonView(Views.Private.class)
 	private int tributes = 0;
+	@NotNull
+	@Min(0)
 	@JsonView(Views.Public.class)
 	private int totalInfluence = 0;
+	@NotNull
+	@Min(0)
+	@JsonView(Views.Public.class)
+	private int lifetimeInfluence = 0;
 	@OneToMany(mappedBy = "corporateer")
+	@JsonIgnore
 	private List<Influence> influence;
 	@NotNull
 	@ManyToOne
@@ -59,9 +63,10 @@ public class Corporateer extends JpaEntity {
 	@JsonView(Views.Public.class)
 	private Rank rank;
 	@OneToMany(mappedBy = "sender")
+	@JsonIgnore
 	private List<Transaction> sentTransactions;
 	@OneToMany(mappedBy = "receiver")
+	@JsonIgnore
 	private List<Transaction> receivedTransactions;
-	// private Position position;
 
 }

@@ -18,10 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.InfluenceType;
 import com.thecorporateer.influence.objects.Transaction;
-import com.thecorporateer.influence.repositories.CorporateerRepository;
-import com.thecorporateer.influence.repositories.InfluenceTypeRepository;
-import com.thecorporateer.influence.repositories.UserRepository;
+import com.thecorporateer.influence.services.ActionLogService;
+import com.thecorporateer.influence.services.CorporateerHandlingService;
+import com.thecorporateer.influence.services.ObjectService;
 import com.thecorporateer.influence.services.TransactionService;
+import com.thecorporateer.influence.services.UserHandlingService;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,14 +35,15 @@ import lombok.Getter;
 public class TransactionController {
 
 	@Autowired
-	UserRepository userRepository;
+	private TransactionService transactionService;
 	@Autowired
-	CorporateerRepository corporateerRepository;
+	private ActionLogService actionLogService;
 	@Autowired
-	InfluenceTypeRepository influenceTypeRepository;
-
+	private UserHandlingService userHandlingService;
 	@Autowired
-	TransactionService transactionService;
+	private CorporateerHandlingService corporateerHandlingService;
+	@Autowired
+	private ObjectService objectService;
 
 	/**
 	 * 
@@ -56,17 +58,19 @@ public class TransactionController {
 	@RequestMapping(value = "/transfer", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> transfer(@RequestBody TransactionRequest request) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		Corporateer senderObject = userRepository.findByUsername(authentication.getName()).getCorporateer();
-		Corporateer receiverObject = corporateerRepository.findByName(request.getReceiver());
-		InfluenceType typeObject = influenceTypeRepository.findByName(request.getType().toUpperCase());
+		Corporateer senderObject = userHandlingService.getUserByName(authentication.getName()).getCorporateer();
+		Corporateer receiverObject = corporateerHandlingService.getCorporateerByName(request.getReceiver());
+		InfluenceType typeObject = objectService.getInfluenceTypeByName(request.getType().toUpperCase());
 
 		boolean result = transactionService.transfer(senderObject, receiverObject, request.getMessage(),
 				request.getAmount(), typeObject);
 
 		if (result) {
+
+			actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Influence transfer");
 			return ResponseEntity.ok().body("{\"message\":\"Transaction successful\"}");
 		} else {
-			return ResponseEntity.badRequest().body("{\"reason\":\"Transaction failed\"}");
+			return ResponseEntity.badRequest().body("{\"message\":\"Transaction failed\"}");
 		}
 	}
 
@@ -86,29 +90,29 @@ public class TransactionController {
 		String currentPrincipalName = authentication.getName();
 		List<TransactionResponse> response = new ArrayList<TransactionResponse>();
 		if (direction.equals("sender")) {
-			for (Transaction transaction : userRepository.findByUsername(currentPrincipalName).getCorporateer()
+			for (Transaction transaction : userHandlingService.getUserByName(currentPrincipalName).getCorporateer()
 					.getSentTransactions()) {
 				response.add(new TransactionResponse(transaction.getTimestamp(), transaction.getSender().getName(),
 						transaction.getReceiver().getName(), transaction.getAmount(), transaction.getType().getName(),
 						transaction.getMessage(), transaction.getDivision().getName(),
-						transaction.getDepartment().getName()));
+						transaction.getDivision().getDepartment().getName()));
 			}
 			return ResponseEntity.ok().body(response);
 		} else if (direction.equals("receiver")) {
-			for (Transaction transaction : userRepository.findByUsername(currentPrincipalName).getCorporateer()
+			for (Transaction transaction : userHandlingService.getUserByName(currentPrincipalName).getCorporateer()
 					.getReceivedTransactions()) {
 				// do not show demerits
 				// TODO: Refactor to not use the name
-				if (transaction.getType().equals(influenceTypeRepository.findByName("INFLUENCE"))) {
+				if (transaction.getType().equals(objectService.getInfluenceTypeByName("INFLUENCE"))) {
 					response.add(new TransactionResponse(transaction.getTimestamp(), transaction.getSender().getName(),
 							transaction.getReceiver().getName(), transaction.getAmount(),
 							transaction.getType().getName(), transaction.getMessage(),
-							transaction.getDivision().getName(), transaction.getDepartment().getName()));
+							transaction.getDivision().getName(), transaction.getDivision().getDepartment().getName()));
 				}
 			}
 			return ResponseEntity.ok().body(response);
 		}
-		return ResponseEntity.badRequest().body("{\"reason\":\"Bad request\"}");
+		return ResponseEntity.notFound().build();
 	}
 
 }
@@ -140,6 +144,18 @@ class TransactionRequest {
 @AllArgsConstructor
 class TransactionResponse {
 
+	public TransactionResponse(String timestamp, String sender, String receiver, int amount, String type,
+			String message, String division, String department) {
+		this.timestamp = timestamp;
+		this.sender = sender;
+		this.receiver = receiver;
+		this.amount = amount;
+		this.type = type;
+		this.message = message;
+		this.division = division;
+		this.department = department;
+	}
+
 	String timestamp;
 	String sender;
 	String receiver;
@@ -148,5 +164,6 @@ class TransactionResponse {
 	String message;
 	String division;
 	String department;
+	String receivingDivision;
 
 }

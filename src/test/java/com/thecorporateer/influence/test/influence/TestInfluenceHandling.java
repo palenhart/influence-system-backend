@@ -3,22 +3,28 @@ package com.thecorporateer.influence.test.influence;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.thecorporateer.influence.exceptions.InfluenceNotFoundException;
 import com.thecorporateer.influence.objects.Conversion;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Department;
@@ -30,11 +36,14 @@ import com.thecorporateer.influence.repositories.DepartmentRepository;
 import com.thecorporateer.influence.repositories.DivisionRepository;
 import com.thecorporateer.influence.repositories.InfluenceRepository;
 import com.thecorporateer.influence.services.InfluenceHandlingService;
+import com.thecorporateer.influence.services.ObjectService;
 
 public class TestInfluenceHandling {
 
 	@Mock
 	private InfluenceRepository mockInfluenceRepository;
+	@Mock
+	private ObjectService mockObjectService;
 	@Mock
 	private DepartmentRepository mockDepartmentRepository;
 	@Mock
@@ -70,9 +79,10 @@ public class TestInfluenceHandling {
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
+
 		when(mockInfluenceToGeneralize.getCorporateer()).thenReturn(mockCorporateer);
-		when(mockInfluenceToGeneralize.getDepartment()).thenReturn(mockDepartment);
 		when(mockInfluenceToGeneralize.getDivision()).thenReturn(mockDivision);
+		when(mockInfluenceToGeneralize.getDivision().getDepartment()).thenReturn(mockDepartment);
 		when(mockInfluenceToGeneralize.getType()).thenReturn(mockInfluenceType);
 	}
 
@@ -80,22 +90,29 @@ public class TestInfluenceHandling {
 	public void tearDown() throws Exception {
 	}
 
+	@Rule
+	public ExpectedException exception = ExpectedException.none();
+
 	@Test
 	public void testConvertToDepartment() {
+
+		when(mockInfluenceToGeneralize.getDivision().getId()).thenReturn(10L);
 
 		when(mockInfluenceToGeneralize.getAmount()).thenReturn(10);
 		when(mockMoreGeneralInfluence.getAmount()).thenReturn(5);
 		when(mockInfluenceType.getId()).thenReturn(1L);
-		when(mockDivisionRepository.findOne(1L)).thenReturn(mockToDivision);
 
-		when(mockInfluenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(mockCorporateer, mockDepartment,
-				mockToDivision, mockInfluenceType)).thenReturn(mockMoreGeneralInfluence);
+		when(mockObjectService.getDivisionByNameAndDepartment("none",
+				mockInfluenceToGeneralize.getDivision().getDepartment())).thenReturn(mockToDivision);
 
-		when(mockMoreGeneralInfluence.getDepartment()).thenReturn(mockToDepartment);
+		when(mockInfluenceRepository.findByCorporateerAndDivisionAndType(mockCorporateer, mockToDivision,
+				mockInfluenceType)).thenReturn(mockMoreGeneralInfluence);
+
 		when(mockMoreGeneralInfluence.getDivision()).thenReturn(mockToDivision);
+		when(mockMoreGeneralInfluence.getDivision().getDepartment()).thenReturn(mockToDepartment);
 		String timestamp = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString();
 		assertTrue("Influence generalization failed!",
-				influenceHandlingService.convertInfluenceToDepartment(mockInfluenceToGeneralize));
+				influenceHandlingService.convertInfluence(mockInfluenceToGeneralize, 10, false));
 
 		verify(mockMoreGeneralInfluence).setAmount(15);
 		verify(mockInfluenceToGeneralize).setAmount(0);
@@ -106,14 +123,10 @@ public class TestInfluenceHandling {
 		assertEquals("Division influence does not get saved correctly!", mockInfluenceToGeneralize,
 				influenceCaptor.getAllValues().get(1));
 
-		verify(mockConversionRepository).save(conversionCaptor.capture());
+		verify(mockObjectService).saveConversion(conversionCaptor.capture());
 		assertEquals("Wrong timestamp in conversion!", timestamp, conversionCaptor.getValue().getTimestamp());
 		assertEquals("Wrong corporateer in conversion!", mockCorporateer, conversionCaptor.getValue().getCorporateer());
-		assertEquals("Wrong fromDepartment in conversion!", mockDepartment,
-				conversionCaptor.getValue().getFromDepartment());
 		assertEquals("Wrong fromDivision in conversion!", mockDivision, conversionCaptor.getValue().getFromDivision());
-		assertEquals("Wrong toDepartment in conversion!", mockToDepartment,
-				conversionCaptor.getValue().getToDepartment());
 		assertEquals("Wrong toDivision in conversion!", mockToDivision, conversionCaptor.getValue().getToDivision());
 		assertEquals("Wrong type in conversion!", mockInfluenceType, conversionCaptor.getValue().getType());
 		assertEquals("Wrong amount in conversion!", 10, conversionCaptor.getValue().getAmount());
@@ -122,33 +135,11 @@ public class TestInfluenceHandling {
 	@Test
 	public void testTryToConvertDemeritsToDepartment() {
 		when(mockInfluenceToGeneralize.getAmount()).thenReturn(10);
-		when(mockMoreGeneralInfluence.getAmount()).thenReturn(5);
 		when(mockInfluenceType.getId()).thenReturn(2L);
-		when(mockDivisionRepository.findOne(1L)).thenReturn(mockDivision);
-
-		when(mockInfluenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(mockCorporateer, mockDepartment,
-				mockDivision, mockInfluenceType)).thenReturn(mockMoreGeneralInfluence);
+		when(mockDivision.getId()).thenReturn(10L);
 
 		assertFalse("Tried generalization of demerits!",
-				influenceHandlingService.convertInfluenceToDepartment(mockInfluenceToGeneralize));
-
-	}
-
-	@Test
-	public void testTryToConvertNonDivisionSpecificToDepartment() {
-		when(mockInfluenceToGeneralize.getAmount()).thenReturn(10);
-		when(mockMoreGeneralInfluence.getAmount()).thenReturn(5);
-		when(mockInfluenceType.getId()).thenReturn(1L);
-		when(mockDivisionRepository.findOne(1L)).thenReturn(mockDivision);
-
-		when(mockInfluenceToGeneralize.getDivision()).thenReturn(mockDivision);
-		when(mockDivision.getId()).thenReturn(1L);
-
-		when(mockInfluenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(mockCorporateer, mockDepartment,
-				mockDivision, mockInfluenceType)).thenReturn(mockMoreGeneralInfluence);
-
-		assertFalse("Tried generalization of already generalized influence (department)!",
-				influenceHandlingService.convertInfluenceToDepartment(mockInfluenceToGeneralize));
+				influenceHandlingService.convertInfluence(mockInfluenceToGeneralize, 10, false));
 
 	}
 
@@ -157,19 +148,20 @@ public class TestInfluenceHandling {
 
 		when(mockInfluenceToGeneralize.getAmount()).thenReturn(10);
 		when(mockMoreGeneralInfluence.getAmount()).thenReturn(5);
-		when(mockInfluenceType.getId()).thenReturn(1L);
-		when(mockDivisionRepository.findOne(1L)).thenReturn(mockToDivision);
-		when(mockDepartmentRepository.findOne(1L)).thenReturn(mockToDepartment);
 
-		when(mockInfluenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(mockCorporateer, mockToDepartment,
-				mockToDivision, mockInfluenceType)).thenReturn(mockMoreGeneralInfluence);
-		
-		when(mockMoreGeneralInfluence.getDepartment()).thenReturn(mockToDepartment);
+		when(mockInfluenceType.getId()).thenReturn(1L);
+
+		when(mockObjectService.getDefaultDivision()).thenReturn(mockToDivision);
+
+		when(mockInfluenceRepository.findByCorporateerAndDivisionAndType(mockCorporateer, mockToDivision,
+				mockInfluenceType)).thenReturn(mockMoreGeneralInfluence);
+
 		when(mockMoreGeneralInfluence.getDivision()).thenReturn(mockToDivision);
+		when(mockMoreGeneralInfluence.getDivision().getDepartment()).thenReturn(mockToDepartment);
 
 		String timestamp = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString();
 		assertTrue("Influence generalization failed!",
-				influenceHandlingService.convertInfluenceToGeneral(mockInfluenceToGeneralize));
+				influenceHandlingService.convertInfluence(mockInfluenceToGeneralize, 10, true));
 
 		verify(mockMoreGeneralInfluence).setAmount(15);
 		verify(mockInfluenceToGeneralize).setAmount(0);
@@ -180,14 +172,10 @@ public class TestInfluenceHandling {
 		assertEquals("Division influence does not get saved correctly!", mockInfluenceToGeneralize,
 				influenceCaptor.getAllValues().get(1));
 
-		verify(mockConversionRepository).save(conversionCaptor.capture());
+		verify(mockObjectService).saveConversion(conversionCaptor.capture());
 		assertEquals("Wrong timestamp in conversion!", timestamp, conversionCaptor.getValue().getTimestamp());
 		assertEquals("Wrong corporateer in conversion!", mockCorporateer, conversionCaptor.getValue().getCorporateer());
-		assertEquals("Wrong fromDepartment in conversion!", mockDepartment,
-				conversionCaptor.getValue().getFromDepartment());
 		assertEquals("Wrong fromDivision in conversion!", mockDivision, conversionCaptor.getValue().getFromDivision());
-		assertEquals("Wrong toDepartment in conversion!", mockToDepartment,
-				conversionCaptor.getValue().getToDepartment());
 		assertEquals("Wrong toDivision in conversion!", mockToDivision, conversionCaptor.getValue().getToDivision());
 		assertEquals("Wrong type in conversion!", mockInfluenceType, conversionCaptor.getValue().getType());
 		assertEquals("Wrong amount in conversion!", 10, conversionCaptor.getValue().getAmount());
@@ -197,11 +185,8 @@ public class TestInfluenceHandling {
 	public void testTryToConvertDemeritsToGeneral() {
 		when(mockInfluenceType.getId()).thenReturn(2L);
 
-		when(mockInfluenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(mockCorporateer, mockDepartment,
-				mockDivision, mockInfluenceType)).thenReturn(mockMoreGeneralInfluence);
-
 		assertFalse("Tried generalization of demerits!",
-				influenceHandlingService.convertInfluenceToGeneral(mockInfluenceToGeneralize));
+				influenceHandlingService.convertInfluence(mockInfluenceToGeneralize, 10, true));
 
 	}
 
@@ -209,15 +194,58 @@ public class TestInfluenceHandling {
 	public void testTryToConvertGeneralToGeneral() {
 		when(mockInfluenceType.getId()).thenReturn(1L);
 
-		when(mockInfluenceToGeneralize.getDepartment()).thenReturn(mockDepartment);
 		when(mockDepartment.getId()).thenReturn(1L);
 
-		when(mockInfluenceRepository.findByCorporateerAndDepartmentAndDivisionAndType(mockCorporateer, mockDepartment,
-				mockDivision, mockInfluenceType)).thenReturn(mockMoreGeneralInfluence);
-
 		assertFalse("Tried generalization of already generalized influence (department)!",
-				influenceHandlingService.convertInfluenceToGeneral(mockInfluenceToGeneralize));
+				influenceHandlingService.convertInfluence(mockInfluenceToGeneralize, 10, true));
 
+	}
+
+	@Test
+	public void testTryToConvertMoreInfluenceThanAvailable() {
+		when(mockInfluenceType.getId()).thenReturn(1L);
+
+		when(mockDepartment.getId()).thenReturn(2L);
+
+		when(mockInfluenceToGeneralize.getAmount()).thenReturn(5);
+
+		assertFalse("Tried generalization more influence than available!",
+				influenceHandlingService.convertInfluence(mockInfluenceToGeneralize, 10, true));
+
+	}
+
+	@Test
+	public void testThrowInfluenceNotFoundException() {
+
+		exception.expect(InfluenceNotFoundException.class);
+
+		when(mockInfluenceType.getId()).thenReturn(1L);
+
+		when(mockDepartment.getId()).thenReturn(2L);
+
+		when(mockInfluenceToGeneralize.getAmount()).thenReturn(10);
+
+		when(mockInfluenceRepository.findByCorporateerAndDivisionAndType(mockCorporateer, mockToDivision,
+				mockInfluenceType)).thenReturn(null);
+
+		influenceHandlingService.convertInfluence(mockInfluenceToGeneralize, 10, false);
+
+	}
+
+	@Test
+	public void testUpdateInfluences() {
+
+		List<Influence> mockInfluences = new ArrayList<Influence>();
+
+		mockInfluences.add(mock(Influence.class));
+		mockInfluences.add(mock(Influence.class));
+		mockInfluences.add(mock(Influence.class));
+		mockInfluences.add(mock(Influence.class));
+		
+		when(mockInfluenceRepository.save(mockInfluences)).thenReturn(mockInfluences);
+
+		assertEquals("Wrong influences saved!", mockInfluences,
+				influenceHandlingService.updateInfluences(mockInfluences));
 	}
 
 }

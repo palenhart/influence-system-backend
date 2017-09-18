@@ -3,6 +3,11 @@
  */
 package com.thecorporateer.influence.services;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.List;
+
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.LengthRule;
@@ -14,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.thecorporateer.influence.exceptions.UserNotFoundException;
 import com.thecorporateer.influence.objects.User;
 import com.thecorporateer.influence.repositories.UserRepository;
 
@@ -31,6 +37,37 @@ public class UserHandlingService {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private CorporateerHandlingService corporateerHandlingService;
+
+	public User getUserByName(String name) {
+
+		User user = userRepository.findByUsername(name);
+
+		if (user == null) {
+			throw new UserNotFoundException();
+		}
+
+		return user;
+	}
+
+	// TODO: Think about handling errors
+	public User updateUser(User user) {
+
+		return userRepository.save(user);
+	}
+
+	public List<User> getAllUsers() {
+
+		List<User> users = userRepository.findAll();
+
+		if (users == null) {
+			throw new UserNotFoundException();
+		}
+
+		return users;
+	}
 
 	/**
 	 * 
@@ -66,7 +103,25 @@ public class UserHandlingService {
 			return false;
 		}
 		user.setPassword(passwordEncoder.encode(newPassword));
-		userRepository.save(user);
+		updateUser(user);
+		return true;
+	}
+
+	// TODO: set role when creating user
+	// TODO: use more than username to create user
+	public boolean createUser(String username) {
+		User user = new User();
+		user.setUsername(username);
+		user.setEmail(username);
+		user.setEnabled(true);
+		user.setPassword(passwordEncoder.encode("password"));
+		user.setLastPasswordResetDate(Date.from(Instant.now().truncatedTo(ChronoUnit.SECONDS)));
+
+		corporateerHandlingService.createCorporateer(username);
+
+		user.setCorporateer(corporateerHandlingService.getCorporateerByName(username));
+
+		updateUser(user);
 		return true;
 	}
 

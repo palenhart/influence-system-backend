@@ -9,9 +9,12 @@ import com.thecorporateer.influence.objects.Rank;
  * @author Zollak
  * 
  *         Repository for Rank objects
- *         
+ * 
  */
 @RepositoryRestResource(exported = false)
 public interface RankRepository extends JpaRepository<Rank, Long> {
+	Rank findByName(String name);
+
+	Rank findByLevel(int level);
 
 }
