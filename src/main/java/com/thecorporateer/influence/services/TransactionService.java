@@ -33,6 +33,8 @@ public class TransactionService {
 	@Autowired
 	private CorporateerHandlingService corporateerHandlingService;
 	@Autowired
+	private UserHandlingService userHandlingService;
+	@Autowired
 	private InfluenceHandlingService influenceHandlingService;
 	@Autowired
 	private ObjectService objectService;
@@ -60,7 +62,7 @@ public class TransactionService {
 	public void transfer(Authentication senderAuth, String receiverName, String message, int amount,
 			String influenceTypeName) {
 
-		Corporateer sender = corporateerHandlingService.getCorporateerByName(senderAuth.getName());
+		Corporateer sender = userHandlingService.getUserByName(senderAuth.getName()).getCorporateer();
 		Corporateer receiver = corporateerHandlingService.getCorporateerByName(receiverName);
 		InfluenceType type = objectService.getInfluenceTypeByName(influenceTypeName);
 

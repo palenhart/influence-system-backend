@@ -5,6 +5,7 @@ package com.thecorporateer.influence.services;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,8 +24,11 @@ import org.springframework.stereotype.Service;
 
 import com.thecorporateer.influence.exceptions.PasswordComplexityException;
 import com.thecorporateer.influence.exceptions.UserNotFoundException;
+import com.thecorporateer.influence.objects.RoleName;
 import com.thecorporateer.influence.objects.User;
+import com.thecorporateer.influence.objects.UserRole;
 import com.thecorporateer.influence.repositories.UserRepository;
+import com.thecorporateer.influence.repositories.UserRoleRepository;
 
 /**
  * @author Zollak
@@ -37,6 +41,8 @@ public class UserHandlingService {
 
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	private UserRoleRepository userRoleRepository;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -83,7 +89,7 @@ public class UserHandlingService {
 	 *         otherwise
 	 */
 	private void checkCurrentPassword(User user, String password) {
-		
+
 		if (!passwordEncoder.matches(password, user.getPassword())) {
 			throw new BadCredentialsException("Wrong password in change request");
 		}
@@ -101,34 +107,54 @@ public class UserHandlingService {
 	 *         otherwise
 	 */
 	public void changePassword(Authentication authentication, String currentPassword, String newPassword) {
-		
+
 		User user = getUserByName(authentication.getName());
-		
+
 		checkCurrentPassword(user, currentPassword);
-		
+
 		if (!validator.validate(new PasswordData(user.getUsername(), newPassword)).isValid()) {
-			
+
 			throw new PasswordComplexityException();
 		}
-		
+
 		user.setPassword(passwordEncoder.encode(newPassword));
 		updateUser(user);
 	}
 
 	// TODO: set role when creating user
 	// TODO: use more than username to create user
-	public void createUser(String username) {
-		
+	public void createUser(String username, String corporateerName, String password) {
+
 		User user = new User();
 		user.setUsername(username);
 		user.setEmail(username);
 		user.setEnabled(true);
-		user.setPassword(passwordEncoder.encode("password"));
+		user.setPassword(passwordEncoder.encode(password));
 		user.setLastPasswordResetDate(Date.from(Instant.now().truncatedTo(ChronoUnit.SECONDS)));
 
-		corporateerHandlingService.createCorporateer(username);
+		corporateerHandlingService.createCorporateer(corporateerName);
 
-		user.setCorporateer(corporateerHandlingService.getCorporateerByName(username));
+		user.setCorporateer(corporateerHandlingService.getCorporateerByName(corporateerName));
+		
+		List<UserRole> roles = new ArrayList<UserRole>();
+		roles.add(userRoleRepository.findByName(RoleName.ROLE_USER));
+		user.setRoles(roles);
+
+		updateUser(user);
+	}
+
+	public void createTestuser(String username, String corporateerName, String password, boolean admin) {
+
+		createUser(username, corporateerName, password);
+
+		List<UserRole> roles = new ArrayList<UserRole>();
+		roles.add(userRoleRepository.findByName(RoleName.ROLE_USER));
+		if (admin) {
+			roles.add(userRoleRepository.findByName(RoleName.ROLE_ADMIN));
+		}
+
+		User user = getUserByName(username);
+		user.setRoles(roles);
 
 		updateUser(user);
 	}
@@ -137,7 +163,7 @@ public class UserHandlingService {
 	 * Settings for password validation
 	 */
 	PasswordValidator validator = new PasswordValidator(
-			
+
 			// length between 8 and 20 characters
 			new LengthRule(8, 20),
 
