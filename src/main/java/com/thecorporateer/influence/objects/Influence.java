@@ -7,6 +7,7 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,20 +21,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 
 @Table(uniqueConstraints = {
 		@UniqueConstraint(columnNames = { "corporateer_id", "division_id", "type_id" }) })
 
 @Entity
 public class Influence extends JpaEntity {
-
-	public Influence(Corporateer corporateer, Department department, Division division, InfluenceType type,
-			int amount) {
-		this.corporateer = corporateer;
-		this.division = division;
-		this.type = type;
-		this.amount = amount;
-	}
 
 	@NotNull
 	@ManyToOne

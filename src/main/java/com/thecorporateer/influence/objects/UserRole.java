@@ -15,9 +15,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonView;
-import com.thecorporateer.influence.controllers.Views;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -43,7 +40,6 @@ public class UserRole {
 	@Column(length = 20)
 	@NotNull
 	@Enumerated(EnumType.STRING)
-	@JsonView(Views.Private.class)
 	private RoleName name;
 
 	@ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)

@@ -6,8 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import com.thecorporateer.influence.exceptions.IllegalTransferRequestException;
+import com.thecorporateer.influence.exceptions.NotEnoughTributesException;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
@@ -33,9 +36,9 @@ public class TransactionService {
 	private InfluenceHandlingService influenceHandlingService;
 	@Autowired
 	private ObjectService objectService;
-	
-	public List<Transaction> getAllTransactions(){
-		
+
+	public List<Transaction> getAllTransactions() {
+
 		return transactionRepository.findAll();
 	}
 
@@ -43,25 +46,27 @@ public class TransactionService {
 	 * 
 	 * Transfer influence from one corporateer to another
 	 * 
-	 * @param sender
-	 *            The corporateer sending influence
-	 * @param receiver
-	 *            The corporateer receiving influence
+	 * @param senderAuth
+	 *            Authentication of the user sending influence
+	 * @param receiverName
+	 *            Name of the corporateer receiving influence
 	 * @param message
 	 *            A message to be sent with the influence
 	 * @param amount
 	 *            The amount of influence to be sent
-	 * @param type
+	 * @param influenceTypeName
 	 *            The type of influence to be sent
-	 * @return <code>true</code> if the transaction was successful;
-	 *         <code>false</code> otherwise
 	 */
-	public boolean transfer(Corporateer sender, Corporateer receiver, String message, int amount, InfluenceType type) {
-		if (!validate(sender, receiver, amount)) {
-			return false;
-		}
-		Division senderMainDivision = sender.getMainDivision();
+	public void transfer(Authentication senderAuth, String receiverName, String message, int amount,
+			String influenceTypeName) {
 
+		Corporateer sender = corporateerHandlingService.getCorporateerByName(senderAuth.getName());
+		Corporateer receiver = corporateerHandlingService.getCorporateerByName(receiverName);
+		InfluenceType type = objectService.getInfluenceTypeByName(influenceTypeName);
+
+		validate(sender, receiver, amount);
+
+		Division senderMainDivision = sender.getMainDivision();
 		Division influenceDivision;
 
 		if (senderMainDivision.getId().equals(receiver.getMainDivision().getId())) {
@@ -95,6 +100,7 @@ public class TransactionService {
 		transactionRepository.save(trans);
 
 		sender.setTributes(sender.getTributes() - amount);
+		
 		if (type.getId().equals(1L)) {
 			sender.setTotalInfluence(corporateerHandlingService.getTotalInfluence(sender));
 			sender.setLifetimeInfluence(sender.getLifetimeInfluence() + amount);
@@ -102,9 +108,8 @@ public class TransactionService {
 			receiver.setLifetimeInfluence(receiver.getLifetimeInfluence() + amount);
 			corporateerHandlingService.updateCorporateer(receiver);
 		}
+		
 		corporateerHandlingService.updateCorporateer(sender);
-
-		return true;
 	}
 
 	/**
@@ -120,17 +125,17 @@ public class TransactionService {
 	 * @return <code>true</code> if the transaction request does not violate any
 	 *         constraints; <code>false</code> otherwise
 	 */
-	private boolean validate(Corporateer sender, Corporateer receiver, int amount) {
+	private void validate(Corporateer sender, Corporateer receiver, int amount) {
+		
 		if (amount < 1) {
-			return false;
+			throw new IllegalTransferRequestException();
 		}
+		
 		if (sender.getTributes() < amount) {
-			return false;
+			throw new NotEnoughTributesException();
 		} else if (sender.getId() == receiver.getId()) {
-			return false;
+			throw new IllegalTransferRequestException();
 		}
-
-		return true;
 	}
 
 }

@@ -7,7 +7,6 @@ import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thecorporateer.influence.objects.Influence;
-import com.thecorporateer.influence.objects.User;
 import com.thecorporateer.influence.services.ActionLogService;
 import com.thecorporateer.influence.services.CorporateerHandlingService;
 import com.thecorporateer.influence.services.UserHandlingService;
@@ -47,51 +45,52 @@ public class UserController {
 	 * 
 	 * Request to show one's user
 	 * 
-	 * @return JSON object User
+	 * @return User as JSON object
 	 */
 	@CrossOrigin(origins = "*")
-	@JsonView(Views.Private.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/currentUser", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getCurrentUser() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String currentPrincipalName = authentication.getName();
-		return ResponseEntity.ok().body(userHandlingService.getUserByName(currentPrincipalName));
+
+		return ResponseEntity.ok().body(
+				userHandlingService.getUserByName(SecurityContextHolder.getContext().getAuthentication().getName()));
 	}
 
 	/**
 	 * 
 	 * Request to show one's corporateer
 	 * 
-	 * @return JSON object Corporateer
+	 * @return Corporateer as JSON object
 	 */
 	@CrossOrigin(origins = "*")
 	@JsonView(Views.Private.class)
 	@RequestMapping(method = RequestMethod.GET, value = "/currentCorporateer", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getCurrentCorporateer() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String currentPrincipalName = authentication.getName();
-		return ResponseEntity.ok().body(userHandlingService.getUserByName(currentPrincipalName).getCorporateer());
+
+		return ResponseEntity.ok().body(userHandlingService
+				.getUserByName(SecurityContextHolder.getContext().getAuthentication().getName()).getCorporateer());
 	}
 
 	/**
 	 * 
 	 * Request to show one's own current influence
 	 * 
-	 * @return JSON array of influence
+	 * @return Array of influence as JSON object
 	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method = RequestMethod.GET, value = "/currentInfluences", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getCurrentInfluences() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String currentPrincipalName = authentication.getName();
+
 		List<InfluenceResponse> response = new ArrayList<InfluenceResponse>();
-		for (Influence influence : userHandlingService.getUserByName(currentPrincipalName).getCorporateer()
+
+		for (Influence influence : userHandlingService
+				.getUserByName(SecurityContextHolder.getContext().getAuthentication().getName()).getCorporateer()
 				.getInfluence()) {
 			if (influence.getType().getName().equals("INFLUENCE")) {
 				response.add(new InfluenceResponse(influence.getDivision().getName(),
 						influence.getDivision().getDepartment().getName(), influence.getAmount()));
 			}
 		}
+		
 		return ResponseEntity.ok().body(response);
 	}
 
@@ -101,23 +100,18 @@ public class UserController {
 	 * 
 	 * @param request
 	 *            The PasswordChangeRequest containing current and new password
-	 * @return HTTP Status 200 or 400
+	 * @return HTTP Status 200
 	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method = RequestMethod.POST, value = "/changePassword", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest request) {
+	public ResponseEntity<?> changePassword(@RequestBody ObjectNode request) {
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String currentPrincipalName = authentication.getName();
-		User currentUser = userHandlingService.getUserByName(currentPrincipalName);
 
-		if (!userHandlingService.checkCurrentPassword(currentUser, request.getCurrentPassword())) {
-			return ResponseEntity.badRequest().body("{\"message\":\"Wrong password\"}");
-		}
+		userHandlingService.changePassword(authentication, request.get("currentPassword").asText(),
+				request.get("newPassword").asText());
+		actionLogService.logAction(authentication, "Password change");
 
-		if (!userHandlingService.changePassword(currentUser, request.getNewPassword())) {
-			return ResponseEntity.badRequest().body("{\"message\":\"Password complexity requirements violated\"}");
-		}
-		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Password change");
 		return ResponseEntity.ok().body("{\"message\":\"Password successfully changed\"}");
 	}
 
@@ -128,70 +122,30 @@ public class UserController {
 	 * @param division
 	 *            The division which should become the new main division
 	 * @return HTTP Status 200 (or 400)
-	 * @throws JSONException
 	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method = RequestMethod.POST, value = "/setMyMainDivision", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	// TODO: Only allow a subset of divisions if user is able to do change himself
-	// TODO: There might be a better way than using JSON just for the sake of it.
-	public ResponseEntity<?> setMyMainDivision(@RequestBody ObjectNode request) throws JSONException {
-		
-			if(corporateerHandlingService.setMainDivision(SecurityContextHolder.getContext().getAuthentication(),
-					request.get("name").asText())) {
-				return ResponseEntity.ok().body("{\"message\":\"Division successfully changed\"}");
-			}
-			else {
-				return ResponseEntity.ok().body("{\"message\":\"Division did not change\"}");
-			}
+	public ResponseEntity<?> setMyMainDivision(@RequestBody ObjectNode request) {
 
+		corporateerHandlingService.setMainDivision(SecurityContextHolder.getContext().getAuthentication(),
+				request.get("name").asText());
+
+		return ResponseEntity.ok().body("{\"message\":\"Division successfully changed\"}");
 	}
 
 	@CrossOrigin(origins = "*")
 	@RequestMapping(method = RequestMethod.POST, value = "/buyRank", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> buyRank(@RequestBody ObjectNode request) throws JSONException {
-		
-			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-			String currentPrincipalName = authentication.getName();
 
-			String rankname = request.get("name").asText();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-			if (corporateerHandlingService.buyRank(currentPrincipalName, rankname)) {
-				actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
-						"Bought rank " + rankname);
-				return ResponseEntity.ok().body("{\"message\":\"Rank successfully bought\"}");
-			}
-		
-		return ResponseEntity.badRequest().body("{\"message\":\"Cannot buy rank\"}");
+		String rankname = request.get("name").asText();
+
+		corporateerHandlingService.buyRank(authentication, rankname);
+		actionLogService.logAction(authentication, "Bought rank " + rankname);
+
+		return ResponseEntity.ok().body("{\"message\":\"Rank successfully bought\"}");
 	}
-
-	@CrossOrigin(origins = "*")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@RequestMapping(method = RequestMethod.POST, value = "/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> createUser(@RequestBody ObjectNode request) throws JSONException {
-		
-			String username = request.get("name").asText();
-
-			if (userHandlingService.createUser(username)) {
-				actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
-						"Created user " + username);
-				return ResponseEntity.ok().body("{\"message\":\"User successfully created\"}");
-			}
-		
-		return ResponseEntity.badRequest().body("{\"message\":\"Cannot buy rank\"}");
-	}
-}
-
-/**
- * @author Zollak
- * 
- *         Request containing current and new password
- * 
- */
-@Getter
-@AllArgsConstructor
-class PasswordChangeRequest {
-	String currentPassword;
-	String newPassword;
 }
 
 /**

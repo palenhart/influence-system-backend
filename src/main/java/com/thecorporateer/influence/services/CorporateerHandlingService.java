@@ -8,6 +8,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.thecorporateer.influence.exceptions.CorporateerNotFoundException;
+import com.thecorporateer.influence.exceptions.IllegalBuyRequestException;
+import com.thecorporateer.influence.exceptions.IllegalDivisionChangeRequestException;
+import com.thecorporateer.influence.exceptions.NotEnoughInfluenceException;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
@@ -62,7 +65,6 @@ public class CorporateerHandlingService {
 		return corporateers;
 	}
 
-	// TODO: Think about handling errors
 	public Corporateer updateCorporateer(Corporateer corporateer) {
 
 		return corporateerRepository.save(corporateer);
@@ -76,11 +78,13 @@ public class CorporateerHandlingService {
 	 *            the name of the corporateer
 	 */
 	public void createCorporateer(String name) {
+		
 		Corporateer corporateer = new Corporateer();
 		corporateer.setName(name);
 		corporateer.setRank(objectService.getLowestRank());
 		corporateer.setMainDivision(objectService.getDefaultDivision());
 		corporateer = updateCorporateer(corporateer);
+		
 		initializeInfluenceTable(corporateer);
 	}
 
@@ -92,15 +96,18 @@ public class CorporateerHandlingService {
 	 *            the corporateer for whom the influence table should be initialized
 	 */
 	private void initializeInfluenceTable(Corporateer corporateer) {
+		
 		refreshInfluenceTypes();
 		refreshDivisions();
 
 		List<Influence> influences = new ArrayList<>();
+		
 		for (InfluenceType type : types) {
 			for (Division division : divisions) {
-				influences.add(new Influence(corporateer, division.getDepartment(), division, type, 0));
+				influences.add(new Influence(corporateer, division, type, 0));
 			}
 		}
+		
 		influenceHandlingService.updateInfluences(influences);
 	}
 
@@ -108,6 +115,7 @@ public class CorporateerHandlingService {
 	 * Distribute influence to corporateers according to their rank
 	 */
 	public void distributeTributes() {
+		
 		refreshCorporateers();
 
 		List<Corporateer> corporateersToSave = new ArrayList<>();
@@ -118,24 +126,30 @@ public class CorporateerHandlingService {
 			corporateer.setTributes(currentTributes + tributesToAdd);
 			corporateersToSave.add(corporateer);
 		}
+		
 		corporateerRepository.save(corporateersToSave);
 	}
 
 	public int getTotalInfluence(Corporateer corporateer) {
+		
 		int total = 0;
+		
 		for (Influence influence : corporateer.getInfluence()) {
 			total = total + influence.getAmount();
 		}
+		
 		return total;
 	}
 
-	public boolean setMainDivision(Authentication authentication, String divisionName) {
+	// TODO: Only allow a subset of divisions if user is able to do change himself
+	public void setMainDivision(Authentication authentication, String divisionName) {
+		
 		Corporateer corporateer = userHandlingService.getUserByName(authentication.getName()).getCorporateer();
 		Division division;
 
-		// do nothing when there is no change
+		// do not change division when there is other division selected
 		if (divisionName.equals(corporateer.getMainDivision().getName())) {
-			return false;
+			throw new IllegalDivisionChangeRequestException();
 		}
 
 		// "none" is also used for departments, choose the general division instead
@@ -150,26 +164,25 @@ public class CorporateerHandlingService {
 
 		corporateer.setMainDivision(division);
 		corporateerRepository.save(corporateer);
-		return true;
 	}
 
-	public boolean buyRank(String username, String rankName) {
+	public void buyRank(Authentication authentication, String rankName) {
 
 		// TODO: validations
 
-		Corporateer corporateer = userHandlingService.getUserByName(username).getCorporateer();
+		Corporateer corporateer = userHandlingService.getUserByName(authentication.getName()).getCorporateer();
 		Rank rank = objectService.getRankByName(rankName);
 		Influence generalInfluence = influenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(corporateer,
 				objectService.getDefaultDivision(), objectService.getInfluenceTypeById(1L));
 
 		// only allow buying a higher rank
 		if (corporateer.getRank().getLevel() >= rank.getLevel()) {
-			return false;
+			throw new IllegalBuyRequestException();
 		}
 
 		// only allow buying when corporateer has enough general influence
 		if (generalInfluence.getAmount() < rank.getInfluenceToBuy()) {
-			return false;
+			throw new NotEnoughInfluenceException();
 		}
 
 		// set new rank
@@ -179,20 +192,13 @@ public class CorporateerHandlingService {
 		generalInfluence.setAmount(generalInfluence.getAmount() - rank.getInfluenceToBuy());
 		corporateer.setTotalInfluence(getTotalInfluence(corporateer));
 		corporateerRepository.save(corporateer);
-		return true;
 	}
-
-	// /**
-	// * Refreshes list of ranks from repository
-	// */
-	// private void refreshRanks() {
-	// ranks = rankRepository.findAll();
-	// }
 
 	/**
 	 * Refreshes list of influence types from repository
 	 */
 	private void refreshInfluenceTypes() {
+		
 		types = objectService.getAllInfluenceTypes();
 	}
 
@@ -200,6 +206,7 @@ public class CorporateerHandlingService {
 	 * Refreshes list of division from repository
 	 */
 	private void refreshDivisions() {
+		
 		divisions = objectService.getAllDivisions();
 	}
 
@@ -207,6 +214,7 @@ public class CorporateerHandlingService {
 	 * Refreshes list of corporateers from repository
 	 */
 	private void refreshCorporateers() {
+		
 		corporateers = corporateerRepository.findAll();
 	}
 
