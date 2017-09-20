@@ -58,7 +58,7 @@ public class InfluenceHandlingService {
 		return influenceRepository.save(influences);
 	}
 
-	public void convertInfluence(Authentication authentication, String departmentName, String divisionName, int amount,
+	public void convertInfluence(Authentication authentication, String divisionName, String departmentName, int amount,
 			boolean toGeneral) {
 
 		Influence influenceToConvert = getInfluenceByCorporateerAndDivisionAndType(

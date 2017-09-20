@@ -51,7 +51,7 @@ public class CorporateerHandlingService {
 			throw new CorporateerNotFoundException();
 		}
 
-		return corporateerRepository.findByName(name);
+		return corporateer;
 	}
 
 	public List<Corporateer> getAllCorporateers() {
@@ -78,13 +78,13 @@ public class CorporateerHandlingService {
 	 *            the name of the corporateer
 	 */
 	public void createCorporateer(String name) {
-		
+
 		Corporateer corporateer = new Corporateer();
 		corporateer.setName(name);
 		corporateer.setRank(objectService.getLowestRank());
 		corporateer.setMainDivision(objectService.getDefaultDivision());
 		corporateer = updateCorporateer(corporateer);
-		
+
 		initializeInfluenceTable(corporateer);
 	}
 
@@ -96,18 +96,18 @@ public class CorporateerHandlingService {
 	 *            the corporateer for whom the influence table should be initialized
 	 */
 	private void initializeInfluenceTable(Corporateer corporateer) {
-		
+
 		refreshInfluenceTypes();
 		refreshDivisions();
 
 		List<Influence> influences = new ArrayList<>();
-		
+
 		for (InfluenceType type : types) {
 			for (Division division : divisions) {
 				influences.add(new Influence(corporateer, division, type, 0));
 			}
 		}
-		
+
 		influenceHandlingService.updateInfluences(influences);
 	}
 
@@ -115,7 +115,7 @@ public class CorporateerHandlingService {
 	 * Distribute influence to corporateers according to their rank
 	 */
 	public void distributeTributes() {
-		
+
 		refreshCorporateers();
 
 		List<Corporateer> corporateersToSave = new ArrayList<>();
@@ -126,24 +126,24 @@ public class CorporateerHandlingService {
 			corporateer.setTributes(currentTributes + tributesToAdd);
 			corporateersToSave.add(corporateer);
 		}
-		
+
 		corporateerRepository.save(corporateersToSave);
 	}
 
 	public int getTotalInfluence(Corporateer corporateer) {
-		
+
 		int total = 0;
-		
+
 		for (Influence influence : corporateer.getInfluence()) {
 			total = total + influence.getAmount();
 		}
-		
+
 		return total;
 	}
 
 	// TODO: Only allow a subset of divisions if user is able to do change himself
 	public void setMainDivision(Authentication authentication, String divisionName) {
-		
+
 		Corporateer corporateer = userHandlingService.getUserByName(authentication.getName()).getCorporateer();
 		Division division;
 
@@ -194,11 +194,18 @@ public class CorporateerHandlingService {
 		corporateerRepository.save(corporateer);
 	}
 
+	public void setRank(String corporateerName, String rankName) {
+
+		Corporateer corporateer = getCorporateerByName(corporateerName);
+		corporateer.setRank(objectService.getRankByName(rankName));
+		updateCorporateer(corporateer);
+	}
+
 	/**
 	 * Refreshes list of influence types from repository
 	 */
 	private void refreshInfluenceTypes() {
-		
+
 		types = objectService.getAllInfluenceTypes();
 	}
 
@@ -206,7 +213,7 @@ public class CorporateerHandlingService {
 	 * Refreshes list of division from repository
 	 */
 	private void refreshDivisions() {
-		
+
 		divisions = objectService.getAllDivisions();
 	}
 
@@ -214,7 +221,7 @@ public class CorporateerHandlingService {
 	 * Refreshes list of corporateers from repository
 	 */
 	private void refreshCorporateers() {
-		
+
 		corporateers = corporateerRepository.findAll();
 	}
 

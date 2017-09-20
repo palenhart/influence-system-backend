@@ -15,6 +15,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -43,14 +45,10 @@ public class UserRole {
 	private RoleName name;
 
 	@ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
+	@JsonIgnore
 	private List<User> users;
 
 	public String getRoleName() {
 		return name.name();
 	}
-}
-
-@Getter
-enum RoleName {
-	ROLE_USER, ROLE_ADMIN
 }
