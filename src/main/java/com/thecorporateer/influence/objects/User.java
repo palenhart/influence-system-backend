@@ -15,11 +15,7 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.thecorporateer.influence.controllers.Views;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,13 +30,11 @@ import lombok.Setter;
 @Setter
 
 @Entity
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class User extends JpaEntity {
 
 	@Column(length = 50, unique = true)
 	@NotNull
 	@Size(min = 3, max = 50)
-	@JsonView(Views.Private.class)
 	private String username;
 
 	@Column(length = 100)
@@ -52,7 +46,6 @@ public class User extends JpaEntity {
 	@Column(length = 50, unique = true)
 	@NotNull
 	@Size(min = 4, max = 50)
-	@JsonView(Views.Private.class)
 	private String email;
 
 	@NotNull
@@ -66,10 +59,8 @@ public class User extends JpaEntity {
 	@JoinTable(name = "USER_AUTHORITY", joinColumns = {
 			@JoinColumn(name = "USER_ID", referencedColumnName = "ID") }, inverseJoinColumns = {
 					@JoinColumn(name = "AUTHORITY_ID", referencedColumnName = "ID") })
-	@JsonView(Views.Private.class)
 	private List<UserRole> roles;
 
 	@OneToOne
-	@JsonView(Views.Private.class)
 	private Corporateer corporateer;
 }

@@ -27,14 +27,19 @@ public class Conversion extends JpaEntity {
 	@NotNull
 	@NotBlank
 	private String timestamp;
+	@NotNull
 	@ManyToOne
 	private Corporateer corporateer;
+	@NotNull
 	@ManyToOne
 	private Division fromDivision;
+	@NotNull
 	@ManyToOne
 	private Division toDivision;
+	@NotNull
 	@ManyToOne
 	private InfluenceType type;
+	@NotNull
 	private int amount;
 
 }

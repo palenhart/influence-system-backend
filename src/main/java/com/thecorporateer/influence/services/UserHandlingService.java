@@ -16,9 +16,12 @@ import org.passay.PasswordValidator;
 import org.passay.UsernameRule;
 import org.passay.WhitespaceRule;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.thecorporateer.influence.exceptions.PasswordComplexityException;
 import com.thecorporateer.influence.exceptions.UserNotFoundException;
 import com.thecorporateer.influence.objects.User;
 import com.thecorporateer.influence.repositories.UserRepository;
@@ -52,10 +55,9 @@ public class UserHandlingService {
 		return user;
 	}
 
-	// TODO: Think about handling errors
-	public User updateUser(User user) {
+	public void updateUser(User user) {
 
-		return userRepository.save(user);
+		userRepository.save(user);
 	}
 
 	public List<User> getAllUsers() {
@@ -80,11 +82,11 @@ public class UserHandlingService {
 	 * @return <code>true</code> if the password is correct; <code>false</code>
 	 *         otherwise
 	 */
-	public boolean checkCurrentPassword(User user, String password) {
-		if (passwordEncoder.matches(password, user.getPassword())) {
-			return true;
+	private void checkCurrentPassword(User user, String password) {
+		
+		if (!passwordEncoder.matches(password, user.getPassword())) {
+			throw new BadCredentialsException("Wrong password in change request");
 		}
-		return false;
 	}
 
 	/**
@@ -98,18 +100,25 @@ public class UserHandlingService {
 	 * @return <code>true</code> if the password is changed; <code>false</code>
 	 *         otherwise
 	 */
-	public boolean changePassword(User user, String newPassword) {
+	public void changePassword(Authentication authentication, String currentPassword, String newPassword) {
+		
+		User user = getUserByName(authentication.getName());
+		
+		checkCurrentPassword(user, currentPassword);
+		
 		if (!validator.validate(new PasswordData(user.getUsername(), newPassword)).isValid()) {
-			return false;
+			
+			throw new PasswordComplexityException();
 		}
+		
 		user.setPassword(passwordEncoder.encode(newPassword));
 		updateUser(user);
-		return true;
 	}
 
 	// TODO: set role when creating user
 	// TODO: use more than username to create user
-	public boolean createUser(String username) {
+	public void createUser(String username) {
+		
 		User user = new User();
 		user.setUsername(username);
 		user.setEmail(username);
@@ -122,13 +131,13 @@ public class UserHandlingService {
 		user.setCorporateer(corporateerHandlingService.getCorporateerByName(username));
 
 		updateUser(user);
-		return true;
 	}
 
 	/**
 	 * Settings for password validation
 	 */
 	PasswordValidator validator = new PasswordValidator(
+			
 			// length between 8 and 20 characters
 			new LengthRule(8, 20),
 

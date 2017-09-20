@@ -15,11 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.thecorporateer.influence.objects.Corporateer;
-import com.thecorporateer.influence.objects.InfluenceType;
 import com.thecorporateer.influence.objects.Transaction;
 import com.thecorporateer.influence.services.ActionLogService;
-import com.thecorporateer.influence.services.CorporateerHandlingService;
 import com.thecorporateer.influence.services.ObjectService;
 import com.thecorporateer.influence.services.TransactionService;
 import com.thecorporateer.influence.services.UserHandlingService;
@@ -41,8 +38,6 @@ public class TransactionController {
 	@Autowired
 	private UserHandlingService userHandlingService;
 	@Autowired
-	private CorporateerHandlingService corporateerHandlingService;
-	@Autowired
 	private ObjectService objectService;
 
 	/**
@@ -52,26 +47,19 @@ public class TransactionController {
 	 * @param request
 	 *            The transaction which should be executed as TransactionRequest for
 	 *            the authenticated user
-	 * @return HTTP response 200 or 400
+	 * @return HTTP response 200 or 400 (exception)
 	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/transfer", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> transfer(@RequestBody TransactionRequest request) {
+		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		Corporateer senderObject = userHandlingService.getUserByName(authentication.getName()).getCorporateer();
-		Corporateer receiverObject = corporateerHandlingService.getCorporateerByName(request.getReceiver());
-		InfluenceType typeObject = objectService.getInfluenceTypeByName(request.getType().toUpperCase());
 
-		boolean result = transactionService.transfer(senderObject, receiverObject, request.getMessage(),
-				request.getAmount(), typeObject);
-
-		if (result) {
-
-			actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Influence transfer");
-			return ResponseEntity.ok().body("{\"message\":\"Transaction successful\"}");
-		} else {
-			return ResponseEntity.badRequest().body("{\"message\":\"Transaction failed\"}");
-		}
+		transactionService.transfer(authentication, request.getReceiver(), request.getMessage(), request.getAmount(),
+				request.getType().toUpperCase());
+		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Influence transfer");
+		
+		return ResponseEntity.ok().body("{\"message\":\"Transaction successful\"}");
 	}
 
 	/**
@@ -81,14 +69,17 @@ public class TransactionController {
 	 * @param direction
 	 *            The direction of transactions to get for the authenticated user
 	 *            (sender/receiver)
-	 * @return List of transactions or HTTP Error 400
+	 * @return List of transactions or HTTP Error 400 (exception)
 	 */
 	@CrossOrigin(origins = "*")
 	@RequestMapping(value = "/transactions/{direction}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getCorporarateersTransactions(@PathVariable("direction") String direction) {
+
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String currentPrincipalName = authentication.getName();
+
 		List<TransactionResponse> response = new ArrayList<TransactionResponse>();
+
 		if (direction.equals("sender")) {
 			for (Transaction transaction : userHandlingService.getUserByName(currentPrincipalName).getCorporateer()
 					.getSentTransactions()) {
@@ -98,7 +89,9 @@ public class TransactionController {
 						transaction.getDivision().getDepartment().getName()));
 			}
 			return ResponseEntity.ok().body(response);
-		} else if (direction.equals("receiver")) {
+		}
+
+		else if (direction.equals("receiver")) {
 			for (Transaction transaction : userHandlingService.getUserByName(currentPrincipalName).getCorporateer()
 					.getReceivedTransactions()) {
 				// do not show demerits
@@ -112,6 +105,7 @@ public class TransactionController {
 			}
 			return ResponseEntity.ok().body(response);
 		}
+
 		return ResponseEntity.notFound().build();
 	}
 
