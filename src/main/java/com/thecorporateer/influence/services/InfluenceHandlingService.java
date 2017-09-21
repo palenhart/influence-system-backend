@@ -83,7 +83,7 @@ public class InfluenceHandlingService {
 		}
 
 		// convert department influence to general influence
-		if (toGeneral || influenceToConvert.getDivision().getId() <= 9L) {
+		if (toGeneral || influenceToConvert.getDivision().getId() <= 8L) {
 
 			Influence generalInfluence = getInfluenceByCorporateerAndDivisionAndType(influenceToConvert.getCorporateer(),
 					objectService.getDefaultDivision(), influenceToConvert.getType());
