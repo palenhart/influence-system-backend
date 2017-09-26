@@ -14,6 +14,7 @@ import org.passay.EnglishCharacterData;
 import org.passay.LengthRule;
 import org.passay.PasswordData;
 import org.passay.PasswordValidator;
+import org.passay.RuleResult;
 import org.passay.UsernameRule;
 import org.passay.WhitespaceRule;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.thecorporateer.influence.exceptions.PasswordComplexityException;
-import com.thecorporateer.influence.exceptions.UserNotFoundException;
+import com.thecorporateer.influence.exceptions.RepositoryNotFoundException;
 import com.thecorporateer.influence.objects.RoleName;
 import com.thecorporateer.influence.objects.User;
 import com.thecorporateer.influence.objects.UserRole;
@@ -55,7 +56,7 @@ public class UserHandlingService {
 		User user = userRepository.findByUsername(name);
 
 		if (user == null) {
-			throw new UserNotFoundException();
+			throw new RepositoryNotFoundException("User not found");
 		}
 
 		return user;
@@ -71,7 +72,7 @@ public class UserHandlingService {
 		List<User> users = userRepository.findAll();
 
 		if (users == null) {
-			throw new UserNotFoundException();
+			throw new RepositoryNotFoundException("User not found.");
 		}
 
 		return users;
@@ -91,7 +92,7 @@ public class UserHandlingService {
 	private void checkCurrentPassword(User user, String password) {
 
 		if (!passwordEncoder.matches(password, user.getPassword())) {
-			throw new BadCredentialsException("Wrong password in change request");
+			throw new BadCredentialsException("Wrong password in change request.");
 		}
 	}
 
@@ -112,9 +113,10 @@ public class UserHandlingService {
 
 		checkCurrentPassword(user, currentPassword);
 
-		if (!validator.validate(new PasswordData(user.getUsername(), newPassword)).isValid()) {
+		RuleResult result = validator.validate(new PasswordData(user.getUsername(), newPassword));
 
-			throw new PasswordComplexityException();
+		if (!result.isValid()) {
+			throw new PasswordComplexityException(String.join(" \n", validator.getMessages(result)));
 		}
 
 		user.setPassword(passwordEncoder.encode(newPassword));
@@ -135,7 +137,7 @@ public class UserHandlingService {
 		corporateerHandlingService.createCorporateer(corporateerName);
 
 		user.setCorporateer(corporateerHandlingService.getCorporateerByName(corporateerName));
-		
+
 		List<UserRole> roles = new ArrayList<UserRole>();
 		roles.add(userRoleRepository.findByName(RoleName.ROLE_USER));
 		user.setRoles(roles);

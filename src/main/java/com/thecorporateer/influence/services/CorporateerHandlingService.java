@@ -7,10 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import com.thecorporateer.influence.exceptions.CorporateerNotFoundException;
 import com.thecorporateer.influence.exceptions.IllegalBuyRequestException;
 import com.thecorporateer.influence.exceptions.IllegalDivisionChangeRequestException;
-import com.thecorporateer.influence.exceptions.NotEnoughInfluenceException;
+import com.thecorporateer.influence.exceptions.RepositoryNotFoundException;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
@@ -48,7 +47,7 @@ public class CorporateerHandlingService {
 		Corporateer corporateer = corporateerRepository.findByName(name);
 
 		if (corporateer == null) {
-			throw new CorporateerNotFoundException();
+			throw new RepositoryNotFoundException("Corporateer not found.");
 		}
 
 		return corporateer;
@@ -59,7 +58,7 @@ public class CorporateerHandlingService {
 		List<Corporateer> corporateers = corporateerRepository.findAll();
 
 		if (corporateers == null) {
-			throw new CorporateerNotFoundException();
+			throw new RepositoryNotFoundException("Corporateers not found.");
 		}
 
 		return corporateers;
@@ -135,7 +134,9 @@ public class CorporateerHandlingService {
 		int total = 0;
 
 		for (Influence influence : corporateer.getInfluence()) {
-			total = total + influence.getAmount();
+			if (influence.getType().getId().equals(1L)) {
+				total = total + influence.getAmount();
+			}
 		}
 
 		return total;
@@ -149,7 +150,7 @@ public class CorporateerHandlingService {
 
 		// do not change division when there is other division selected
 		if (divisionName.equals(corporateer.getMainDivision().getName())) {
-			throw new IllegalDivisionChangeRequestException();
+			throw new IllegalDivisionChangeRequestException("Division was not changed.");
 		}
 
 		// "none" is also used for departments, choose the general division instead
@@ -177,12 +178,12 @@ public class CorporateerHandlingService {
 
 		// only allow buying a higher rank
 		if (corporateer.getRank().getLevel() >= rank.getLevel()) {
-			throw new IllegalBuyRequestException();
+			throw new IllegalBuyRequestException("Lower rank cannot be bought.");
 		}
 
 		// only allow buying when corporateer has enough general influence
 		if (generalInfluence.getAmount() < rank.getInfluenceToBuy()) {
-			throw new NotEnoughInfluenceException();
+			throw new IllegalBuyRequestException("Not enough influence to buy rank.");
 		}
 
 		// set new rank
