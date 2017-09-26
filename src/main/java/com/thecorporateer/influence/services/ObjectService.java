@@ -6,10 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.thecorporateer.influence.exceptions.DepartmentNotFoundException;
-import com.thecorporateer.influence.exceptions.DivisionNotFoundException;
-import com.thecorporateer.influence.exceptions.InfluenceTypeNotFoundException;
-import com.thecorporateer.influence.exceptions.RankNotFoundException;
+import com.thecorporateer.influence.exceptions.RepositoryNotFoundException;
 import com.thecorporateer.influence.objects.Conversion;
 import com.thecorporateer.influence.objects.Department;
 import com.thecorporateer.influence.objects.Division;
@@ -44,7 +41,7 @@ public class ObjectService {
 		Division division = divisionRepository.findByName(name);
 
 		if (division == null) {
-			throw new DivisionNotFoundException();
+			throw new RepositoryNotFoundException("Division not found.");
 		}
 
 		return division;
@@ -55,7 +52,7 @@ public class ObjectService {
 		Division division = divisionRepository.findByNameAndDepartment(name, department);
 
 		if (division == null) {
-			throw new DivisionNotFoundException();
+			throw new RepositoryNotFoundException("Division not found.");
 		}
 
 		return division;
@@ -66,7 +63,7 @@ public class ObjectService {
 		Division division = divisionRepository.findOne(1L);
 
 		if (division == null) {
-			throw new DivisionNotFoundException();
+			throw new RepositoryNotFoundException("Division not found.");
 		}
 
 		return division;
@@ -77,7 +74,7 @@ public class ObjectService {
 		List<Division> divisions = divisionRepository.findAll();
 
 		if (divisions == null || divisions.size() == 0) {
-			throw new DivisionNotFoundException();
+			throw new RepositoryNotFoundException("Divisions not found.");
 		}
 
 		return divisions;
@@ -105,7 +102,7 @@ public class ObjectService {
 		Department department = departmentRepository.findByName(name);
 
 		if (department == null) {
-			throw new DepartmentNotFoundException();
+			throw new RepositoryNotFoundException("Department not found.");
 		}
 
 		return department;
@@ -116,7 +113,7 @@ public class ObjectService {
 		Rank rank = rankRepository.findByName(name);
 
 		if (rank == null) {
-			throw new RankNotFoundException();
+			throw new RepositoryNotFoundException("Rank not found.");
 		}
 
 		return rank;
@@ -127,7 +124,7 @@ public class ObjectService {
 		List<Rank> ranks = rankRepository.findAll();
 
 		if (ranks == null) {
-			throw new RankNotFoundException();
+			throw new RepositoryNotFoundException("Ranks not found.");
 		}
 
 		return ranks;
@@ -138,7 +135,7 @@ public class ObjectService {
 		Rank rank = rankRepository.findByLevel(0);
 
 		if (rank == null) {
-			throw new RankNotFoundException();
+			throw new RepositoryNotFoundException("Rank not found.");
 		}
 
 		return rank;
@@ -149,7 +146,7 @@ public class ObjectService {
 		InfluenceType influenceType = influenceTypeRepository.findOne(id);
 
 		if (influenceType == null) {
-			throw new InfluenceTypeNotFoundException();
+			throw new RepositoryNotFoundException("Influence type not found.");
 		}
 
 		return influenceType;
@@ -160,7 +157,7 @@ public class ObjectService {
 		InfluenceType influenceType = influenceTypeRepository.findByName(name);
 
 		if (influenceType == null) {
-			throw new InfluenceTypeNotFoundException();
+			throw new RepositoryNotFoundException("Influence type not found.");
 		}
 
 		return influenceType;
@@ -171,7 +168,7 @@ public class ObjectService {
 		List<InfluenceType> influenceTypes = influenceTypeRepository.findAll();
 
 		if (influenceTypes == null) {
-			throw new InfluenceTypeNotFoundException();
+			throw new RepositoryNotFoundException("Influence types not found.");
 		}
 
 		return influenceTypes;

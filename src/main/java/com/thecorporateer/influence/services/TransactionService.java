@@ -10,7 +10,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.thecorporateer.influence.exceptions.IllegalTransferRequestException;
-import com.thecorporateer.influence.exceptions.NotEnoughTributesException;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.Influence;
@@ -130,13 +129,13 @@ public class TransactionService {
 	private void validate(Corporateer sender, Corporateer receiver, int amount) {
 		
 		if (amount < 1) {
-			throw new IllegalTransferRequestException();
+			throw new IllegalTransferRequestException("Illegal transfer amount.");
 		}
 		
 		if (sender.getTributes() < amount) {
-			throw new NotEnoughTributesException();
+			throw new IllegalTransferRequestException("Not enough tributes.");
 		} else if (sender.getId() == receiver.getId()) {
-			throw new IllegalTransferRequestException();
+			throw new IllegalTransferRequestException("Sender and receiver cannot be the same.");
 		}
 	}
 

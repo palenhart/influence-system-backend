@@ -9,8 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.thecorporateer.influence.exceptions.IllegalInfluenceConversionException;
-import com.thecorporateer.influence.exceptions.InfluenceNotFoundException;
-import com.thecorporateer.influence.exceptions.NotEnoughInfluenceException;
+import com.thecorporateer.influence.exceptions.RepositoryNotFoundException;
 import com.thecorporateer.influence.objects.Conversion;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Division;
@@ -42,7 +41,7 @@ public class InfluenceHandlingService {
 				influencetype);
 
 		if (influence == null) {
-			throw new InfluenceNotFoundException();
+			throw new RepositoryNotFoundException("Influence not found.");
 		}
 
 		return influence;
@@ -69,17 +68,17 @@ public class InfluenceHandlingService {
 
 		// do not convert demerits
 		if (influenceToConvert.getType().getId() != 1L) {
-			throw new IllegalInfluenceConversionException();
+			throw new IllegalInfluenceConversionException("Cannot convert demerits.");
 		}
 
 		// do not convert general influence
 		if (influenceToConvert.getDivision().getDepartment().getId() == 1L) {
-			throw new IllegalInfluenceConversionException();
+			throw new IllegalInfluenceConversionException("Cannot convert from general influence.");
 		}
 
 		// do not convert more influence than available
 		if (influenceToConvert.getAmount() < amount) {
-			throw new NotEnoughInfluenceException();
+			throw new IllegalInfluenceConversionException("Not enough influence to convert.");
 		}
 
 		// convert department influence to general influence
