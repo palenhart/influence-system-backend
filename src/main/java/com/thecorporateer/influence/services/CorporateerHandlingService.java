@@ -181,6 +181,11 @@ public class CorporateerHandlingService {
 			throw new IllegalBuyRequestException("Lower rank cannot be bought.");
 		}
 
+		// only allow buying the next higher rank
+		if (corporateer.getRank().getLevel() - rank.getLevel() > 1) {
+			throw new IllegalBuyRequestException("Only the next rank can be bought.");
+		}
+
 		// only allow buying when corporateer has enough general influence
 		if (generalInfluence.getAmount() < rank.getInfluenceToBuy()) {
 			throw new IllegalBuyRequestException("Not enough influence to buy rank.");
