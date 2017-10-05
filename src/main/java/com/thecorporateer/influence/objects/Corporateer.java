@@ -3,6 +3,10 @@ package com.thecorporateer.influence.objects;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -58,6 +62,11 @@ public class Corporateer extends JpaEntity {
 	@ManyToOne
 	@JsonView(Views.Public.class)
 	private Division mainDivision;
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(joinColumns = {
+			@JoinColumn(name = "CORPORATEER_ID", referencedColumnName = "ID") }, inverseJoinColumns = {
+					@JoinColumn(name = "DIVISION_ID", referencedColumnName = "ID") })
+	private List<Division> memberOfDivisions;
 	@NotNull
 	@ManyToOne
 	@JsonView(Views.Public.class)
