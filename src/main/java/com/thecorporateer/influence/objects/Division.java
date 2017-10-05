@@ -3,6 +3,8 @@ package com.thecorporateer.influence.objects;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
@@ -43,6 +45,9 @@ public class Division extends JpaEntity {
 	@ManyToOne
 	@JsonView(Views.Public.class)
 	private Department department;
+	@ManyToMany(mappedBy = "memberOfDivisions", fetch = FetchType.LAZY)
+	@JsonIgnore
+	private List<Corporateer> members;
 	@OneToMany(mappedBy = "mainDivision")
 	@JsonIgnore
 	private List<Corporateer> corporateers;

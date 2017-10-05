@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.thecorporateer.influence.exceptions.IllegalBuyRequestException;
 import com.thecorporateer.influence.exceptions.IllegalDivisionChangeRequestException;
+import com.thecorporateer.influence.exceptions.IllegalMembershipChangeException;
 import com.thecorporateer.influence.exceptions.RepositoryNotFoundException;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Division;
@@ -82,6 +83,11 @@ public class CorporateerHandlingService {
 		corporateer.setName(name);
 		corporateer.setRank(objectService.getLowestRank());
 		corporateer.setMainDivision(objectService.getDefaultDivision());
+		
+		List<Division> divisions = new ArrayList<Division>();
+		divisions.add(objectService.getDefaultDivision());
+		corporateer.setMemberOfDivisions(divisions);
+				
 		corporateer = updateCorporateer(corporateer);
 
 		initializeInfluenceTable(corporateer);
@@ -166,7 +172,19 @@ public class CorporateerHandlingService {
 		corporateer.setMainDivision(division);
 		corporateerRepository.save(corporateer);
 	}
-
+	
+	public void addCorporateerToDivision(Corporateer corporateer, Division division) {
+		
+		// don't do anything if corporateer is already a member of division
+		if (corporateer.getMemberOfDivisions().contains(division)) {
+			throw new IllegalMembershipChangeException(corporateer.getName() + " already is a member of division " + division.getName());
+		}
+		
+		else {
+			corporateer.getMemberOfDivisions().add(division);
+		}
+	}
+	
 	public void buyRank(Authentication authentication, String rankName) {
 
 		// TODO: validations
