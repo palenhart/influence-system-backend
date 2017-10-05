@@ -184,6 +184,18 @@ public class CorporateerHandlingService {
 			corporateer.getMemberOfDivisions().add(division);
 		}
 	}
+
+	public void removeCorporateerToDivision(Corporateer corporateer, Division division) {
+		
+		// don't do anything if corporateer is NOT a member of division
+		if (!corporateer.getMemberOfDivisions().contains(division)) {
+			throw new IllegalMembershipChangeException(corporateer.getName() + " is not a member of division " + division.getName());
+		}
+		
+		else {
+			corporateer.getMemberOfDivisions().remove(division);
+		}
+	}
 	
 	public void buyRank(Authentication authentication, String rankName) {
 
