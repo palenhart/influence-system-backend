@@ -6,8 +6,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -135,8 +133,6 @@ public class TestInfluenceHandling {
 
 		when(mockObjectService.getDivisionByNameAndDepartment("none",
 				mockInfluenceToGeneralize.getDivision().getDepartment())).thenReturn(mockToDivision);
-		
-		String timestamp = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString();
 
 		influenceHandlingService.convertInfluence(mockAuthentication, mockInfluenceToGeneralize.getDivision().getName(),
 				mockInfluenceToGeneralize.getDivision().getDepartment().getName(), 10, false);
@@ -151,7 +147,6 @@ public class TestInfluenceHandling {
 				influenceCaptor.getAllValues().get(1));
 
 		verify(mockObjectService).saveConversion(conversionCaptor.capture());
-		assertEquals("Wrong timestamp in conversion!", timestamp, conversionCaptor.getValue().getTimestamp());
 		assertEquals("Wrong corporateer in conversion!", mockCorporateer, conversionCaptor.getValue().getCorporateer());
 		assertEquals("Wrong fromDivision in conversion!", mockDivision, conversionCaptor.getValue().getFromDivision());
 		assertEquals("Wrong toDivision in conversion!", mockToDivision, conversionCaptor.getValue().getToDivision());
@@ -181,8 +176,6 @@ public class TestInfluenceHandling {
 
 		when(mockObjectService.getDefaultDivision()).thenReturn(mockToDivision);
 
-		String timestamp = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString();
-
 		influenceHandlingService.convertInfluence(mockAuthentication, mockInfluenceToGeneralize.getDivision().getName(),
 				mockInfluenceToGeneralize.getDivision().getDepartment().getName(), 10, true);
 
@@ -196,7 +189,6 @@ public class TestInfluenceHandling {
 				influenceCaptor.getAllValues().get(1));
 
 		verify(mockObjectService).saveConversion(conversionCaptor.capture());
-		assertEquals("Wrong timestamp in conversion!", timestamp, conversionCaptor.getValue().getTimestamp());
 		assertEquals("Wrong corporateer in conversion!", mockCorporateer, conversionCaptor.getValue().getCorporateer());
 		assertEquals("Wrong fromDivision in conversion!", mockDivision, conversionCaptor.getValue().getFromDivision());
 		assertEquals("Wrong toDivision in conversion!", mockToDivision, conversionCaptor.getValue().getToDivision());
