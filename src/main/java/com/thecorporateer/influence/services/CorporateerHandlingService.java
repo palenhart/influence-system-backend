@@ -173,7 +173,7 @@ public class CorporateerHandlingService {
 		corporateerRepository.save(corporateer);
 	}
 	
-	public void addCorporateerToDivision(Corporateer corporateer, Division division) {
+	private void addCorporateerToDivision(Corporateer corporateer, Division division) {
 		
 		// don't do anything if corporateer is already a member of division
 		if (corporateer.getMemberOfDivisions().contains(division)) {
@@ -185,7 +185,7 @@ public class CorporateerHandlingService {
 		}
 	}
 
-	public void removeCorporateerToDivision(Corporateer corporateer, Division division) {
+	private void removeCorporateerFromDivision(Corporateer corporateer, Division division) {
 		
 		// don't do anything if corporateer is NOT a member of division
 		if (!corporateer.getMemberOfDivisions().contains(division)) {
@@ -196,6 +196,11 @@ public class CorporateerHandlingService {
 			corporateer.getMemberOfDivisions().remove(division);
 		}
 	}
+	
+//	public void changeCorporateerDivisionMembership(Authentication authentication, String corporateerName, String divisionName) {
+//		
+//		if ()
+//	}
 	
 	public void buyRank(Authentication authentication, String rankName) {
 
