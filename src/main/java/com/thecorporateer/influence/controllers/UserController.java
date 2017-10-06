@@ -90,7 +90,7 @@ public class UserController {
 						influence.getDivision().getDepartment().getName(), influence.getAmount()));
 			}
 		}
-		
+
 		return ResponseEntity.ok().body(response);
 	}
 
@@ -143,6 +143,28 @@ public class UserController {
 
 		corporateerHandlingService.buyRank(authentication, rankname);
 		actionLogService.logAction(authentication, "Bought rank " + rankname);
+
+		return ResponseEntity.ok().body("{\"message\":\"Rank successfully bought\"}");
+	}
+
+	@CrossOrigin(origins = "*")
+	@RequestMapping(method = RequestMethod.POST, value = "/setMembership", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> addRemoveMember(@RequestBody ObjectNode request) throws JSONException {
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		String corporateerName = request.get("corporateer").asText();
+		String divisionName = request.get("division").asText();
+		Boolean add = request.get("add").asBoolean();
+
+		corporateerHandlingService.changeCorporateerDivisionMembership(authentication, corporateerName, divisionName,
+				add);
+
+		if (add) {
+			actionLogService.logAction(authentication, "Added " + corporateerName + " to " + divisionName);
+		} else {
+			actionLogService.logAction(authentication, "Removed " + corporateerName + " from " + divisionName);
+		}
 
 		return ResponseEntity.ok().body("{\"message\":\"Rank successfully bought\"}");
 	}
