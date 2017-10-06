@@ -150,7 +150,6 @@ public class CorporateerHandlingService {
 		return total;
 	}
 
-	// TODO: Only allow a subset of divisions if user is able to do change himself
 	public void setMainDivision(Authentication authentication, String divisionName) {
 
 		Corporateer corporateer = userHandlingService.getUserByName(authentication.getName()).getCorporateer();
@@ -160,14 +159,19 @@ public class CorporateerHandlingService {
 		if (divisionName.equals(corporateer.getMainDivision().getName())) {
 			throw new IllegalDivisionChangeRequestException("Division was not changed.");
 		}
-
+		
 		// "none" is also used for departments, choose the general division instead
 		if (divisionName.equals("none")) {
 			division = objectService.getDefaultDivision();
 			actionLogService.logAction(authentication, "Removed main division");
-
-		} else {
+		}
+		
+		else {
 			division = objectService.getDivisionByName(divisionName);
+			//do not change division to a division that corporateer is not a member of
+			if (!corporateer.getMemberOfDivisions().contains(division)) {
+				throw new IllegalDivisionChangeRequestException(corporateer.getName() + " is not a member of division " + division.getName());
+			}
 			actionLogService.logAction(authentication, "Set main division to " + division.getName());
 		}
 
