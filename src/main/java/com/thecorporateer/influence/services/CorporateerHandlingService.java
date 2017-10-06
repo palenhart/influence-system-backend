@@ -202,10 +202,14 @@ public class CorporateerHandlingService {
 	public void changeCorporateerDivisionMembership(Authentication authentication, String corporateerName, String divisionName, Boolean add) {
 		
 		if (accessHandlingService.accessPermissionVerifier(authentication, objectService.getDivisionByName(divisionName))) {
+			
+			// If 'add' boolean is 1, try to add corporateer to division
 			if (add) {
 				addCorporateerToDivision(getCorporateerByName(corporateerName), objectService.getDivisionByName(divisionName));
 			}
-			if (!add) {
+			
+			// If 'add boolean is 0, try to remove corporateer from division
+			else {
 				removeCorporateerFromDivision(getCorporateerByName(corporateerName), objectService.getDivisionByName(divisionName));
 			}
 		}
