@@ -20,10 +20,15 @@ public class AccessHandlingService {
 		@Autowired
 		private UserRoleRepository userRoleRepository;
 		
-		public void AccessPermissionVerifier(Authentication authentication, JpaEntity object) {
+		public boolean AccessPermissionVerifier(Authentication authentication, JpaEntity object) {
 			
+			// Administrators have Access Period.
 			if(userHandlingService.getUserByName(authentication.getName()).getRoles().contains(userRoleRepository.findByName("ROLE_ADMIN"))) {
-				
+				return true;
+			}
+			
+			else {
+				return false;
 			}
 		}
 		
