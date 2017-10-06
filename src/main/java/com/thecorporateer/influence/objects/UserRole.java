@@ -41,14 +41,9 @@ public class UserRole {
 
 	@Column(length = 20)
 	@NotNull
-	@Enumerated(EnumType.STRING)
-	private RoleName name;
+	private String name;
 
 	@ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
 	@JsonIgnore
 	private List<User> users;
-
-	public String getRoleName() {
-		return name.name();
-	}
 }

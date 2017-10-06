@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-import com.thecorporateer.influence.objects.RoleName;
 import com.thecorporateer.influence.objects.UserRole;
 
 /**
@@ -16,6 +15,6 @@ import com.thecorporateer.influence.objects.UserRole;
 @RepositoryRestResource(exported = false)
 public interface UserRoleRepository extends JpaRepository<UserRole, Long> {
 	
-	public UserRole findByName(@Param("name") RoleName name);
+	public UserRole findByName(@Param("name") String name);
 
 }

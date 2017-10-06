@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 import com.thecorporateer.influence.exceptions.PasswordComplexityException;
 import com.thecorporateer.influence.exceptions.RepositoryNotFoundException;
-import com.thecorporateer.influence.objects.RoleName;
 import com.thecorporateer.influence.objects.User;
 import com.thecorporateer.influence.objects.UserRole;
 import com.thecorporateer.influence.repositories.UserRepository;
@@ -139,7 +138,7 @@ public class UserHandlingService {
 		user.setCorporateer(corporateerHandlingService.getCorporateerByName(corporateerName));
 
 		List<UserRole> roles = new ArrayList<UserRole>();
-		roles.add(userRoleRepository.findByName(RoleName.ROLE_USER));
+		roles.add(userRoleRepository.findByName("ROLE_USER"));
 		user.setRoles(roles);
 
 		updateUser(user);
@@ -150,9 +149,9 @@ public class UserHandlingService {
 		createUser(username, corporateerName, password);
 
 		List<UserRole> roles = new ArrayList<UserRole>();
-		roles.add(userRoleRepository.findByName(RoleName.ROLE_USER));
+		roles.add(userRoleRepository.findByName("ROLE_USER"));
 		if (admin) {
-			roles.add(userRoleRepository.findByName(RoleName.ROLE_ADMIN));
+			roles.add(userRoleRepository.findByName("ROLE_ADMIN"));
 		}
 
 		User user = getUserByName(username);
