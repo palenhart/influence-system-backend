@@ -101,6 +101,15 @@ public class GlobalDefaultExceptionHandler {
 				"Bad Request", e.getMessage(), req.getServletPath()));
 	}
 
+	@ExceptionHandler(value = IllegalMembershipChangeException.class)
+	public ResponseEntity<?> DivisionMembershipHandler(HttpServletRequest req, Exception e) {
+
+		logException(req, e);
+
+		return ResponseEntity.badRequest().body(new ExceptionResponse(Instant.now().getEpochSecond(), "400",
+				"Bad Request", e.getMessage(), req.getServletPath()));
+	}
+	
 	private void logException(HttpServletRequest req, Exception e) {
 		log.warn(e.getClass().getName());
 
