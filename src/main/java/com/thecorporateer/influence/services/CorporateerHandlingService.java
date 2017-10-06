@@ -156,7 +156,7 @@ public class CorporateerHandlingService {
 		Corporateer corporateer = userHandlingService.getUserByName(authentication.getName()).getCorporateer();
 		Division division;
 
-		// do not change division when there is other division selected
+		// do not change division when there is no other division selected
 		if (divisionName.equals(corporateer.getMainDivision().getName())) {
 			throw new IllegalDivisionChangeRequestException("Division was not changed.");
 		}
@@ -172,7 +172,7 @@ public class CorporateerHandlingService {
 		}
 
 		corporateer.setMainDivision(division);
-		corporateerRepository.save(corporateer);
+		updateCorporateer(corporateer);
 	}
 	
 	private void addCorporateerToDivision(Corporateer corporateer, Division division) {
@@ -251,7 +251,13 @@ public class CorporateerHandlingService {
 	public void setRank(String corporateerName, String rankName) {
 
 		Corporateer corporateer = getCorporateerByName(corporateerName);
-		corporateer.setRank(objectService.getRankByName(rankName));
+		Rank rank = objectService.getRankByName(rankName);
+		setRank(corporateer, rank);
+	}
+
+	private void setRank(Corporateer corporateer, Rank rank) {
+
+		corporateer.setRank(rank);
 		updateCorporateer(corporateer);
 	}
 
@@ -276,7 +282,7 @@ public class CorporateerHandlingService {
 	 */
 	private void refreshCorporateers() {
 
-		corporateers = corporateerRepository.findAll();
+		corporateers = getAllCorporateers();
 	}
 
 }
