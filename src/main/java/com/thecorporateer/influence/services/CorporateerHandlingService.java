@@ -37,6 +37,8 @@ public class CorporateerHandlingService {
 	private ObjectService objectService;
 	@Autowired
 	private ActionLogService actionLogService;
+	@Autowired
+	private AccessHandlingService accessHandlingService;
 
 	// private List<Rank> ranks = new ArrayList<>();
 	private List<InfluenceType> types = new ArrayList<>();
@@ -197,10 +199,17 @@ public class CorporateerHandlingService {
 		}
 	}
 	
-//	public void changeCorporateerDivisionMembership(Authentication authentication, String corporateerName, String divisionName) {
-//		
-//		if ()
-//	}
+	public void changeCorporateerDivisionMembership(Authentication authentication, String corporateerName, String divisionName, Boolean add) {
+		
+		if (accessHandlingService.accessPermissionVerifier(authentication, objectService.getDivisionByName(divisionName))) {
+			if (add) {
+				addCorporateerToDivision(getCorporateerByName(corporateerName), objectService.getDivisionByName(divisionName));
+			}
+			if (!add) {
+				removeCorporateerFromDivision(getCorporateerByName(corporateerName), objectService.getDivisionByName(divisionName));
+			}
+		}
+	}
 	
 	public void buyRank(Authentication authentication, String rankName) {
 
