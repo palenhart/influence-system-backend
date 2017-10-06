@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.Authentication;
 
+import com.thecorporateer.influence.exceptions.IllegalBuyRequestException;
 import com.thecorporateer.influence.exceptions.IllegalDivisionChangeRequestException;
 import com.thecorporateer.influence.exceptions.RepositoryNotFoundException;
 import com.thecorporateer.influence.objects.Corporateer;
@@ -53,6 +54,10 @@ public class TestCorporateerService {
 	private Authentication mockAuthentication;
 	@Mock
 	private User mockUser;
+	@Mock
+	private Rank mockRank;
+	@Mock
+	private Influence mockInfluence;
 
 	@Captor
 	private ArgumentCaptor<Corporateer> corporateerCaptor;
@@ -68,6 +73,8 @@ public class TestCorporateerService {
 	private List<InfluenceType> types = new ArrayList<>();
 	private List<Division> divisions = new ArrayList<>();
 
+	private String rankName = "rankName";
+
 	@Before
 	public void setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
@@ -77,6 +84,10 @@ public class TestCorporateerService {
 		divisions.add(mock(Division.class));
 		divisions.add(mock(Division.class));
 		divisions.add(mock(Division.class));
+
+		when(mockUserHandlingService.getUserByName(mockAuthentication.getName())).thenReturn(mockUser);
+		when(mockUser.getCorporateer()).thenReturn(mockCorporateer);
+		when(mockObjectService.getRankByName(rankName)).thenReturn(mockRank);
 	}
 
 	@After
@@ -164,8 +175,6 @@ public class TestCorporateerService {
 	@Test
 	public void testDistributeTributes() {
 
-		Rank mockRank = mock(Rank.class);
-
 		List<Corporateer> mockCorporateerList = new ArrayList<>();
 		Corporateer corporateer = new Corporateer();
 		corporateer.setTributes(10);
@@ -186,7 +195,6 @@ public class TestCorporateerService {
 
 	@Test
 	public void testCreateCorporateer() {
-		Rank mockRank = mock(Rank.class);
 		when(mockObjectService.getLowestRank()).thenReturn(mockRank);
 
 		Division mockDivision = mock(Division.class);
@@ -207,59 +215,173 @@ public class TestCorporateerService {
 		verify(mockInfluenceHandlingService).updateInfluences(influenceCaptor.capture());
 		assertEquals("List of influences has wrong size", 6, influenceCaptor.getValue().size());
 	}
-	
+
 	@Test
 	public void testSetMainDivisionWhenAlreadySet() {
 		String mockDivisionName = "mockDivisionName";
-		
+
 		when(mockUserHandlingService.getUserByName(mockAuthentication.getName())).thenReturn(mockUser);
 		when(mockUser.getCorporateer()).thenReturn(mockCorporateer);
 		when(mockCorporateer.getMainDivision()).thenReturn(mock(Division.class));
 		when(mockCorporateer.getMainDivision().getName()).thenReturn(mockDivisionName);
-		
+
 		exception.expect(IllegalDivisionChangeRequestException.class);
-		
+
 		corporateerHandlingService.setMainDivision(mockAuthentication, mockDivisionName);
 	}
-	
+
 	@Test
 	public void testSetMainDivisionToNone() {
 		String mockDivisionName = "none";
 		Division mockDivision = mock(Division.class);
 		Corporateer corporateer = new Corporateer();
 		corporateer.setMainDivision(mockDivision);
-		
+
 		when(mockUserHandlingService.getUserByName(mockAuthentication.getName())).thenReturn(mockUser);
 		when(mockUser.getCorporateer()).thenReturn(corporateer);
 		when(mockDivision.getName()).thenReturn("someDivisionName");
-		
+
 		Division mockNoDivision = mock(Division.class);
 		when(mockObjectService.getDefaultDivision()).thenReturn(mockNoDivision);
-		
+
 		corporateerHandlingService.setMainDivision(mockAuthentication, mockDivisionName);
-		
+
 		verify(mockCorporateerRepository).save(corporateerCaptor.capture());
 		assertEquals(mockNoDivision, corporateerCaptor.getValue().getMainDivision());
 	}
-	
+
 	@Test
 	public void testSetMainDivision() {
 		String mockDivisionName = "mockDivisionName";
 		Division mockDivision = mock(Division.class);
 		Corporateer corporateer = new Corporateer();
 		corporateer.setMainDivision(mockDivision);
-		
+
 		when(mockUserHandlingService.getUserByName(mockAuthentication.getName())).thenReturn(mockUser);
 		when(mockUser.getCorporateer()).thenReturn(corporateer);
 		when(mockDivision.getName()).thenReturn("someDivisionName");
-		
+
 		Division mockNewDivision = mock(Division.class);
 		when(mockObjectService.getDivisionByName(mockDivisionName)).thenReturn(mockNewDivision);
-		
+
+		List<Division> divisions = new ArrayList<>();
+		divisions.add(mockNewDivision);
+		corporateer.setMemberOfDivisions(divisions);
+
 		corporateerHandlingService.setMainDivision(mockAuthentication, mockDivisionName);
-		
+
 		verify(mockCorporateerRepository).save(corporateerCaptor.capture());
 		assertEquals(mockNewDivision, corporateerCaptor.getValue().getMainDivision());
+	}
+
+	@Test
+	public void testSetMainDivisionIfNoMember() {
+		String mockDivisionName = "mockDivisionName";
+		Division mockDivision = mock(Division.class);
+		Corporateer corporateer = new Corporateer();
+		corporateer.setMainDivision(mockDivision);
+
+		when(mockUserHandlingService.getUserByName(mockAuthentication.getName())).thenReturn(mockUser);
+		when(mockUser.getCorporateer()).thenReturn(corporateer);
+		when(mockDivision.getName()).thenReturn("someDivisionName");
+
+		Division mockNewDivision = mock(Division.class);
+		when(mockObjectService.getDivisionByName(mockDivisionName)).thenReturn(mockNewDivision);
+
+		List<Division> divisions = new ArrayList<>();
+		divisions.add(mockDivision);
+		corporateer.setMemberOfDivisions(divisions);
+
+		exception.expect(IllegalDivisionChangeRequestException.class);
+
+		corporateerHandlingService.setMainDivision(mockAuthentication, mockDivisionName);
+	}
+
+	@Test
+	public void testSetRank() {
+		String corporateerName = "corporateerName";
+
+		when(mockCorporateerRepository.findByName(corporateerName)).thenReturn(mockCorporateer);
+
+		corporateerHandlingService.setRank(corporateerName, rankName);
+		verify(mockCorporateer).setRank(mockRank);
+		verify(mockCorporateerRepository).save(mockCorporateer);
+	}
+
+	@Test
+	public void testBuySameRank() {
+
+		when(mockInfluenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(mockCorporateer,
+				mockObjectService.getDefaultDivision(), mockObjectService.getInfluenceTypeById(1L)))
+						.thenReturn(mockInfluence);
+		when(mockCorporateer.getRank()).thenReturn(mockRank);
+		when(mockRank.getLevel()).thenReturn(1);
+
+		exception.expect(IllegalBuyRequestException.class);
+		
+		corporateerHandlingService.buyRank(mockAuthentication, rankName);
+	}
+	
+	@Test
+	public void testBuySkippedRank() {
+
+		when(mockInfluenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(mockCorporateer,
+				mockObjectService.getDefaultDivision(), mockObjectService.getInfluenceTypeById(1L)))
+						.thenReturn(mockInfluence);
+		
+		Rank mockCurrentRank = mock(Rank.class);
+		
+		when(mockCorporateer.getRank()).thenReturn(mockCurrentRank);
+		when(mockCurrentRank.getLevel()).thenReturn(1);
+		when(mockRank.getLevel()).thenReturn(3);
+
+		exception.expect(IllegalBuyRequestException.class);
+		
+		corporateerHandlingService.buyRank(mockAuthentication, rankName);
+	}
+	
+	@Test
+	public void testBuyRankWithoutEnoughInfluence() {
+
+		when(mockInfluenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(mockCorporateer,
+				mockObjectService.getDefaultDivision(), mockObjectService.getInfluenceTypeById(1L)))
+						.thenReturn(mockInfluence);
+		
+		Rank mockCurrentRank = mock(Rank.class);
+		
+		when(mockCorporateer.getRank()).thenReturn(mockCurrentRank);
+		when(mockCurrentRank.getLevel()).thenReturn(1);
+		when(mockRank.getLevel()).thenReturn(2);
+		
+		when(mockInfluence.getAmount()).thenReturn(10);
+		when(mockRank.getInfluenceToBuy()).thenReturn(100);
+
+		exception.expect(IllegalBuyRequestException.class);
+		
+		corporateerHandlingService.buyRank(mockAuthentication, rankName);
+	}
+	
+	@Test
+	public void testBuyRank() {
+
+		when(mockInfluenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(mockCorporateer,
+				mockObjectService.getDefaultDivision(), mockObjectService.getInfluenceTypeById(1L)))
+						.thenReturn(mockInfluence);
+		
+		Rank mockCurrentRank = mock(Rank.class);
+		
+		when(mockCorporateer.getRank()).thenReturn(mockCurrentRank);
+		when(mockCurrentRank.getLevel()).thenReturn(1);
+		when(mockRank.getLevel()).thenReturn(2);
+		
+		when(mockInfluence.getAmount()).thenReturn(100);
+		when(mockRank.getInfluenceToBuy()).thenReturn(100);
+		
+		corporateerHandlingService.buyRank(mockAuthentication, rankName);
+		
+		verify(mockCorporateer).setRank(mockRank);
+		verify(mockInfluence).setAmount(0);
+		verify(mockCorporateerRepository).save(mockCorporateer);
 	}
 
 }

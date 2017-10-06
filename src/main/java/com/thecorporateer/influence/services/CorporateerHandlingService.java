@@ -85,11 +85,11 @@ public class CorporateerHandlingService {
 		corporateer.setName(name);
 		corporateer.setRank(objectService.getLowestRank());
 		corporateer.setMainDivision(objectService.getDefaultDivision());
-		
+
 		List<Division> divisions = new ArrayList<Division>();
 		divisions.add(objectService.getDefaultDivision());
 		corporateer.setMemberOfDivisions(divisions);
-				
+
 		corporateer = updateCorporateer(corporateer);
 
 		initializeInfluenceTable(corporateer);
@@ -159,18 +159,19 @@ public class CorporateerHandlingService {
 		if (divisionName.equals(corporateer.getMainDivision().getName())) {
 			throw new IllegalDivisionChangeRequestException("Division was not changed.");
 		}
-		
+
 		// "none" is also used for departments, choose the general division instead
 		if (divisionName.equals("none")) {
 			division = objectService.getDefaultDivision();
 			actionLogService.logAction(authentication, "Removed main division");
 		}
-		
+
 		else {
 			division = objectService.getDivisionByName(divisionName);
-			//do not change division to a division that corporateer is not a member of
+			// do not change division to a division that corporateer is not a member of
 			if (!corporateer.getMemberOfDivisions().contains(division)) {
-				throw new IllegalDivisionChangeRequestException(corporateer.getName() + " is not a member of division " + division.getName());
+				throw new IllegalDivisionChangeRequestException(
+						corporateer.getName() + " is not a member of division " + division.getName());
 			}
 			actionLogService.logAction(authentication, "Set main division to " + division.getName());
 		}
@@ -178,47 +179,53 @@ public class CorporateerHandlingService {
 		corporateer.setMainDivision(division);
 		updateCorporateer(corporateer);
 	}
-	
+
 	private void addCorporateerToDivision(Corporateer corporateer, Division division) {
-		
+
 		// don't do anything if corporateer is already a member of division
 		if (corporateer.getMemberOfDivisions().contains(division)) {
-			throw new IllegalMembershipChangeException(corporateer.getName() + " already is a member of division " + division.getName());
+			throw new IllegalMembershipChangeException(
+					corporateer.getName() + " already is a member of division " + division.getName());
 		}
-		
+
 		else {
 			corporateer.getMemberOfDivisions().add(division);
 		}
 	}
 
 	private void removeCorporateerFromDivision(Corporateer corporateer, Division division) {
-		
+
 		// don't do anything if corporateer is NOT a member of division
 		if (!corporateer.getMemberOfDivisions().contains(division)) {
-			throw new IllegalMembershipChangeException(corporateer.getName() + " is not a member of division " + division.getName());
+			throw new IllegalMembershipChangeException(
+					corporateer.getName() + " is not a member of division " + division.getName());
 		}
-		
+
 		else {
 			corporateer.getMemberOfDivisions().remove(division);
 		}
 	}
-	
-	public void changeCorporateerDivisionMembership(Authentication authentication, String corporateerName, String divisionName, Boolean add) {
-		
-		if (accessHandlingService.accessPermissionVerifier(authentication, objectService.getDivisionByName(divisionName))) {
-			
+
+	public void changeCorporateerDivisionMembership(Authentication authentication, String corporateerName,
+			String divisionName, Boolean add) {
+
+		if (accessHandlingService.accessPermissionVerifier(authentication,
+				objectService.getDivisionByName(divisionName))) {
+
 			// If 'add' boolean is 1, try to add corporateer to division
 			if (add) {
-				addCorporateerToDivision(getCorporateerByName(corporateerName), objectService.getDivisionByName(divisionName));
+				addCorporateerToDivision(getCorporateerByName(corporateerName),
+						objectService.getDivisionByName(divisionName));
 			}
-			
+
 			// If 'add boolean is 0, try to remove corporateer from division
 			else {
-				removeCorporateerFromDivision(getCorporateerByName(corporateerName), objectService.getDivisionByName(divisionName));
+				removeCorporateerFromDivision(getCorporateerByName(corporateerName),
+						objectService.getDivisionByName(divisionName));
 			}
 		}
 	}
-	
+
 	public void buyRank(Authentication authentication, String rankName) {
 
 		// TODO: validations
@@ -234,7 +241,7 @@ public class CorporateerHandlingService {
 		}
 
 		// only allow buying the next higher rank
-		if (corporateer.getRank().getLevel() - rank.getLevel() > 1) {
+		if (rank.getLevel() - corporateer.getRank().getLevel() > 1) {
 			throw new IllegalBuyRequestException("Only the next rank can be bought.");
 		}
 
@@ -249,7 +256,7 @@ public class CorporateerHandlingService {
 		// deduct general influence
 		generalInfluence.setAmount(generalInfluence.getAmount() - rank.getInfluenceToBuy());
 		corporateer.setTotalInfluence(getTotalInfluence(corporateer));
-		corporateerRepository.save(corporateer);
+		updateCorporateer(corporateer);
 	}
 
 	public void setRank(String corporateerName, String rankName) {
