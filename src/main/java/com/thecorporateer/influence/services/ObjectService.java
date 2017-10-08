@@ -91,7 +91,7 @@ public class ObjectService {
 					currentInfluence = currentInfluence + transaction.getAmount();
 				}
 			}
-			divisions.add(new DivisionResponse(division, division.getCorporateers().size(), currentInfluence));
+			divisions.add(new DivisionResponse(division, division.getMembers().size(), currentInfluence));
 		}
 
 		return divisions;
