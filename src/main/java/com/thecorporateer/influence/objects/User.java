@@ -1,6 +1,5 @@
 package com.thecorporateer.influence.objects;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -10,8 +9,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -51,9 +48,9 @@ public class User extends JpaEntity {
 	@NotNull
 	private Boolean enabled;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@NotNull
-	private Date lastPasswordResetDate;
+//	@Temporal(TemporalType.TIMESTAMP)
+//	@NotNull
+//	private Date lastPasswordResetDate;
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "USER_AUTHORITY", joinColumns = {
