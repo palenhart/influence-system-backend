@@ -1,7 +1,6 @@
 package com.thecorporateer.influence.security;
 
 import java.util.Collection;
-import java.util.Date;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,15 +17,13 @@ public class JwtUser implements UserDetails {
     private final String email;
     private final Collection<? extends GrantedAuthority> authorities;
     private final boolean enabled;
-    private final Date lastPasswordResetDate;
 
     public JwtUser(
           Long id,
           String username,
           String email,
           String password, Collection<? extends GrantedAuthority> authorities,
-          boolean enabled,
-          Date lastPasswordResetDate
+          boolean enabled
     ) {
         this.id = id;
         this.username = username;
@@ -34,7 +31,6 @@ public class JwtUser implements UserDetails {
         this.password = password;
         this.authorities = authorities;
         this.enabled = enabled;
-        this.lastPasswordResetDate = lastPasswordResetDate;
     }
 
     @JsonIgnore
@@ -83,10 +79,5 @@ public class JwtUser implements UserDetails {
     @Override
     public boolean isEnabled() {
         return enabled;
-    }
-
-    @JsonIgnore
-    public Date getLastPasswordResetDate() {
-        return lastPasswordResetDate;
     }
 }
