@@ -3,10 +3,7 @@
  */
 package com.thecorporateer.influence.services;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.passay.CharacterRule;
@@ -131,7 +128,7 @@ public class UserHandlingService {
 		user.setEmail(username);
 		user.setEnabled(true);
 		user.setPassword(passwordEncoder.encode(password));
-		user.setLastPasswordResetDate(Date.from(Instant.now().truncatedTo(ChronoUnit.SECONDS)));
+		// user.setLastPasswordResetDate(Date.from(Instant.now().truncatedTo(ChronoUnit.SECONDS)));
 
 		corporateerHandlingService.createCorporateer(corporateerName);
 
@@ -148,16 +145,15 @@ public class UserHandlingService {
 
 		createUser(username, corporateerName, password);
 
-		List<UserRole> roles = new ArrayList<UserRole>();
-		roles.add(userRoleRepository.findByName("ROLE_USER"));
 		if (admin) {
+			List<UserRole> roles = new ArrayList<UserRole>();
 			roles.add(userRoleRepository.findByName("ROLE_ADMIN"));
+
+			User user = getUserByName(username);
+			user.setRoles(roles);
+
+			updateUser(user);
 		}
-
-		User user = getUserByName(username);
-		user.setRoles(roles);
-
-		updateUser(user);
 	}
 
 	/**
