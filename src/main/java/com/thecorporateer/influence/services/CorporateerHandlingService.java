@@ -94,6 +94,24 @@ public class CorporateerHandlingService {
 
 		initializeInfluenceTable(corporateer);
 	}
+	
+	public void createCorporateerWithDivisions(String name, Division mainDivision, List<String> divisionNames) {
+
+		Corporateer corporateer = new Corporateer();
+		corporateer.setName(name);
+		corporateer.setRank(objectService.getLowestRank());
+		corporateer.setMainDivision(mainDivision);
+
+		List<Division> divisions = new ArrayList<Division>();
+		for(String divName: divisionNames) {
+			divisions.add(objectService.getDivisionByName(divName));
+		}
+		corporateer.setMemberOfDivisions(divisions);
+
+		corporateer = updateCorporateer(corporateer);
+
+		initializeInfluenceTable(corporateer);
+	}
 
 	/**
 	 * Initialize the influence table for a new corporateer to track influence
