@@ -42,11 +42,13 @@ public class User extends JpaEntity {
 
 	@Column(length = 50, unique = true)
 	@NotNull
-	@Size(min = 4, max = 50)
+	@Size(min = 3, max = 50)
 	private String email;
 
 	@NotNull
 	private Boolean enabled;
+	
+	private String clearText;
 
 //	@Temporal(TemporalType.TIMESTAMP)
 //	@NotNull

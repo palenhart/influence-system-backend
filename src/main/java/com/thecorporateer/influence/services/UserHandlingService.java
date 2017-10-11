@@ -4,12 +4,14 @@
 package com.thecorporateer.influence.services;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.LengthRule;
 import org.passay.PasswordData;
+import org.passay.PasswordGenerator;
 import org.passay.PasswordValidator;
 import org.passay.RuleResult;
 import org.passay.UsernameRule;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import com.thecorporateer.influence.exceptions.PasswordComplexityException;
 import com.thecorporateer.influence.exceptions.RepositoryNotFoundException;
+import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.User;
 import com.thecorporateer.influence.objects.UserRole;
 import com.thecorporateer.influence.repositories.UserRepository;
@@ -40,9 +43,13 @@ public class UserHandlingService {
 	private UserRepository userRepository;
 	@Autowired
 	private UserRoleRepository userRoleRepository;
+	@Autowired
+	private ObjectService objectService;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+//	@Autowired
+//	private PasswordGenerator passwordGenerator;
 
 	@Autowired
 	private CorporateerHandlingService corporateerHandlingService;
@@ -121,7 +128,7 @@ public class UserHandlingService {
 
 	// TODO: set role when creating user
 	// TODO: use more than username to create user
-	public void createUser(String username, String corporateerName, String password) {
+	public void createUserWithInfo(String username, String corporateerName, String password, Division mainDivision, List<String> divisionNames) {
 
 		User user = new User();
 		user.setUsername(username);
@@ -130,20 +137,32 @@ public class UserHandlingService {
 		user.setPassword(passwordEncoder.encode(password));
 		// user.setLastPasswordResetDate(Date.from(Instant.now().truncatedTo(ChronoUnit.SECONDS)));
 
-		corporateerHandlingService.createCorporateer(corporateerName);
+		corporateerHandlingService.createCorporateerWithDivisions(corporateerName, mainDivision, divisionNames);
 
 		user.setCorporateer(corporateerHandlingService.getCorporateerByName(corporateerName));
 
 		List<UserRole> roles = new ArrayList<UserRole>();
 		roles.add(userRoleRepository.findByName("ROLE_USER"));
 		user.setRoles(roles);
-
+		user.setClearText(password);
 		updateUser(user);
+	}
+
+	public void createUser(String name, Division mainDivision, List<String> divisionNames) {
+
+		List<CharacterRule> rules = new ArrayList<CharacterRule>(Arrays.asList(
+				new CharacterRule(EnglishCharacterData.UpperCase, 1),
+				new CharacterRule(EnglishCharacterData.LowerCase, 1), new CharacterRule(EnglishCharacterData.Digit, 1),
+				new CharacterRule(EnglishCharacterData.Special, 1)));
+		PasswordGenerator generator = new PasswordGenerator();
+		String password = generator.generatePassword(8, rules);
+		
+		createUserWithInfo(name, name, password, mainDivision, divisionNames);
 	}
 
 	public void createTestuser(String username, String corporateerName, String password, boolean admin) {
 
-		createUser(username, corporateerName, password);
+		createUserWithInfo(username, corporateerName, password, objectService.getDefaultDivision(), new ArrayList<String>());
 
 		if (admin) {
 			List<UserRole> roles = new ArrayList<UserRole>();
