@@ -177,11 +177,11 @@ public class TestCorporateerService {
 
 		List<Corporateer> mockCorporateerList = new ArrayList<>();
 		Corporateer corporateer = new Corporateer();
-		corporateer.setTributes(10);
+		corporateer.setTributes(5);
 		corporateer.setRank(mockRank);
 		mockCorporateerList.add(corporateer);
 
-		when(mockRank.getTributesPerWeek()).thenReturn(5);
+		when(mockRank.getTributesPerWeek()).thenReturn(10);
 
 		when(mockCorporateerRepository.findAll()).thenReturn(mockCorporateerList);
 
