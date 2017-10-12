@@ -66,6 +66,7 @@ public class Corporateer extends JpaEntity {
 	@JoinTable(joinColumns = {
 			@JoinColumn(name = "CORPORATEER_ID", referencedColumnName = "ID") }, inverseJoinColumns = {
 					@JoinColumn(name = "DIVISION_ID", referencedColumnName = "ID") })
+	@JsonView(Views.Private.class)
 	private List<Division> memberOfDivisions;
 	@NotNull
 	@ManyToOne
