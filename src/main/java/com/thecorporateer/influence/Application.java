@@ -14,7 +14,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 import com.thecorporateer.influence.objects.Division;
-import com.thecorporateer.influence.services.CorporateerHandlingService;
 import com.thecorporateer.influence.services.ObjectService;
 import com.thecorporateer.influence.services.UserHandlingService;
 
@@ -24,8 +23,6 @@ public class Application {
 
 	@Autowired
 	private UserHandlingService userHandlingService;
-	@Autowired
-	private CorporateerHandlingService corporateerHandlingService;
 	@Autowired
 	private ObjectService objectService;
 

@@ -1,5 +1,7 @@
 package com.thecorporateer.influence.controllers;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thecorporateer.influence.services.ActionLogService;
 import com.thecorporateer.influence.services.CorporateerHandlingService;
+import com.thecorporateer.influence.services.ObjectService;
 import com.thecorporateer.influence.services.UserHandlingService;
 
 @RestController
@@ -25,15 +28,17 @@ public class AdminController {
 	private UserHandlingService userHandlingService;
 	@Autowired
 	private ActionLogService actionLogService;
+	@Autowired
+	private ObjectService objectService;
 
 	@CrossOrigin(origins = "*")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@RequestMapping(value = "/distributeTributes", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> distributeTributes() {
-		
+
 		corporateerHandlingService.distributeTributes();
 		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Tributes distributed");
-		
+
 		return ResponseEntity.ok().body("{\"message\":\"Tribute distribution successful\"}");
 	}
 
@@ -44,9 +49,9 @@ public class AdminController {
 
 		String username = request.get("name").asText();
 
-		userHandlingService.createUser(username);
+		userHandlingService.createUser(username, objectService.getDefaultDivision(), new ArrayList<String>());
 		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Created user " + username);
-		
+
 		return ResponseEntity.ok().body("{\"message\":\"User successfully created\"}");
 	}
 }
