@@ -94,7 +94,7 @@ public class CorporateerHandlingService {
 
 		initializeInfluenceTable(corporateer);
 	}
-	
+
 	public void createCorporateerWithDivisions(String name, Division mainDivision, List<String> divisionNames) {
 
 		Corporateer corporateer = new Corporateer();
@@ -103,7 +103,7 @@ public class CorporateerHandlingService {
 		corporateer.setMainDivision(mainDivision);
 
 		List<Division> divisions = new ArrayList<Division>();
-		for(String divName: divisionNames) {
+		for (String divName : divisionNames) {
 			divisions.add(objectService.getDivisionByName(divName));
 		}
 		corporateer.setMemberOfDivisions(divisions);
@@ -148,7 +148,7 @@ public class CorporateerHandlingService {
 		for (Corporateer corporateer : corporateers) {
 			int currentTributes = corporateer.getTributes();
 			int tributesToAdd = corporateer.getRank().getTributesPerWeek();
-			corporateer.setTributes(currentTributes + tributesToAdd);
+			corporateer.setTributes((int) Math.floor(Math.min(1.5 * tributesToAdd, currentTributes + tributesToAdd)));
 			corporateersToSave.add(corporateer);
 		}
 
