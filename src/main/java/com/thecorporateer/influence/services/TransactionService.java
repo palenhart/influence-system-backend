@@ -65,7 +65,7 @@ public class TransactionService {
 		Corporateer receiver = corporateerHandlingService.getCorporateerByName(receiverName);
 		InfluenceType type = objectService.getInfluenceTypeByName(influenceTypeName);
 
-		validate(sender, receiver, amount);
+		validate(sender, receiver, amount, message);
 
 		Division senderMainDivision = sender.getMainDivision();
 		Division influenceDivision;
@@ -101,7 +101,7 @@ public class TransactionService {
 		transactionRepository.save(trans);
 
 		sender.setTributes(sender.getTributes() - amount);
-		
+
 		if (type.getId().equals(1L)) {
 			sender.setTotalInfluence(corporateerHandlingService.getTotalInfluence(sender));
 			sender.setLifetimeInfluence(sender.getLifetimeInfluence() + amount);
@@ -109,7 +109,7 @@ public class TransactionService {
 			receiver.setLifetimeInfluence(receiver.getLifetimeInfluence() + amount);
 			corporateerHandlingService.updateCorporateer(receiver);
 		}
-		
+
 		corporateerHandlingService.updateCorporateer(sender);
 	}
 
@@ -126,16 +126,22 @@ public class TransactionService {
 	 * @return <code>true</code> if the transaction request does not violate any
 	 *         constraints; <code>false</code> otherwise
 	 */
-	private void validate(Corporateer sender, Corporateer receiver, int amount) {
-		
+	private void validate(Corporateer sender, Corporateer receiver, int amount, String message) {
+
 		if (amount < 1) {
 			throw new IllegalTransferRequestException("Illegal transfer amount.");
 		}
-		
+
 		if (sender.getTributes() < amount) {
 			throw new IllegalTransferRequestException("Not enough tributes.");
-		} else if (sender.getId() == receiver.getId()) {
+		}
+
+		if (sender.getId() == receiver.getId()) {
 			throw new IllegalTransferRequestException("Sender and receiver cannot be the same.");
+		}
+
+		if (message == null || message.trim().isEmpty()) {
+			throw new IllegalTransferRequestException("No message set.");
 		}
 	}
 
