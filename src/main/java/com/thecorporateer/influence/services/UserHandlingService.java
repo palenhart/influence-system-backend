@@ -48,8 +48,8 @@ public class UserHandlingService {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-//	@Autowired
-//	private PasswordGenerator passwordGenerator;
+	// @Autowired
+	// private PasswordGenerator passwordGenerator;
 
 	@Autowired
 	private CorporateerHandlingService corporateerHandlingService;
@@ -128,7 +128,8 @@ public class UserHandlingService {
 
 	// TODO: set role when creating user
 	// TODO: use more than username to create user
-	public void createUserWithInfo(String username, String corporateerName, String password, Division mainDivision, List<String> divisionNames) {
+	public void createUserWithInfo(String username, String corporateerName, String password, Division mainDivision,
+			List<String> divisionNames) {
 
 		User user = new User();
 		user.setUsername(username);
@@ -148,21 +149,23 @@ public class UserHandlingService {
 		updateUser(user);
 	}
 
-	public void createUser(String name, Division mainDivision, List<String> divisionNames) {
+	public String createUser(String name, Division mainDivision, List<String> divisionNames) {
 
-		List<CharacterRule> rules = new ArrayList<CharacterRule>(Arrays.asList(
-				new CharacterRule(EnglishCharacterData.UpperCase, 1),
-				new CharacterRule(EnglishCharacterData.LowerCase, 1), new CharacterRule(EnglishCharacterData.Digit, 1),
-				new CharacterRule(EnglishCharacterData.Special, 1)));
+		List<CharacterRule> rules = new ArrayList<CharacterRule>(
+				Arrays.asList(new CharacterRule(EnglishCharacterData.UpperCase, 1),
+						new CharacterRule(EnglishCharacterData.LowerCase, 1),
+						new CharacterRule(EnglishCharacterData.Digit, 1)));
 		PasswordGenerator generator = new PasswordGenerator();
 		String password = generator.generatePassword(8, rules);
-		
+
 		createUserWithInfo(name, name, password, mainDivision, divisionNames);
+		return password;
 	}
 
 	public void createTestuser(String username, String corporateerName, String password, boolean admin) {
 
-		createUserWithInfo(username, corporateerName, password, objectService.getDefaultDivision(), new ArrayList<String>());
+		createUserWithInfo(username, corporateerName, password, objectService.getDefaultDivision(),
+				new ArrayList<String>());
 
 		if (admin) {
 			List<UserRole> roles = new ArrayList<UserRole>();

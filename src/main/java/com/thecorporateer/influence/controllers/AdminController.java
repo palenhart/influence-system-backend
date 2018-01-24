@@ -49,9 +49,11 @@ public class AdminController {
 
 		String username = request.get("name").asText();
 
-		userHandlingService.createUser(username, objectService.getDefaultDivision(), new ArrayList<String>());
+		String password = userHandlingService.createUser(username, objectService.getDefaultDivision(),
+				new ArrayList<String>());
 		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Created user " + username);
 
-		return ResponseEntity.ok().body("{\"message\":\"User successfully created\"}");
+		return ResponseEntity.ok().body("{\"message\":\"User successfully created\"}" + "{\"username\":\"" + username
+				+ "\"}" + "{\"password\":\"" + password + "\"}");
 	}
 }
