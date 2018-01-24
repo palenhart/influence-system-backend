@@ -1,10 +1,5 @@
 package com.thecorporateer.influence;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -13,18 +8,14 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
-import com.thecorporateer.influence.objects.Division;
-import com.thecorporateer.influence.services.ObjectService;
-import com.thecorporateer.influence.services.UserHandlingService;
-
 @SpringBootApplication(scanBasePackages = { "com.thecorporateer.influence" })
 @EnableScheduling
 public class Application {
 
-	@Autowired
-	private UserHandlingService userHandlingService;
-	@Autowired
-	private ObjectService objectService;
+//	@Autowired
+//	private UserHandlingService userHandlingService;
+//	@Autowired
+//	private ObjectService objectService;
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
