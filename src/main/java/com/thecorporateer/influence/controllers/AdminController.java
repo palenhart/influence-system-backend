@@ -53,7 +53,7 @@ public class AdminController {
 				new ArrayList<String>());
 		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Created user " + username);
 
-		return ResponseEntity.ok().body("{\"message\":\"User successfully created\"}" + "{\"username\":\"" + username
-				+ "\"}" + "{\"password\":\"" + password + "\"}");
+		return ResponseEntity.ok().body("{\"message\":\"User successfully created\",\"username\":\"" + username
+				+ "\",\"password\":\"" + password + "\"}");
 	}
 }
