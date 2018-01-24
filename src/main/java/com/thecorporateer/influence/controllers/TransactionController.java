@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.thecorporateer.influence.objects.Transaction;
 import com.thecorporateer.influence.services.ActionLogService;
-import com.thecorporateer.influence.services.ObjectService;
 import com.thecorporateer.influence.services.TransactionService;
 import com.thecorporateer.influence.services.UserHandlingService;
 
@@ -37,8 +36,6 @@ public class TransactionController {
 	private ActionLogService actionLogService;
 	@Autowired
 	private UserHandlingService userHandlingService;
-	@Autowired
-	private ObjectService objectService;
 
 	/**
 	 * 
@@ -91,20 +88,20 @@ public class TransactionController {
 			return ResponseEntity.ok().body(response);
 		}
 
-		else if (direction.equals("receiver")) {
-			for (Transaction transaction : userHandlingService.getUserByName(currentPrincipalName).getCorporateer()
-					.getReceivedTransactions()) {
-				// do not show demerits
-				// TODO: Refactor to not use the name
-				if (transaction.getType().equals(objectService.getInfluenceTypeByName("INFLUENCE"))) {
-					response.add(new TransactionResponse(transaction.getTimestamp(), transaction.getSender().getName(),
-							transaction.getReceiver().getName(), transaction.getAmount(),
-							transaction.getType().getName(), transaction.getMessage(),
-							transaction.getDivision().getName(), transaction.getDivision().getDepartment().getName()));
-				}
-			}
-			return ResponseEntity.ok().body(response);
-		}
+//		else if (direction.equals("receiver")) {
+//			for (Transaction transaction : userHandlingService.getUserByName(currentPrincipalName).getCorporateer()
+//					.getReceivedTransactions()) {
+//				// do not show demerits
+//				// TODO: Refactor to not use the name
+//				if (transaction.getType().equals(objectService.getInfluenceTypeByName("INFLUENCE"))) {
+//					response.add(new TransactionResponse(transaction.getTimestamp(), transaction.getSender().getName(),
+//							transaction.getReceiver().getName(), transaction.getAmount(),
+//							transaction.getType().getName(), transaction.getMessage(),
+//							transaction.getDivision().getName(), transaction.getDivision().getDepartment().getName()));
+//				}
+//			}
+//			return ResponseEntity.ok().body(response);
+//		}
 
 		return ResponseEntity.notFound().build();
 	}
