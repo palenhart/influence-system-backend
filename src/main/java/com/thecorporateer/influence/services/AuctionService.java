@@ -1,6 +1,8 @@
 package com.thecorporateer.influence.services;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -25,41 +27,74 @@ public class AuctionService {
 	private AuctionRepository auctionRepository;
 
 	private boolean validateAuction(String beginningTimestamp, String endingTimestamp, String title, String description,
-			Corporateer creator, Division usableInfluenceDivision, Long minBet, Long minStep) {
+			Authentication creator, Division usableInfluenceDivision, Long minBid, Long minStep) {
 
 		// values must not be null
 		if (null == beginningTimestamp || null == endingTimestamp || null == title || null == description
-				|| null == creator || null == usableInfluenceDivision || null == minBet || null == minStep) {
+				|| null == creator || null == usableInfluenceDivision || null == minBid || null == minStep) {
+			return false;
+		}
+
+		// ending date must be in the future
+		if (Instant.parse(endingTimestamp).isBefore(Instant.now())) {
+			return false;
+		}
+
+		// if beginning was in the past, set it to now
+		if (Instant.parse(beginningTimestamp).isBefore(Instant.now())) {
+			beginningTimestamp = Instant.now().truncatedTo(ChronoUnit.SECONDS).toString();
+		}
+
+		// beginning must not be after ending
+		if (Instant.parse(beginningTimestamp).isAfter(Instant.parse(endingTimestamp))) {
 			return false;
 		}
 
 		// beginningTimestamp
 		// endingTimestamp
-		// title
-		// description
+
+		// title my not be empty or too long
+		// TODO
+		if (title.trim().isEmpty() || title.length() > 1) {
+			return false;
+		}
+
+		// description my not be empty or too long
+		// TODO
+		if (description.trim().isEmpty() || description.length() > 1) {
+			return false;
+		}
+
 		// creator
 		// usableInfluenceDivision
-		// minBet
-		// minStep
+
+		// minBid must be non-negative
+		if (minBid < 0) {
+			return false;
+		}
+		// minStep must be positive
+		if (minStep < 1) {
+			return false;
+		}
 
 		return true;
 	}
 
 	// create auction with all customizable properties
 	public void createAuction(String beginningTimestamp, String endingTimestamp, String title, String description,
-			Corporateer creator, Division usableInfluenceDivision, Long minBet, Long minStep) {
+			Authentication creator, Division usableInfluenceDivision, Long minBid, Long minStep) {
 
 		validateAuction(beginningTimestamp, endingTimestamp, title, description, creator, usableInfluenceDivision,
-				minBet, minStep);
+				minBid, minStep);
 
 		Auction auction = new Auction();
 		auction.setBeginningTimestamp(beginningTimestamp);
 		auction.setEndingTimestamp(endingTimestamp);
 		auction.setTitle(title);
 		auction.setDescription(description);
-		auction.setCreator(creator);
+		auction.setCreator(userHandlingService.getUserByName(creator.getName()).getCorporateer());
 		auction.setUsableInfluenceDivision(usableInfluenceDivision);
-		auction.setMinBet(minBet);
+		auction.setMinBid(minBid);
 		auction.setMinStep(minStep);
 		auction.setHighestBid(0L);
 		auction.setCurrentBid(0L);
@@ -68,7 +103,7 @@ public class AuctionService {
 	}
 
 	public void createAuction(String beginningTimestamp, String endingTimestamp, String title, String description,
-			Corporateer creator, Division usableInfluenceDivision) {
+			Authentication creator, Division usableInfluenceDivision) {
 		createAuction(beginningTimestamp, endingTimestamp, title, description, creator, usableInfluenceDivision, 1L,
 				1L);
 	}
@@ -79,7 +114,7 @@ public class AuctionService {
 
 		validateBid(auction, bidder, bid);
 
-		auction.setHighestBidder(userHandlingService.getUserByName(authentication.getName()).getCorporateer());
+		auction.setHighestBidder(bidder);
 		auction.setCurrentBid(auction.getHighestBid() + auction.getMinStep());
 		auction.setHighestBid(bid);
 
@@ -89,7 +124,7 @@ public class AuctionService {
 
 		// Auction is open
 		if (Instant.now().isBefore(Instant.parse(auction.getBeginningTimestamp()))
-				|| Instant.now().isAfter(Instant.parse(auction.getBeginningTimestamp()))) {
+				&& Instant.now().isAfter(Instant.parse(auction.getBeginningTimestamp()))) {
 			throw new IllegalBidException("Auction is not open.");
 		}
 
@@ -105,6 +140,15 @@ public class AuctionService {
 			throw new IllegalBidException("Not enough influence to bid.");
 		}
 
+		// The creator may not bid on his own auction
+		if (auction.getCreator().getId().equals(bidder.getId())) {
+			throw new IllegalBidException("The creator of an auction is not able to bid.");
+		}
+
+	}
+
+	public List<Auction> getAllAuctions() {
+		return auctionRepository.findAll();
 	}
 
 }
