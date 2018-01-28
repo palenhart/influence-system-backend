@@ -47,7 +47,7 @@ public class Auction extends JpaEntity {
 	private Division usableInfluenceDivision;
 	private Long highestBid;
 	private Long currentBid;
-	private Long minBet;
+	private Long minBid;
 	private Long minStep;
 
 }

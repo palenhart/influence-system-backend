@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import com.thecorporateer.influence.exceptions.PasswordComplexityException;
 import com.thecorporateer.influence.exceptions.RepositoryNotFoundException;
+import com.thecorporateer.influence.exceptions.UserAlreadyExistsException;
 import com.thecorporateer.influence.objects.Division;
 import com.thecorporateer.influence.objects.User;
 import com.thecorporateer.influence.objects.UserRole;
@@ -151,6 +152,10 @@ public class UserHandlingService {
 
 	public String createUser(String name, Division mainDivision, List<String> divisionNames) {
 
+		if(null != userRepository.findByUsername(name)) {
+			throw new UserAlreadyExistsException("This username is already taken");
+		}
+		
 		List<CharacterRule> rules = new ArrayList<CharacterRule>(
 				Arrays.asList(new CharacterRule(EnglishCharacterData.UpperCase, 1),
 						new CharacterRule(EnglishCharacterData.LowerCase, 1),

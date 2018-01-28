@@ -32,7 +32,7 @@ public class JwtTokenUtil implements Serializable {
     @Value("")
     private String secret;
 
-	@Value("604800")
+	@Value("60480000")
 	private Long expiration;
 
 	public String getUsernameFromToken(String token) {

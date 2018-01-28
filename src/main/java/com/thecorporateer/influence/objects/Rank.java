@@ -36,7 +36,7 @@ public class Rank extends JpaEntity {
 	private String name;
 	@NotNull
 	@JsonView(Views.Public.class)
-	private int level;
+	private int rankLevel;
 	@NotNull
 	@Min(1)
 	@JsonView(Views.Public.class)

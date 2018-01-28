@@ -1,6 +1,7 @@
 package com.thecorporateer.influence.controllers;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -18,6 +19,9 @@ import com.thecorporateer.influence.services.ActionLogService;
 import com.thecorporateer.influence.services.CorporateerHandlingService;
 import com.thecorporateer.influence.services.ObjectService;
 import com.thecorporateer.influence.services.UserHandlingService;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @RestController
 public class AdminController {
@@ -56,4 +60,41 @@ public class AdminController {
 		return ResponseEntity.ok().body("{\"message\":\"User successfully created\",\"username\":\"" + username
 				+ "\",\"password\":\"" + password + "\"}");
 	}
+	
+	@CrossOrigin(origins = "*")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@RequestMapping(method = RequestMethod.POST, value = "/userstest", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> createUserTest(@RequestBody UserRequest request) {
+
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		System.out.println(request.getDivisions());
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		
+		String password = userHandlingService.createUser(request.getName(), objectService.getDefaultDivision(),
+				request.getDivisions());
+		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Created user " + request.getName());
+
+		return ResponseEntity.ok().body("{\"message\":\"User WITH DIVISIONS successfully created\",\"username\":\"" + request.getName()
+				+ "\",\"password\":\"" + password + "\"}");
+	}
+}
+
+/**
+ * @author Zollak
+ *
+ *         Request object to create a user
+ *
+ */
+@Getter
+@AllArgsConstructor
+class UserRequest {
+
+	private String name;
+	private List<String> divisions;
+	
 }

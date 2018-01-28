@@ -47,9 +47,9 @@ public class InfluenceHandlingService {
 		return influence;
 	}
 
-	private void updateInfluence(Influence influence) {
+	public Influence updateInfluence(Influence influence) {
 
-		influenceRepository.save(influence);
+		return influenceRepository.save(influence);
 	}
 
 	public List<Influence> updateInfluences(List<Influence> influences) {
