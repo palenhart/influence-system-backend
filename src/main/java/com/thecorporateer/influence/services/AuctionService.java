@@ -12,6 +12,7 @@ import com.thecorporateer.influence.exceptions.IllegalBidException;
 import com.thecorporateer.influence.objects.Auction;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Division;
+import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.repositories.AuctionRepository;
 
 @Service
@@ -19,6 +20,8 @@ public class AuctionService {
 
 	@Autowired
 	private UserHandlingService userHandlingService;
+	@Autowired
+	private CorporateerHandlingService corporateerHandlingService;
 	@Autowired
 	private InfluenceHandlingService influenceHandlingService;
 	@Autowired
@@ -108,15 +111,51 @@ public class AuctionService {
 				1L);
 	}
 
-	public void bidOnAuction(Auction auction, Authentication authentication, Long bid) {
+	public boolean bidOnAuction(Long id, Authentication authentication, Long bid) {
+
+		Auction auction = auctionRepository.findOne(id);
 
 		Corporateer bidder = userHandlingService.getUserByName(authentication.getName()).getCorporateer();
 
 		validateBid(auction, bidder, bid);
 
-		auction.setHighestBidder(bidder);
-		auction.setCurrentBid(auction.getHighestBid() + auction.getMinStep());
-		auction.setHighestBid(bid);
+		if (bid >= auction.getHighestBid() + auction.getMinStep()) {
+
+			// deduct influence from successful bidder
+			Influence bidderInfluence = influenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(bidder,
+					auction.getUsableInfluenceDivision(), objectService.getInfluenceTypeByName("INFLUENCE"));
+
+			bidderInfluence.setAmount(bidderInfluence.getAmount() - bid.intValue());
+			influenceHandlingService.updateInfluence(bidderInfluence);
+			bidder.setTotalInfluence(corporateerHandlingService.getTotalInfluence(bidder));
+			corporateerHandlingService.updateCorporateer(bidder);
+			
+
+			// refund previous highest bidder
+			Influence previousBidderInfluence = influenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(
+					auction.getHighestBidder(), auction.getUsableInfluenceDivision(),
+					objectService.getInfluenceTypeByName("INFLUENCE"));
+
+			previousBidderInfluence.setAmount(previousBidderInfluence.getAmount() + auction.getHighestBid().intValue());
+			influenceHandlingService.updateInfluence(previousBidderInfluence);
+			auction.getHighestBidder().setTotalInfluence(corporateerHandlingService.getTotalInfluence(auction.getHighestBidder()));
+			corporateerHandlingService.updateCorporateer(auction.getHighestBidder());
+			
+			// set new values for auction
+			auction.setHighestBidder(bidder);
+			auction.setCurrentBid(auction.getHighestBid() + auction.getMinStep());
+			auction.setHighestBid(bid);
+			
+			auctionRepository.save(auction);
+
+			return true;
+		}
+
+		else {
+			auction.setCurrentBid(bid);
+			auctionRepository.save(auction);
+			return false;
+		}
 
 	}
 
@@ -141,9 +180,10 @@ public class AuctionService {
 		}
 
 		// The creator may not bid on his own auction
-		if (auction.getCreator().getId().equals(bidder.getId())) {
-			throw new IllegalBidException("The creator of an auction is not able to bid.");
-		}
+		// if (auction.getCreator().getId().equals(bidder.getId())) {
+		// throw new IllegalBidException("The creator of an auction is not able to
+		// bid.");
+		// }
 
 	}
 

@@ -132,7 +132,7 @@ public class ObjectService {
 
 	public Rank getLowestRank() {
 
-		Rank rank = rankRepository.findByLevel(0);
+		Rank rank = rankRepository.findByRankLevel(0);
 
 		if (rank == null) {
 			throw new RepositoryNotFoundException("Rank not found.");

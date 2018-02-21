@@ -315,7 +315,7 @@ public class TestCorporateerService {
 				mockObjectService.getDefaultDivision(), mockObjectService.getInfluenceTypeById(1L)))
 						.thenReturn(mockInfluence);
 		when(mockCorporateer.getRank()).thenReturn(mockRank);
-		when(mockRank.getLevel()).thenReturn(1);
+		when(mockRank.getRankLevel()).thenReturn(1);
 
 		exception.expect(IllegalBuyRequestException.class);
 		
@@ -332,8 +332,8 @@ public class TestCorporateerService {
 		Rank mockCurrentRank = mock(Rank.class);
 		
 		when(mockCorporateer.getRank()).thenReturn(mockCurrentRank);
-		when(mockCurrentRank.getLevel()).thenReturn(1);
-		when(mockRank.getLevel()).thenReturn(3);
+		when(mockCurrentRank.getRankLevel()).thenReturn(1);
+		when(mockRank.getRankLevel()).thenReturn(3);
 
 		exception.expect(IllegalBuyRequestException.class);
 		
@@ -350,8 +350,8 @@ public class TestCorporateerService {
 		Rank mockCurrentRank = mock(Rank.class);
 		
 		when(mockCorporateer.getRank()).thenReturn(mockCurrentRank);
-		when(mockCurrentRank.getLevel()).thenReturn(1);
-		when(mockRank.getLevel()).thenReturn(2);
+		when(mockCurrentRank.getRankLevel()).thenReturn(1);
+		when(mockRank.getRankLevel()).thenReturn(2);
 		
 		when(mockInfluence.getAmount()).thenReturn(10);
 		when(mockRank.getInfluenceToBuy()).thenReturn(100);
@@ -371,8 +371,8 @@ public class TestCorporateerService {
 		Rank mockCurrentRank = mock(Rank.class);
 		
 		when(mockCorporateer.getRank()).thenReturn(mockCurrentRank);
-		when(mockCurrentRank.getLevel()).thenReturn(1);
-		when(mockRank.getLevel()).thenReturn(2);
+		when(mockCurrentRank.getRankLevel()).thenReturn(1);
+		when(mockRank.getRankLevel()).thenReturn(2);
 		
 		when(mockInfluence.getAmount()).thenReturn(100);
 		when(mockRank.getInfluenceToBuy()).thenReturn(100);

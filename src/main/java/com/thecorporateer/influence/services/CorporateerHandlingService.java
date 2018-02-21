@@ -108,6 +108,8 @@ public class CorporateerHandlingService {
 		}
 		corporateer.setMemberOfDivisions(divisions);
 
+		corporateer.setTributes(10);
+		
 		corporateer = updateCorporateer(corporateer);
 
 		initializeInfluenceTable(corporateer);
@@ -254,12 +256,12 @@ public class CorporateerHandlingService {
 				objectService.getDefaultDivision(), objectService.getInfluenceTypeById(1L));
 
 		// only allow buying a higher rank
-		if (corporateer.getRank().getLevel() >= rank.getLevel()) {
+		if (corporateer.getRank().getRankLevel() >= rank.getRankLevel()) {
 			throw new IllegalBuyRequestException("Lower rank cannot be bought.");
 		}
 
 		// only allow buying the next higher rank
-		if (rank.getLevel() - corporateer.getRank().getLevel() > 1) {
+		if (rank.getRankLevel() - corporateer.getRank().getRankLevel() > 1) {
 			throw new IllegalBuyRequestException("Only the next rank can be bought.");
 		}
 

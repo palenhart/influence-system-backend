@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thecorporateer.influence.objects.Auction;
 import com.thecorporateer.influence.services.ActionLogService;
 import com.thecorporateer.influence.services.AuctionService;
@@ -50,7 +51,7 @@ public class AuctionController {
 	}
 
 	@CrossOrigin(origins = "*")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	// @PreAuthorize("hasRole('ROLE_ADMIN')")
 	@RequestMapping(value = "/auctions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getAuctions() {
 
@@ -66,6 +67,28 @@ public class AuctionController {
 		}
 
 		return ResponseEntity.ok().body(response);
+	}
+
+	@CrossOrigin(origins = "*")
+	@RequestMapping(value = "/auctions", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> bidOnAuction(@RequestBody ObjectNode request) {
+
+		Long id = request.get("id").asLong();
+		Long bid = request.get("amount").asLong();
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		if(auctionService.bidOnAuction(id, authentication, bid)) {
+			actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
+					"Bet " + bid + " on auction with id " + id + " and is highest bidder.");
+			return ResponseEntity.ok().body("{\"message\": \"Congratulations, you are now the highest bidder!\"}");
+		}
+		else {
+			actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
+					"Bet " + bid + " on auction with id " + id + " but is not highest bidder.");
+			return ResponseEntity.ok().body("{\"message\": \"Sorry, your bid wasn't high enough...\"}");
+		}
+		
 	}
 
 }
