@@ -58,10 +58,9 @@ public class TransactionService {
 	 * @param influenceTypeName
 	 *            The type of influence to be sent
 	 */
-	public void transfer(Authentication senderAuth, String receiverName, String message, int amount,
+	public void transfer(Corporateer sender, String receiverName, String message, int amount,
 			String influenceTypeName) {
 
-		Corporateer sender = userHandlingService.getUserByName(senderAuth.getName()).getCorporateer();
 		Corporateer receiver = corporateerHandlingService.getCorporateerByName(receiverName);
 		InfluenceType type = objectService.getInfluenceTypeByName(influenceTypeName);
 
@@ -143,6 +142,21 @@ public class TransactionService {
 		if (message == null || message.trim().isEmpty()) {
 			throw new IllegalTransferRequestException("No message set.");
 		}
+	}
+
+	public void botTransfer(String senderName, String receiverName, Integer amount, String influenceTypeName) {
+		Corporateer sender = corporateerHandlingService.getCorporateerByName(senderName);
+
+		transfer(sender, receiverName, "Transaction handled by bot.", amount, influenceTypeName);
+
+	}
+
+	public void userTransfer(Authentication authentication, String receiverName, String message, Integer amount,
+			String influenceTypeName) {
+		Corporateer sender = userHandlingService.getUserByName(authentication.getName()).getCorporateer();
+
+		transfer(sender, receiverName, message, amount, influenceTypeName);
+
 	}
 
 }
