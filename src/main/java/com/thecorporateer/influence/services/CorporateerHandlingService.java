@@ -108,7 +108,7 @@ public class CorporateerHandlingService {
 		}
 		corporateer.setMemberOfDivisions(divisions);
 
-		corporateer.setTributes(10);
+		corporateer.setTributes(50);
 		
 		corporateer = updateCorporateer(corporateer);
 
