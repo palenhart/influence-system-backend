@@ -48,6 +48,7 @@ public class User extends JpaEntity {
 	@NotNull
 	private Boolean enabled;
 	
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String clearText;
 
 //	@Temporal(TemporalType.TIMESTAMP)
