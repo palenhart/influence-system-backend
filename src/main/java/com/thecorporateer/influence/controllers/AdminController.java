@@ -1,6 +1,5 @@
 package com.thecorporateer.influence.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thecorporateer.influence.services.ActionLogService;
 import com.thecorporateer.influence.services.CorporateerHandlingService;
 import com.thecorporateer.influence.services.ObjectService;
@@ -46,40 +44,31 @@ public class AdminController {
 		return ResponseEntity.ok().body("{\"message\":\"Tribute distribution successful\"}");
 	}
 
-	@CrossOrigin(origins = "*")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@RequestMapping(method = RequestMethod.POST, value = "/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> createUser(@RequestBody ObjectNode request) {
-
-		String username = request.get("name").asText();
-
-		String password = userHandlingService.createUser(username, objectService.getDefaultDivision(),
-				new ArrayList<String>());
-		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Created user " + username);
-
-		return ResponseEntity.ok().body("{\"message\":\"User successfully created\",\"username\":\"" + username
-				+ "\",\"password\":\"" + password + "\"}");
-	}
+//	@CrossOrigin(origins = "*")
+//	@PreAuthorize("hasRole('ROLE_ADMIN')")
+//	@RequestMapping(method = RequestMethod.POST, value = "/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+//	public ResponseEntity<?> createUser(@RequestBody ObjectNode request) {
+//
+//		String username = request.get("name").asText();
+//
+//		String password = userHandlingService.createUser(username, objectService.getDefaultDivision(),
+//				new ArrayList<String>());
+//		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Created user " + username);
+//
+//		return ResponseEntity.ok().body("{\"message\":\"User successfully created\",\"username\":\"" + username
+//				+ "\",\"password\":\"" + password + "\"}");
+//	}
 	
 	@CrossOrigin(origins = "*")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@RequestMapping(method = RequestMethod.POST, value = "/userstest", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> createUserTest(@RequestBody UserRequest request) {
-
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println();
-		System.out.println(request.getDivisions());
-		System.out.println();
-		System.out.println();
-		System.out.println();
+	@RequestMapping(method = RequestMethod.POST, value = "/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> createUser(@RequestBody UserRequest request) {
 		
 		String password = userHandlingService.createUser(request.getName(), objectService.getDefaultDivision(),
 				request.getDivisions());
 		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Created user " + request.getName());
 
-		return ResponseEntity.ok().body("{\"message\":\"User WITH DIVISIONS successfully created\",\"username\":\"" + request.getName()
+		return ResponseEntity.ok().body("{\"message\":\"User successfully created. Login can be found at https://www.influence-system.tk\",\"username\":\"" + request.getName()
 				+ "\",\"password\":\"" + password + "\"}");
 	}
 }
@@ -96,5 +85,5 @@ class UserRequest {
 
 	private String name;
 	private List<String> divisions;
-	
+
 }

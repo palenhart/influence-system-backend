@@ -52,7 +52,7 @@ public class TransactionController {
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-		transactionService.transfer(authentication, request.getReceiver(), request.getMessage(), request.getAmount(),
+		transactionService.userTransfer(authentication, request.getReceiver(), request.getMessage(), request.getAmount(),
 				request.getType().toUpperCase());
 		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Influence transfer");
 		

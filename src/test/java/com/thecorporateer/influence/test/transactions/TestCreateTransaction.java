@@ -104,7 +104,7 @@ public class TestCreateTransaction {
 
 		exception.expect(IllegalTransferRequestException.class);
 
-		transactionService.transfer(mockAuthentication, receiver, message, amount, type);
+		transactionService.userTransfer(mockAuthentication, receiver, message, amount, type);
 	}
 
 	/**
@@ -120,7 +120,7 @@ public class TestCreateTransaction {
 		// transaction amount is zero
 		amount = 0;
 
-		transactionService.transfer(mockAuthentication, receiver, message, amount, type);
+		transactionService.userTransfer(mockAuthentication, receiver, message, amount, type);
 	}
 
 	/**
@@ -137,7 +137,7 @@ public class TestCreateTransaction {
 		// transaction amount is negative
 		amount = -1;
 
-		transactionService.transfer(mockAuthentication, receiver, message, amount, type);
+		transactionService.userTransfer(mockAuthentication, receiver, message, amount, type);
 	}
 
 	/**
@@ -155,7 +155,7 @@ public class TestCreateTransaction {
 
 		exception.expect(IllegalTransferRequestException.class);
 
-		transactionService.transfer(mockAuthentication, receiver, message, amount, type);
+		transactionService.userTransfer(mockAuthentication, receiver, message, amount, type);
 
 		// verify no interactions with services happen
 		verifyZeroInteractions(mockObjectService);
@@ -190,7 +190,7 @@ public class TestCreateTransaction {
 		// type is influence
 		when(mockType.getId()).thenReturn(1L);
 
-		transactionService.transfer(mockAuthentication, receiver, message, amount, type);
+		transactionService.userTransfer(mockAuthentication, receiver, message, amount, type);
 
 		// verify correct influence is accessed
 		verify(mockInfluenceHandlingService).getInfluenceByCorporateerAndDivisionAndType(mockReceiver, mockDivision,
@@ -247,7 +247,7 @@ public class TestCreateTransaction {
 		when(mockType.getId()).thenReturn(1L);
 
 		// transfer influence
-		transactionService.transfer(mockAuthentication, receiver, message, amount, type);
+		transactionService.userTransfer(mockAuthentication, receiver, message, amount, type);
 
 		// verify correct influence is accessed
 		verify(mockInfluenceHandlingService).getInfluenceByCorporateerAndDivisionAndType(mockReceiver,
@@ -306,7 +306,7 @@ public class TestCreateTransaction {
 		when(mockType.getId()).thenReturn(1L);
 
 		// transfer influence
-		transactionService.transfer(mockAuthentication, receiver, message, amount, type);
+		transactionService.userTransfer(mockAuthentication, receiver, message, amount, type);
 
 		// verify correct influence is accessed
 		verify(mockInfluenceHandlingService).getInfluenceByCorporateerAndDivisionAndType(mockReceiver, mockNoDivision,
@@ -354,7 +354,7 @@ public class TestCreateTransaction {
 				.thenReturn(mock(Influence.class));
 		when(mockInfluenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(any(), any(), any()))
 				.thenReturn(mock(Influence.class));
-		transactionService.transfer(mockAuthentication, receiver, message, amount, type);
+		transactionService.userTransfer(mockAuthentication, receiver, message, amount, type);
 
 		// verify correct influence is accessed
 		verify(mockInfluenceHandlingService).getInfluenceByCorporateerAndDivisionAndType(mockReceiver, mockDivision,
