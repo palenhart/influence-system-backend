@@ -87,3 +87,19 @@ class UserRequest {
 	private List<String> divisions;
 
 }
+
+/**
+ * @author Zollak
+ *
+ *         Request object to create a user
+ *
+ */
+@Getter
+@AllArgsConstructor
+class DiscordUserRequest {
+
+	private String name;
+	private String id;
+	private List<String> divisions;
+
+}
