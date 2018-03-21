@@ -43,13 +43,14 @@ public class User extends JpaEntity {
 	@Column(length = 50, unique = true)
 	@NotNull
 	@Size(min = 3, max = 50)
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String email;
 
 	@NotNull
 	private Boolean enabled;
 	
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-	private String clearText;
+	private String discord_id;
 
 //	@Temporal(TemporalType.TIMESTAMP)
 //	@NotNull

@@ -129,13 +129,14 @@ public class UserHandlingService {
 
 	// TODO: set role when creating user
 	// TODO: use more than username to create user
-	public void createUserWithInfo(String username, String corporateerName, String password, Division mainDivision,
+	public void createUserWithInfo(String username, String discord_id, String corporateerName, String password, Division mainDivision,
 			List<String> divisionNames) {
 
 		User user = new User();
 		user.setUsername(username);
 		user.setEmail(username);
 		user.setEnabled(true);
+		user.setDiscord_id(discord_id);
 		user.setPassword(passwordEncoder.encode(password));
 		// user.setLastPasswordResetDate(Date.from(Instant.now().truncatedTo(ChronoUnit.SECONDS)));
 
@@ -146,7 +147,6 @@ public class UserHandlingService {
 		List<UserRole> roles = new ArrayList<UserRole>();
 		roles.add(userRoleRepository.findByName("ROLE_USER"));
 		user.setRoles(roles);
-		user.setClearText(password);
 		updateUser(user);
 	}
 
@@ -155,21 +155,26 @@ public class UserHandlingService {
 		if(null != userRepository.findByUsername(name)) {
 			throw new UserAlreadyExistsException("This username is already taken");
 		}
-		
-		List<CharacterRule> rules = new ArrayList<CharacterRule>(
-				Arrays.asList(new CharacterRule(EnglishCharacterData.UpperCase, 1),
-						new CharacterRule(EnglishCharacterData.LowerCase, 1),
-						new CharacterRule(EnglishCharacterData.Digit, 1)));
-		PasswordGenerator generator = new PasswordGenerator();
-		String password = generator.generatePassword(8, rules);
+		String password = generatePassword();
 
-		createUserWithInfo(name, name, password, mainDivision, divisionNames);
+		createUserWithInfo(name, name, null, password, mainDivision, divisionNames);
+		return password;
+	}
+	
+	public String createUser(String name, Division mainDivision, String discord_id, List<String> divisionNames) {
+
+		if(null != userRepository.findByUsername(name)) {
+			throw new UserAlreadyExistsException("This username is already taken");
+		}
+		String password = generatePassword();
+
+		createUserWithInfo(name, name, discord_id, password, mainDivision, divisionNames);
 		return password;
 	}
 
 	public void createTestuser(String username, String corporateerName, String password, boolean admin) {
 
-		createUserWithInfo(username, corporateerName, password, objectService.getDefaultDivision(),
+		createUserWithInfo(username, corporateerName, null, password, objectService.getDefaultDivision(),
 				new ArrayList<String>());
 
 		if (admin) {
@@ -181,6 +186,29 @@ public class UserHandlingService {
 
 			updateUser(user);
 		}
+	}
+	
+	public String resetPassword(String username) {
+		
+		User user = getUserByName(username);
+		
+		String password = generatePassword();
+		
+		user.setPassword(passwordEncoder.encode(password));
+		
+		updateUser(user);
+		
+		return password;
+	}
+	
+	private String generatePassword() {
+		List<CharacterRule> rules = new ArrayList<CharacterRule>(
+				Arrays.asList(new CharacterRule(EnglishCharacterData.UpperCase, 1),
+						new CharacterRule(EnglishCharacterData.LowerCase, 1),
+						new CharacterRule(EnglishCharacterData.Digit, 1)));
+		PasswordGenerator generator = new PasswordGenerator();
+		
+		return generator.generatePassword(8, rules);
 	}
 
 	/**
