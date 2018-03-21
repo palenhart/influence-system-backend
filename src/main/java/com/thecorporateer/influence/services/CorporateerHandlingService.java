@@ -109,7 +109,7 @@ public class CorporateerHandlingService {
 		corporateer.setMemberOfDivisions(divisions);
 
 		corporateer.setTributes(50);
-		
+
 		corporateer = updateCorporateer(corporateer);
 
 		initializeInfluenceTable(corporateer);
@@ -176,7 +176,11 @@ public class CorporateerHandlingService {
 		Division division;
 
 		// do not change division when there is no other division selected
-		if (divisionName.equals(corporateer.getMainDivision().getName())) {
+		//
+		// or when there is already one selected (fix for elections)
+		//
+		if (divisionName.equals(corporateer.getMainDivision().getName())
+				|| !corporateer.getMainDivision().equals(objectService.getDefaultDivision())) {
 			throw new IllegalDivisionChangeRequestException("Division was not changed.");
 		}
 
