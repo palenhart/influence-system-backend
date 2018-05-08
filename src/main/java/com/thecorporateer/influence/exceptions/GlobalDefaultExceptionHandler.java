@@ -109,7 +109,7 @@ public class GlobalDefaultExceptionHandler {
 		return ResponseEntity.badRequest().body(new ExceptionResponse(Instant.now().getEpochSecond(), "400",
 				"Bad Request", e.getMessage(), req.getServletPath()));
 	}
-	
+
 	@ExceptionHandler(value = UserAlreadyExistsException.class)
 	public ResponseEntity<?> UserAlreadyExistsHandler(HttpServletRequest req, Exception e) {
 
@@ -118,7 +118,7 @@ public class GlobalDefaultExceptionHandler {
 		return ResponseEntity.badRequest().body(new ExceptionResponse(Instant.now().getEpochSecond(), "400",
 				"Bad Request", e.getMessage(), req.getServletPath()));
 	}
-	
+
 	@ExceptionHandler(value = IllegalBidException.class)
 	public ResponseEntity<?> IllegalBidHandler(HttpServletRequest req, Exception e) {
 
@@ -127,7 +127,7 @@ public class GlobalDefaultExceptionHandler {
 		return ResponseEntity.badRequest().body(new ExceptionResponse(Instant.now().getEpochSecond(), "400",
 				"Bad Request", e.getMessage(), req.getServletPath()));
 	}
-	
+
 	private void logException(HttpServletRequest req, Exception e) {
 		log.warn(e.getClass().getName());
 

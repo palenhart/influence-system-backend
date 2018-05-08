@@ -157,7 +157,7 @@ public class UserHandlingService {
 		}
 		String password = generatePassword();
 
-		createUserWithInfo(name, name, null, password, mainDivision, divisionNames);
+		createUserWithInfo(name, "", name, password, mainDivision, divisionNames);
 		return password;
 	}
 	

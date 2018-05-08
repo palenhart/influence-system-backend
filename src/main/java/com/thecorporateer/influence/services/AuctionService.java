@@ -3,6 +3,7 @@ package com.thecorporateer.influence.services;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -129,7 +130,6 @@ public class AuctionService {
 			influenceHandlingService.updateInfluence(bidderInfluence);
 			bidder.setTotalInfluence(corporateerHandlingService.getTotalInfluence(bidder));
 			corporateerHandlingService.updateCorporateer(bidder);
-			
 
 			// refund previous highest bidder
 			Influence previousBidderInfluence = influenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(
@@ -138,14 +138,15 @@ public class AuctionService {
 
 			previousBidderInfluence.setAmount(previousBidderInfluence.getAmount() + auction.getHighestBid().intValue());
 			influenceHandlingService.updateInfluence(previousBidderInfluence);
-			auction.getHighestBidder().setTotalInfluence(corporateerHandlingService.getTotalInfluence(auction.getHighestBidder()));
+			auction.getHighestBidder()
+					.setTotalInfluence(corporateerHandlingService.getTotalInfluence(auction.getHighestBidder()));
 			corporateerHandlingService.updateCorporateer(auction.getHighestBidder());
-			
+
 			// set new values for auction
 			auction.setHighestBidder(bidder);
 			auction.setCurrentBid(auction.getHighestBid() + auction.getMinStep());
 			auction.setHighestBid(bid);
-			
+
 			auctionRepository.save(auction);
 
 			return true;
@@ -164,19 +165,20 @@ public class AuctionService {
 		// Auction is open
 		if (Instant.now().isBefore(Instant.parse(auction.getBeginningTimestamp()))
 				&& Instant.now().isAfter(Instant.parse(auction.getBeginningTimestamp()))) {
-			throw new IllegalBidException("Auction is not open.");
+			throw new IllegalBidException("Auction is not open, you cannot bid.");
 		}
 
 		// Bid is high enough
 		if (bid < auction.getCurrentBid() + auction.getMinStep()) {
-			throw new IllegalBidException("Bid is too small.");
+			throw new IllegalBidException("Your bid is too small, you need to bit at least " + auction.getCurrentBid()
+					+ auction.getMinStep() + ".");
 		}
 
 		// Corporateer is able to bid
 		if (influenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(bidder,
 				auction.getUsableInfluenceDivision(), objectService.getInfluenceTypeByName("INFLUENCE"))
 				.getAmount() < bid) {
-			throw new IllegalBidException("Not enough influence to bid.");
+			throw new IllegalBidException("You do not have enough influence to bid this amount.");
 		}
 
 		// The creator may not bid on his own auction
@@ -189,6 +191,37 @@ public class AuctionService {
 
 	public List<Auction> getAllAuctions() {
 		return auctionRepository.findAll();
+	}
+
+	public List<Auction> getBiddableAuctions() {
+		List<Auction> allAuctions = auctionRepository.findAll().stream()
+				.filter(auction -> Instant.parse(auction.getBeginningTimestamp()).isBefore(Instant.now()))
+				.filter(auction -> Instant.parse(auction.getEndingTimestamp()).isAfter(Instant.now()))
+				.collect(Collectors.toList());
+		return allAuctions;
+	}
+
+	public void resolveAuction(Long id) {
+
+		Auction auction = auctionRepository.findOne(id);
+
+		// get influence to refund
+		Long excessInfluence = auction.getHighestBid() - auction.getCurrentBid();
+
+		// refund winner
+		Influence winningBidderInfluence = influenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(
+				auction.getHighestBidder(), auction.getUsableInfluenceDivision(),
+				objectService.getInfluenceTypeByName("INFLUENCE"));
+
+		winningBidderInfluence.setAmount(winningBidderInfluence.getAmount() + excessInfluence.intValue());
+		influenceHandlingService.updateInfluence(winningBidderInfluence);
+		auction.getHighestBidder()
+				.setTotalInfluence(corporateerHandlingService.getTotalInfluence(auction.getHighestBidder()));
+		corporateerHandlingService.updateCorporateer(auction.getHighestBidder());
+
+		// reset highest bid
+		auction.setHighestBid(auction.getCurrentBid());
+		auctionRepository.save(auction);
 	}
 
 }

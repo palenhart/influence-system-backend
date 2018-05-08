@@ -179,8 +179,12 @@ public class CorporateerHandlingService {
 		//
 		// or when there is already one selected (fix for elections)
 		//
-		if (divisionName.equals(corporateer.getMainDivision().getName())
-				|| !corporateer.getMainDivision().equals(objectService.getDefaultDivision())) {
+		// if (divisionName.equals(corporateer.getMainDivision().getName())
+		// || !corporateer.getMainDivision().equals(objectService.getDefaultDivision()))
+		// {
+		// throw new IllegalDivisionChangeRequestException("Division was not changed.");
+		// }
+		if (divisionName.equals(corporateer.getMainDivision().getName())) {
 			throw new IllegalDivisionChangeRequestException("Division was not changed.");
 		}
 
