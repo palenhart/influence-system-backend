@@ -118,6 +118,17 @@ public class ObjectService {
 
 		return rank;
 	}
+	
+	public Rank getRankByLevel(int level) {
+
+		Rank rank = rankRepository.findByRankLevel(level);
+
+		if (rank == null) {
+			throw new RepositoryNotFoundException("Rank not found.");
+		}
+
+		return rank;
+	}
 
 	public List<Rank> getAllRanks() {
 
@@ -133,6 +144,17 @@ public class ObjectService {
 	public Rank getLowestRank() {
 
 		Rank rank = rankRepository.findByRankLevel(0);
+
+		if (rank == null) {
+			throw new RepositoryNotFoundException("Rank not found.");
+		}
+
+		return rank;
+	}
+
+	public Rank getHighestRank() {
+
+		Rank rank = rankRepository.findByRankLevel(rankRepository.findAll().size());
 
 		if (rank == null) {
 			throw new RepositoryNotFoundException("Rank not found.");
