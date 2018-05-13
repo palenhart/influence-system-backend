@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import com.thecorporateer.influence.exceptions.IllegalBuyRequestException;
 import com.thecorporateer.influence.exceptions.IllegalDivisionChangeRequestException;
 import com.thecorporateer.influence.exceptions.IllegalMembershipChangeException;
 import com.thecorporateer.influence.exceptions.RepositoryNotFoundException;
@@ -254,37 +253,26 @@ public class CorporateerHandlingService {
 		}
 	}
 
-	public void buyRank(Authentication authentication, String rankName) {
+	public boolean increaseRank(Corporateer corporateer) {
 
-		// TODO: validations
+		// only increase when a higher rank exists
+		if (corporateer.getRank().getRankLevel() >= objectService.getHighestRank().getRankLevel()) {
+			return false;
+		}
+		
+		// get next higher rank
+		Rank nextRank = objectService.getRankByLevel(corporateer.getRank().getRankLevel() + 1);
 
-		Corporateer corporateer = userHandlingService.getUserByName(authentication.getName()).getCorporateer();
-		Rank rank = objectService.getRankByName(rankName);
-		Influence generalInfluence = influenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(corporateer,
-				objectService.getDefaultDivision(), objectService.getInfluenceTypeById(1L));
-
-		// only allow buying a higher rank
-		if (corporateer.getRank().getRankLevel() >= rank.getRankLevel()) {
-			throw new IllegalBuyRequestException("Lower rank cannot be bought.");
+		// only allow obtaining next rank when corporateer has enough lifetime influence
+		if (corporateer.getLifetimeInfluence() < nextRank.getInfluenceToObtain()) {
+			return false;
 		}
 
-		// only allow buying the next higher rank
-		if (rank.getRankLevel() - corporateer.getRank().getRankLevel() > 1) {
-			throw new IllegalBuyRequestException("Only the next rank can be bought.");
-		}
-
-		// only allow buying when corporateer has enough general influence
-		if (generalInfluence.getAmount() < rank.getInfluenceToBuy()) {
-			throw new IllegalBuyRequestException("Not enough influence to buy rank.");
-		}
-
-		// set new rank
-		corporateer.setRank(rank);
-
-		// deduct general influence
-		generalInfluence.setAmount(generalInfluence.getAmount() - rank.getInfluenceToBuy());
-		corporateer.setTotalInfluence(getTotalInfluence(corporateer));
+		// set new rank		
+		corporateer.setRank(nextRank);
 		updateCorporateer(corporateer);
+		
+		return true;
 	}
 
 	public void setRank(String corporateerName, String rankName) {

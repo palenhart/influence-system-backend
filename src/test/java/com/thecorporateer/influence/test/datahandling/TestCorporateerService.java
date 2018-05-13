@@ -21,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.Authentication;
 
-import com.thecorporateer.influence.exceptions.IllegalBuyRequestException;
 import com.thecorporateer.influence.exceptions.IllegalDivisionChangeRequestException;
 import com.thecorporateer.influence.exceptions.RepositoryNotFoundException;
 import com.thecorporateer.influence.objects.Corporateer;
@@ -308,82 +307,6 @@ public class TestCorporateerService {
 
 		corporateerHandlingService.setRank(corporateerName, rankName);
 		verify(mockCorporateer).setRank(mockRank);
-		verify(mockCorporateerRepository).save(mockCorporateer);
-	}
-
-	@Test
-	public void testBuySameRank() {
-
-		when(mockInfluenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(mockCorporateer,
-				mockObjectService.getDefaultDivision(), mockObjectService.getInfluenceTypeById(1L)))
-						.thenReturn(mockInfluence);
-		when(mockCorporateer.getRank()).thenReturn(mockRank);
-		when(mockRank.getRankLevel()).thenReturn(1);
-
-		exception.expect(IllegalBuyRequestException.class);
-		
-		corporateerHandlingService.buyRank(mockAuthentication, rankName);
-	}
-	
-	@Test
-	public void testBuySkippedRank() {
-
-		when(mockInfluenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(mockCorporateer,
-				mockObjectService.getDefaultDivision(), mockObjectService.getInfluenceTypeById(1L)))
-						.thenReturn(mockInfluence);
-		
-		Rank mockCurrentRank = mock(Rank.class);
-		
-		when(mockCorporateer.getRank()).thenReturn(mockCurrentRank);
-		when(mockCurrentRank.getRankLevel()).thenReturn(1);
-		when(mockRank.getRankLevel()).thenReturn(3);
-
-		exception.expect(IllegalBuyRequestException.class);
-		
-		corporateerHandlingService.buyRank(mockAuthentication, rankName);
-	}
-	
-	@Test
-	public void testBuyRankWithoutEnoughInfluence() {
-
-		when(mockInfluenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(mockCorporateer,
-				mockObjectService.getDefaultDivision(), mockObjectService.getInfluenceTypeById(1L)))
-						.thenReturn(mockInfluence);
-		
-		Rank mockCurrentRank = mock(Rank.class);
-		
-		when(mockCorporateer.getRank()).thenReturn(mockCurrentRank);
-		when(mockCurrentRank.getRankLevel()).thenReturn(1);
-		when(mockRank.getRankLevel()).thenReturn(2);
-		
-		when(mockInfluence.getAmount()).thenReturn(10);
-		when(mockRank.getInfluenceToBuy()).thenReturn(100);
-
-		exception.expect(IllegalBuyRequestException.class);
-		
-		corporateerHandlingService.buyRank(mockAuthentication, rankName);
-	}
-	
-	@Test
-	public void testBuyRank() {
-
-		when(mockInfluenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(mockCorporateer,
-				mockObjectService.getDefaultDivision(), mockObjectService.getInfluenceTypeById(1L)))
-						.thenReturn(mockInfluence);
-		
-		Rank mockCurrentRank = mock(Rank.class);
-		
-		when(mockCorporateer.getRank()).thenReturn(mockCurrentRank);
-		when(mockCurrentRank.getRankLevel()).thenReturn(1);
-		when(mockRank.getRankLevel()).thenReturn(2);
-		
-		when(mockInfluence.getAmount()).thenReturn(100);
-		when(mockRank.getInfluenceToBuy()).thenReturn(100);
-		
-		corporateerHandlingService.buyRank(mockAuthentication, rankName);
-		
-		verify(mockCorporateer).setRank(mockRank);
-		verify(mockInfluence).setAmount(0);
 		verify(mockCorporateerRepository).save(mockCorporateer);
 	}
 
