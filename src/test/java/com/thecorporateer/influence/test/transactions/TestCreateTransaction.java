@@ -207,9 +207,9 @@ public class TestCreateTransaction {
 		assertEquals("Wrong receiver saved in transaction!", mockReceiver, transactionCaptor.getValue().getReceiver());
 		assertEquals("Wrong division saved in transaction!", mockDivision, transactionCaptor.getValue().getDivision());
 
-		// verify receiver and sender get saved
-		verify(mockCorporateerHandlingService).updateCorporateer(mockReceiver);
-		verify(mockCorporateerHandlingService).updateCorporateer(mockSender);
+		// verify receiver and sender rank get looked at
+		verify(mockCorporateerHandlingService).increaseRank(mockReceiver);
+		verify(mockCorporateerHandlingService).increaseRank(mockSender);
 	}
 
 	/**
@@ -265,9 +265,9 @@ public class TestCreateTransaction {
 		assertEquals("Wrong division saved in transaction!", mockDepartmentDefaultDivision,
 				transactionCaptor.getValue().getDivision());
 
-		// verify receiver and sender get saved
-		verify(mockCorporateerHandlingService).updateCorporateer(mockReceiver);
-		verify(mockCorporateerHandlingService).updateCorporateer(mockSender);
+		// verify receiver and sender rank get looked at
+		verify(mockCorporateerHandlingService).increaseRank(mockReceiver);
+		verify(mockCorporateerHandlingService).increaseRank(mockSender);
 	}
 
 	/**
@@ -324,9 +324,9 @@ public class TestCreateTransaction {
 		assertEquals("Wrong division saved in transaction!", mockNoDivision,
 				transactionCaptor.getValue().getDivision());
 
-		// verify receiver and sender get saved
-		verify(mockCorporateerHandlingService).updateCorporateer(mockReceiver);
-		verify(mockCorporateerHandlingService).updateCorporateer(mockSender);
+		// verify receiver and sender rank get looked at
+		verify(mockCorporateerHandlingService).increaseRank(mockReceiver);
+		verify(mockCorporateerHandlingService).increaseRank(mockSender);
 	}
 
 	/**

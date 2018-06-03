@@ -26,17 +26,22 @@ public class ActionLogService {
 	private UserHandlingService userHandlingService;
 
 	public void logAction(Authentication authentication, String action) {
-		
+
 		ActionLog log = new ActionLog();
 		log.setTimestamp(Instant.now().truncatedTo(ChronoUnit.SECONDS).toString());
-		log.setUser(userHandlingService.getUserByName(authentication.getName()));
+		if (null != authentication) {
+			log.setUser(userHandlingService.getUserByName(authentication.getName()));
+		}
+		else {
+			log.setUser(null);
+		}
 		log.setAction(action);
 
 		actionLogRepository.save(log);
 	}
 
 	public List<ActionLog> getAllLogs() {
-		
+
 		return actionLogRepository.findAll();
 	}
 
