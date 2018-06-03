@@ -134,20 +134,6 @@ public class UserController {
 	}
 
 	@CrossOrigin(origins = "*")
-	@RequestMapping(method = RequestMethod.POST, value = "/buyRank", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> buyRank(@RequestBody ObjectNode request) throws JSONException {
-
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-		String rankname = request.get("name").asText();
-
-		corporateerHandlingService.buyRank(authentication, rankname);
-		actionLogService.logAction(authentication, "Bought rank " + rankname);
-
-		return ResponseEntity.ok().body("{\"message\":\"Rank successfully bought\"}");
-	}
-
-	@CrossOrigin(origins = "*")
 	@RequestMapping(method = RequestMethod.POST, value = "/setMembership", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> addRemoveMember(@RequestBody ObjectNode request) throws JSONException {
 

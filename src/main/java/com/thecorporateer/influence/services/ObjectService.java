@@ -154,7 +154,8 @@ public class ObjectService {
 
 	public Rank getHighestRank() {
 
-		Rank rank = rankRepository.findByRankLevel(rankRepository.findAll().size());
+		//TODO: Change and make it work
+		Rank rank = rankRepository.findByRankLevel(6);
 
 		if (rank == null) {
 			throw new RepositoryNotFoundException("Rank not found.");

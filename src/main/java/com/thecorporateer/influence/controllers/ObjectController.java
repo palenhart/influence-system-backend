@@ -101,7 +101,11 @@ public class ObjectController {
 		List<LogResponse> response = new ArrayList<LogResponse>();
 
 		for (ActionLog log : actionLogService.getAllLogs()) {
-			response.add(new LogResponse(log.getTimestamp(), log.getUser().getUsername(), log.getAction()));
+			if (null != log.getUser()) {
+				response.add(new LogResponse(log.getTimestamp(), log.getUser().getUsername(), log.getAction()));
+			} else {
+				response.add(new LogResponse(log.getTimestamp(), "System", log.getAction()));
+			}
 		}
 
 		return ResponseEntity.ok().body(response);
@@ -117,7 +121,7 @@ public class ObjectController {
 		influencehandlingService.convertInfluence(authentication, conversionRequest.getDivision(),
 				conversionRequest.getDepartment(), conversionRequest.getAmount(), request.get("toGeneral").asBoolean());
 		actionLogService.logAction(authentication, "Influence conversion");
-		
+
 		return ResponseEntity.ok().body("{\"message\":\"Conversion successful\"}");
 	}
 

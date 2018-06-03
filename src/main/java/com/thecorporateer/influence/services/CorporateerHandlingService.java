@@ -259,7 +259,7 @@ public class CorporateerHandlingService {
 		if (corporateer.getRank().getRankLevel() >= objectService.getHighestRank().getRankLevel()) {
 			return false;
 		}
-		
+
 		// get next higher rank
 		Rank nextRank = objectService.getRankByLevel(corporateer.getRank().getRankLevel() + 1);
 
@@ -268,10 +268,12 @@ public class CorporateerHandlingService {
 			return false;
 		}
 
-		// set new rank		
+		// set new rank
 		corporateer.setRank(nextRank);
 		updateCorporateer(corporateer);
-		
+
+		actionLogService.logAction(null, "Set rank of " + corporateer.getName() + " to " + nextRank.getName() + ".");
+
 		return true;
 	}
 
