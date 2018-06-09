@@ -112,7 +112,7 @@ public class BotController {
 				"Created user " + request.getName());
 
 		return ResponseEntity.ok().body(
-				"{\"message\":\"User successfully created. Login can be found at https://www.influence-system.tk\",\"username\":\""
+				"{\"message\":\"User successfully created. Login can be found at https://influence.thecorporateer.com\",\"username\":\""
 						+ request.getName() + "\",\"password\":\"" + password + "\"}");
 	}
 
