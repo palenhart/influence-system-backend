@@ -153,7 +153,7 @@ public class CorporateerHandlingService {
 			corporateersToSave.add(corporateer);
 		}
 
-		corporateerRepository.save(corporateersToSave);
+		corporateerRepository.saveAll(corporateersToSave);
 	}
 
 	public int getTotalInfluence(Corporateer corporateer) {

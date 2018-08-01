@@ -54,7 +54,7 @@ public class InfluenceHandlingService {
 
 	public List<Influence> updateInfluences(List<Influence> influences) {
 
-		return influenceRepository.save(influences);
+		return influenceRepository.saveAll(influences);
 	}
 
 	public void convertInfluence(Authentication authentication, String divisionName, String departmentName, int amount,

@@ -187,7 +187,7 @@ public class TestCorporateerService {
 
 		corporateerHandlingService.distributeTributes();
 
-		verify(mockCorporateerRepository).save(corporateerListCaptor.capture());
+		verify(mockCorporateerRepository).saveAll(corporateerListCaptor.capture());
 
 		assertEquals("Wrong Corporateer saved", corporateer, corporateerListCaptor.getValue().get(0));
 		assertEquals("Wrong amount of tributes saved", 15, corporateerListCaptor.getValue().get(0).getTributes());

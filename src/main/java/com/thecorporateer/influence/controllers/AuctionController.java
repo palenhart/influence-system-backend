@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.thecorporateer.influence.exceptions.RepositoryNotFoundException;
 import com.thecorporateer.influence.objects.Auction;
 import com.thecorporateer.influence.objects.Influence;
 import com.thecorporateer.influence.repositories.AuctionRepository;
@@ -122,7 +123,8 @@ public class AuctionController {
 	public ResponseEntity<?> resolveAuction(@RequestBody Long id) {
 
 		// DEBUG Logging
-		Auction auction = auctionRepository.findOne(id);
+		Auction auction = auctionRepository.findById(id)
+				.orElseThrow(() -> new RepositoryNotFoundException("Auction not found."));
 		Influence winningBidderInfluence = influenceHandlingService.getInfluenceByCorporateerAndDivisionAndType(
 				auction.getHighestBidder(), auction.getUsableInfluenceDivision(),
 				objectService.getInfluenceTypeByName("INFLUENCE"));
