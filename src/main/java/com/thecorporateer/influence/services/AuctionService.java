@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.thecorporateer.influence.exceptions.IllegalBidException;
+import com.thecorporateer.influence.exceptions.RepositoryNotFoundException;
 import com.thecorporateer.influence.objects.Auction;
 import com.thecorporateer.influence.objects.Corporateer;
 import com.thecorporateer.influence.objects.Division;
@@ -114,7 +115,8 @@ public class AuctionService {
 
 	public boolean bidOnAuction(Long id, Authentication authentication, Long bid) {
 
-		Auction auction = auctionRepository.findOne(id);
+		Auction auction = auctionRepository.findById(id)
+				.orElseThrow(() -> new RepositoryNotFoundException("Auction not found."));
 
 		Corporateer bidder = userHandlingService.getUserByName(authentication.getName()).getCorporateer();
 
@@ -203,7 +205,8 @@ public class AuctionService {
 
 	public void resolveAuction(Long id) {
 
-		Auction auction = auctionRepository.findOne(id);
+		Auction auction = auctionRepository.findById(id)
+				.orElseThrow(() -> new RepositoryNotFoundException("Auction not found."));
 
 		// get influence to refund
 		Long excessInfluence = auction.getHighestBid() - auction.getCurrentBid();

@@ -60,13 +60,9 @@ public class ObjectService {
 
 	public Division getDefaultDivision() {
 
-		Division division = divisionRepository.findOne(1L);
+		return divisionRepository.findById(1L)
+				.orElseThrow(() -> new RepositoryNotFoundException("Division not found."));
 
-		if (division == null) {
-			throw new RepositoryNotFoundException("Division not found.");
-		}
-
-		return division;
 	}
 
 	public List<Division> getAllDivisions() {
@@ -118,7 +114,7 @@ public class ObjectService {
 
 		return rank;
 	}
-	
+
 	public Rank getRankByLevel(int level) {
 
 		Rank rank = rankRepository.findByRankLevel(level);
@@ -154,7 +150,7 @@ public class ObjectService {
 
 	public Rank getHighestRank() {
 
-		//TODO: Change and make it work
+		// TODO: Change and make it work
 		Rank rank = rankRepository.findByRankLevel(6);
 
 		if (rank == null) {
@@ -166,13 +162,9 @@ public class ObjectService {
 
 	public InfluenceType getInfluenceTypeById(Long id) {
 
-		InfluenceType influenceType = influenceTypeRepository.findOne(id);
+		return influenceTypeRepository.findById(id)
+				.orElseThrow(() -> new RepositoryNotFoundException("Influence type not found."));
 
-		if (influenceType == null) {
-			throw new RepositoryNotFoundException("Influence type not found.");
-		}
-
-		return influenceType;
 	}
 
 	public InfluenceType getInfluenceTypeByName(String name) {

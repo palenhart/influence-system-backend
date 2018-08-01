@@ -264,7 +264,7 @@ public class TestInfluenceHandling {
 		mockInfluences.add(mock(Influence.class));
 		mockInfluences.add(mock(Influence.class));
 
-		when(mockInfluenceRepository.save(mockInfluences)).thenReturn(mockInfluences);
+		when(mockInfluenceRepository.saveAll(mockInfluences)).thenReturn(mockInfluences);
 
 		assertEquals("Wrong influences saved!", mockInfluences,
 				influenceHandlingService.updateInfluences(mockInfluences));
