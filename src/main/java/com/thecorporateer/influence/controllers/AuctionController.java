@@ -45,14 +45,13 @@ public class AuctionController {
 
 	@CrossOrigin(origins = "*")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@RequestMapping(value = "/createAuction", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/createAuction", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> createAuction(@RequestBody AuctionRequest auction) {
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		auctionService.createAuction(auction.getBeginningTimestamp(), auction.getEndingTimestamp(), auction.getTitle(),
-				auction.getDescription(), authentication, objectService.getDivisionByNameAndDepartment(
-						auction.getDivision(), objectService.getDepartmentByName(auction.getDepartment())));
+				auction.getDescription(), authentication, auction.getDivision(), auction.getDepartment());
 
 		actionLogService.logAction(authentication, "Auction created");
 
@@ -157,7 +156,6 @@ class AuctionRequest {
 	private String endingTimestamp;
 	private String title;
 	private String description;
-	private String highestBidder;
 	private String department;
 	private String division;
 
