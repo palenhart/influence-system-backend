@@ -43,12 +43,13 @@ public class BotController {
 	@RequestMapping(method = RequestMethod.POST, value = "/bottransfer", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> createTransaction(@RequestBody BotTransactionRequest request) {
 
-		transactionService.botTransfer(request.getSender(), request.getReceiver(), request.getAmount(),
-				request.getType().toUpperCase());
+		Long tributesLeft = transactionService.botTransfer(request.getSender(), request.getReceiver(),
+				request.getAmount(), request.getType().toUpperCase());
 		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(),
 				"Influence transfer by bot from " + request.getSender() + " to " + request.getReceiver());
 
-		return ResponseEntity.ok().body("{\"message\":\"Transaction successful\"}");
+		return ResponseEntity.ok()
+				.body("{\"message\":\"Transaction successful. You have " + tributesLeft + " tributes left.\"}");
 	}
 
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
