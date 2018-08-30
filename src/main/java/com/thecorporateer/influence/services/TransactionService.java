@@ -146,10 +146,12 @@ public class TransactionService {
 		}
 	}
 
-	public void botTransfer(String senderName, String receiverName, Integer amount, String influenceTypeName) {
+	public long botTransfer(String senderName, String receiverName, Integer amount, String influenceTypeName) {
 		Corporateer sender = corporateerHandlingService.getCorporateerByName(senderName);
 
 		transfer(sender, receiverName, "Transaction handled by bot.", amount, influenceTypeName);
+		
+		return sender.getTributes();
 
 	}
 

@@ -97,6 +97,7 @@ public class AuctionService {
 		auction.setEndingTimestamp(endingTimestamp);
 		auction.setTitle(title);
 		auction.setDescription(description);
+		auction.setHighestBidder(corporateerHandlingService.getCorporateerByName("Tag-Bot"));
 		auction.setCreator(userHandlingService.getUserByName(creator.getName()).getCorporateer());
 		auction.setUsableInfluenceDivision(usableInfluenceDivision);
 		auction.setMinBid(minBid);
@@ -108,8 +109,9 @@ public class AuctionService {
 	}
 
 	public void createAuction(String beginningTimestamp, String endingTimestamp, String title, String description,
-			Authentication creator, Division usableInfluenceDivision) {
-		createAuction(beginningTimestamp, endingTimestamp, title, description, creator, usableInfluenceDivision, 1L,
+			Authentication creator, String division, String department) {
+		createAuction(beginningTimestamp, endingTimestamp, title, description, creator, objectService.getDivisionByNameAndDepartment(
+				division, objectService.getDepartmentByName(department)), 1L,
 				1L);
 	}
 
