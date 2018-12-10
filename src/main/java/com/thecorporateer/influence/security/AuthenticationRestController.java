@@ -3,7 +3,6 @@ package com.thecorporateer.influence.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mobile.device.Device;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,41 +20,39 @@ import com.thecorporateer.influence.services.ActionLogService;
 @RestController
 public class AuthenticationRestController {
 
-    @Value("Authorization")
-    private String tokenHeader;
+	@Value("Authorization")
+	private String tokenHeader;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+	@Autowired
+	private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
+	@Autowired
+	private JwtTokenUtil jwtTokenUtil;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+	@Autowired
+	private UserDetailsService userDetailsService;
 
 	@Autowired
 	private ActionLogService actionLogService;
 
-    @RequestMapping(value = "/auth", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest, Device device) throws AuthenticationException {
+	@RequestMapping(value = "/auth", method = RequestMethod.POST)
+	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest)
+			throws AuthenticationException {
 
-        // Perform the security
-        final Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authenticationRequest.getUsername(),
-                        authenticationRequest.getPassword()
-                )
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+		// Perform the security
+		final Authentication authentication = authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(),
+						authenticationRequest.getPassword()));
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // Reload password post-security so we can generate token
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        final String token = jwtTokenUtil.generateToken(userDetails, device);
+		// Reload password post-security so we can generate token
+		final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+		final String token = jwtTokenUtil.generateToken(userDetails);
 
-        // Return the token
-        actionLogService.logAction(authentication, "Login");
-        return ResponseEntity.ok(new JwtAuthenticationResponse(token));
-    }
+		// Return the token
+		actionLogService.logAction(authentication, "Login");
+		return ResponseEntity.ok(new JwtAuthenticationResponse(token));
+	}
 
 //    @RequestMapping(value = "/refresh", method = RequestMethod.GET)
 //    public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request) {

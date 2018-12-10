@@ -11,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -36,8 +37,7 @@ import lombok.Setter;
 @Entity
 public class Corporateer extends JpaEntity {
 
-	@NotNull
-	@NotBlank
+	@NotEmpty
 	@JsonView(Views.Public.class)
 	private String name;
 	@OneToOne(mappedBy = "corporateer")
