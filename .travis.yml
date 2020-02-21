@@ -1,0 +1,4 @@
+language: java
+sudo: false # faster builds
+
+script: "mvn test -Dtest=com.thecorporateer.influence.test.all.AllTests -B"
