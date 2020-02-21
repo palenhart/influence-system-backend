@@ -59,7 +59,6 @@ public class AuctionController {
 	}
 
 	@CrossOrigin(origins = "*")
-	// @PreAuthorize("hasRole('ROLE_ADMIN')")
 	@RequestMapping(value = "/auctions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> getCurrentAuctions() {
 

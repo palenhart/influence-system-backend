@@ -49,8 +49,6 @@ public class UserHandlingService {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	// @Autowired
-	// private PasswordGenerator passwordGenerator;
 
 	@Autowired
 	private CorporateerHandlingService corporateerHandlingService;
@@ -138,7 +136,6 @@ public class UserHandlingService {
 		user.setEnabled(true);
 		user.setDiscord_id(discord_id);
 		user.setPassword(passwordEncoder.encode(password));
-		// user.setLastPasswordResetDate(Date.from(Instant.now().truncatedTo(ChronoUnit.SECONDS)));
 
 		corporateerHandlingService.createCorporateerWithDivisions(corporateerName, mainDivision, divisionNames);
 

@@ -39,7 +39,6 @@ public class CorporateerHandlingService {
 	@Autowired
 	private AccessHandlingService accessHandlingService;
 
-	// private List<Rank> ranks = new ArrayList<>();
 	private List<InfluenceType> types = new ArrayList<>();
 	private List<Division> divisions = new ArrayList<>();
 	private List<Corporateer> corporateers = new ArrayList<>();

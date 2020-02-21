@@ -24,12 +24,6 @@ public class ScheduledTasks {
 
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-	// TODO implement scheduled function calls like tribute distribution
-	@Scheduled(fixedRate = 60000)
-	public void reportCurrentTime() {
-		log.info("The time is now {}", dateFormat.format(new Date()));
-	}
-
 	@Scheduled(cron = "0 0 0 * * SAT")
 	public void distributeTributes() {
 		corporateerHandlingService.distributeTributes();

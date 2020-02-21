@@ -43,21 +43,6 @@ public class AdminController {
 
 		return ResponseEntity.ok().body("{\"message\":\"Tribute distribution successful\"}");
 	}
-
-//	@CrossOrigin(origins = "*")
-//	@PreAuthorize("hasRole('ROLE_ADMIN')")
-//	@RequestMapping(method = RequestMethod.POST, value = "/users", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-//	public ResponseEntity<?> createUser(@RequestBody ObjectNode request) {
-//
-//		String username = request.get("name").asText();
-//
-//		String password = userHandlingService.createUser(username, objectService.getDefaultDivision(),
-//				new ArrayList<String>());
-//		actionLogService.logAction(SecurityContextHolder.getContext().getAuthentication(), "Created user " + username);
-//
-//		return ResponseEntity.ok().body("{\"message\":\"User successfully created\",\"username\":\"" + username
-//				+ "\",\"password\":\"" + password + "\"}");
-//	}
 	
 	@CrossOrigin(origins = "*")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")

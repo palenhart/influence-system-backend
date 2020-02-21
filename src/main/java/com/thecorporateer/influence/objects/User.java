@@ -52,10 +52,6 @@ public class User extends JpaEntity {
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String discord_id;
 
-//	@Temporal(TemporalType.TIMESTAMP)
-//	@NotNull
-//	private Date lastPasswordResetDate;
-
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "USER_AUTHORITY", joinColumns = {
 			@JoinColumn(name = "USER_ID", referencedColumnName = "ID") }, inverseJoinColumns = {

@@ -85,11 +85,6 @@ public class JwtTokenUtil implements Serializable {
 		return (lastPasswordReset != null && created.before(lastPasswordReset));
 	}
 
-//	private Boolean ignoreTokenExpiration(String token) {
-//		String audience = getAudienceFromToken(token);
-//		return (AUDIENCE_TABLET.equals(audience) || AUDIENCE_MOBILE.equals(audience));
-//	}
-
 	public String generateToken(UserDetails userDetails) {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(CLAIM_KEY_USERNAME, userDetails.getUsername());
@@ -122,10 +117,6 @@ public class JwtTokenUtil implements Serializable {
 	public Boolean validateToken(String token, UserDetails userDetails) {
 		JwtUser user = (JwtUser) userDetails;
 		final String username = getUsernameFromToken(token);
-		// final Date created = getCreatedDateFromToken(token);
-		// final Date expiration = getExpirationDateFromToken(token);
 		return (username.equals(user.getUsername()) && !isTokenExpired(token));
-		// && !isCreatedBeforeLastPasswordReset(created,
-		// user.getLastPasswordResetDate()));
 	}
 }

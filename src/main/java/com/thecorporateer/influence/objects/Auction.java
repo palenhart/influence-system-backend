@@ -25,8 +25,6 @@ import lombok.Setter;
 @Entity
 public class Auction extends JpaEntity {
 
-	/// Bild/
-
 	@NotNull
 	@NotBlank
 	private String beginningTimestamp;

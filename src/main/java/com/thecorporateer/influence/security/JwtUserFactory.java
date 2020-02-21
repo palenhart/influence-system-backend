@@ -22,7 +22,6 @@ public final class JwtUserFactory {
                 user.getPassword(),
                 mapToGrantedRoles(user.getRoles()),
                 user.getEnabled()
-//              user.getLastPasswordResetDate()
         );
     }
 
