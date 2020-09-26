@@ -148,7 +148,7 @@ public class CorporateerHandlingService {
 		for (Corporateer corporateer : corporateers) {
 			int currentTributes = corporateer.getTributes();
 			int tributesToAdd = corporateer.getRank().getTributesPerWeek();
-			corporateer.setTributes((int) Math.floor(Math.min(1.5 * tributesToAdd, currentTributes + tributesToAdd)));
+			corporateer.setTributes((int) Math.floor(Math.min(2.0 * tributesToAdd, currentTributes + tributesToAdd)));
 			corporateersToSave.add(corporateer);
 		}
 
